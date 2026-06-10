@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= pageTitle %></title>
   <link rel="stylesheet" href="/site.css">
+  <link rel="icon" type="image/png" href="https://baldursgate3.game/favicon-32x32.png">
 </head>
 <body>
   <main>
@@ -52,6 +53,19 @@
       <div id="download-progress" hidden>
         <button id="toggle-mod-list" class="toggle-button" type="button" hidden>▼ Hide Downloads</button>
         <ul id="mod-download-list" class="mod-list"></ul>
+      </div>
+    </div>
+    </div>
+
+      <div class="checklist-item" id="download-rpghq-item">
+    <span class="checkmark" aria-hidden="true">○</span>
+    <div>
+      <h2>Download rpghq.org mods</h2>
+      <p id="download-rpghq-status" class="status" aria-live="polite">Ready to download mods.</p>
+      <button id="start-download-rpghq" class="action-button" type="button">Start Download</button>
+      <div id="download-rpghq-progress" hidden>
+        <button id="toggle-rpghq-list" class="toggle-button" type="button" hidden>▼ Hide Downloads</button>
+        <ul id="rpghq-download-list" class="mod-list"></ul>
       </div>
     </div>
     </div>

@@ -19,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggleExtractListButton = document.getElementById('toggle-extract-list');
 	const extractPackagesItem = document.getElementById('extract-packages-item');
 	const extractPackagesCheckmark = extractPackagesItem ? extractPackagesItem.querySelector('.checkmark') : null;
+	const startDownloadRpghqButton = document.getElementById('start-download-rpghq');
+	const downloadRpghqStatus = document.getElementById('download-rpghq-status');
+	const downloadRpghqProgress = document.getElementById('download-rpghq-progress');
+	const rpghqDownloadList = document.getElementById('rpghq-download-list');
+	const toggleRpghqListButton = document.getElementById('toggle-rpghq-list');
+	const downloadRpghqItem = document.getElementById('download-rpghq-item');
+	const downloadRpghqCheckmark = downloadRpghqItem ? downloadRpghqItem.querySelector('.checkmark') : null;
 	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
 	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
@@ -192,6 +199,26 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function saveRpghqListCollapsedState(isCollapsed) {
+		localStorage.setItem('rpghqListCollapsed', JSON.stringify(isCollapsed));
+	}
+
+	function loadRpghqListCollapsedState() {
+		const saved = localStorage.getItem('rpghqListCollapsed');
+		return saved !== null ? JSON.parse(saved) : false;
+	}
+
+	function applyRpghqListCollapsedState() {
+		const isCollapsed = loadRpghqListCollapsedState();
+		if (isCollapsed) {
+			rpghqDownloadList.classList.add('collapsed');
+			toggleRpghqListButton.textContent = '▶ Show Downloads';
+		} else {
+			rpghqDownloadList.classList.remove('collapsed');
+			toggleRpghqListButton.textContent = '▼ Hide Downloads';
+		}
+	}
+
 	async function displayAlreadyDownloadedMods() {
 		try {
 			downloadProgress.hidden = false;
@@ -207,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			const modList = modListPayload.modioList.ModList;
-			const downloadedMods = modList.filter((mod) => mod.filename);
+			const downloadedMods = modList.filter((mod) => mod.filename && mod.source === 'mod.io');
 
 			if (downloadedMods.length === 0) {
 				downloadStatus.textContent = 'No previously downloaded mods found.';
@@ -375,17 +402,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const modList = modListPayload.modioList.ModList;
 
-			if (!Array.isArray(modList) || modList.length === 0) {
-				downloadStatus.textContent = 'No mods to download.';
+			// Filter to only mod.io mods
+			const mod_io_mods = modList.filter(mod => mod.source === 'mod.io');
+
+			if (!Array.isArray(mod_io_mods) || mod_io_mods.length === 0) {
+				downloadStatus.textContent = 'No mod.io mods to download.';
 				return;
 			}
 
-			downloadStatus.textContent = `Starting download of ${modList.length} mods...`;
+			downloadStatus.textContent = `Starting download of ${mod_io_mods.length} mods...`;
 
 			let successCount = 0;
 			let failureCount = 0;
 
-			for (const mod of modList) {
+			for (const mod of mod_io_mods) {
 				const modName = mod.ModName || 'Unknown Mod';
 				const listItem = document.createElement('li');
 				listItem.textContent = `${modName} - Downloading...`;
@@ -586,5 +616,26 @@ document.addEventListener('DOMContentLoaded', () => {
 			toggleExtractListButton.textContent = '▶ Show Extractions';
 		}
 		saveExtractListCollapsedState(!isCollapsed);
+	});
+
+	startDownloadRpghqButton.addEventListener('click', async () => {
+		startDownloadRpghqButton.disabled = true;
+		startDownloadRpghqButton.hidden = true;
+		downloadRpghqStatus.textContent = 'No rpghq.org mods available yet.';
+		downloadRpghqProgress.hidden = true;
+		rpghqDownloadList.innerHTML = '';
+		toggleRpghqListButton.hidden = true;
+	});
+
+	toggleRpghqListButton.addEventListener('click', () => {
+		const isCollapsed = rpghqDownloadList.classList.contains('collapsed');
+		if (isCollapsed) {
+			rpghqDownloadList.classList.remove('collapsed');
+			toggleRpghqListButton.textContent = '▼ Hide Downloads';
+		} else {
+			rpghqDownloadList.classList.add('collapsed');
+			toggleRpghqListButton.textContent = '▶ Show Downloads';
+		}
+		saveRpghqListCollapsedState(!isCollapsed);
 	});
 });
