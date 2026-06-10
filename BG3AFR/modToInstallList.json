@@ -691,13 +691,14 @@
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3961",
       "source": "rpghq.org",
-      "filename": "RealmsRestored_HumanCrowds80pc-v1.0.zip"
+      "filename": "RealmsRestored_Aesthetics-v4.2.zip"
     },
     {
       "ModName": "Realms Restored 4.2 - Human Crowds 80pc",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3989",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "RealmsRestored_HumanCrowds80pc-v1.0.zip"
     },
     {
       "ModName": "Realms Restored 4.2 - Heads",
@@ -710,31 +711,36 @@
       "ModName": "Realms Restored 4.2 - Name Changes",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3972",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "RealmsRestored_NameChanges-v3.0.zip"
     },
     {
       "ModName": "Realms Restored 4.2 - Unique Drow Heads",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3975",
+      "filename": "RealmsRestored_Drow-v2.2.zip",
       "source": "rpghq.org"
     },
     {
       "ModName": "Realms Restored 4.2 - Swaps",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3979",
+      "filename": "RealmsRestored_Swaps-v4.0.zip",
       "source": "rpghq.org"
     },
     {
       "ModName": "Realms Restored 4.2 - Voices",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3983",
+      "filename": "RealmsRestored_Voices-v3.0.zip",
       "source": "rpghq.org"
     },
     {
       "ModName": "Better Companions - Astaria - Visuals",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/yW7NowE3qBrD.zip?n=%5BVisuals%5D%20Astaria.zip",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "[Visuals] Astaria.zip"
     },
     {
       "ModName": "Better Companions - Astaria - Voice Conversion (Dialogue)",
@@ -747,19 +753,22 @@
       "ModName": "Better Companions - Astaria - Voice Conversion (Point and Click)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/ljCb3wgWFfXN.zip?n=PCAstaria.zip",
+      "filename": "PCAstaria.zip",
       "source": "rpghq.org"
     },
     {
       "ModName": "Better Companions - Astaria - Localization",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/Dob5krX1rXyK.zip?n=LocaAstaria.zip",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "LocaAstaria.zip"
     },
     {
       "ModName": "Better Companions - Gaile - Visuals",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/AoNUGn6xNomY.zip?n=%5BVisuals%5D%20Gaile.zip",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "[Visuals] Gaile.zip"
     },
     {
       "ModName": "Better Companions - Gaile -  Voice Conversion (Dialogue)",
@@ -772,19 +781,22 @@
       "ModName": "Better Companions - Gaile -  Voice Conversion (Point and Click)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/wc8CUeuvLkss.zip?n=PCGaile.zip",
+      "filename": "PCGaile.zip",
       "source": "rpghq.org"
     },
     {
       "ModName": "Better Companions - Gaile - Localization",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/q9eOjJkfeIiD.zip?n=LocaGaile.zip",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "LocaGaile.zip"
     },
     {
       "ModName": "Better Companions - Wilhelmine - Visuals",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/op5P9gyjvYzs.zip?n=%5BVisuals%5D_Wilhelmine.zip",
-      "source": "rpghq.org"
+      "source": "rpghq.org",
+      "filename": "[Visuals]_Wilhelmine.zip"
     }
   ]
 }

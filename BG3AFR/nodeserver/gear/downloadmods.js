@@ -133,14 +133,32 @@ function updateModioListFilename(modEntry, fileName) {
 			return;
 		}
 
-		const entry = parsed.ModList.find((e) => {
-			const eName = normalizeValue(e.ModName);
-			const ePage = normalizeValue(e.ModPage);
-			const modName = normalizeValue(modEntry.ModName);
-			const modPage = normalizeValue(modEntry.ModPage);
+		const modName = normalizeValue(modEntry.ModName);
+		const modPage = normalizeValue(modEntry.ModPage);
+		const modDlLink = normalizeValue(modEntry.DLLink);
 
-			return (modPage && ePage === modPage) || (modName && eName === modName);
-		});
+		let entry = null;
+
+		// Use DLLink first because it is typically unique even when ModPage is shared.
+		if (modDlLink) {
+			entry = parsed.ModList.find((e) => normalizeValue(e.DLLink) === modDlLink) || null;
+		}
+
+		// Then require both page and name when available.
+		if (!entry && modPage && modName) {
+			entry = parsed.ModList.find((e) => {
+				return normalizeValue(e.ModPage) === modPage && normalizeValue(e.ModName) === modName;
+			}) || null;
+		}
+
+		// Fallbacks for older/incomplete entries.
+		if (!entry && modName) {
+			entry = parsed.ModList.find((e) => normalizeValue(e.ModName) === modName) || null;
+		}
+
+		if (!entry && modPage) {
+			entry = parsed.ModList.find((e) => normalizeValue(e.ModPage) === modPage) || null;
+		}
 
 		// Always sync to the actual downloaded file name when it differs.
 		if (entry && entry.filename !== fileName) {
