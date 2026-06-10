@@ -1,5 +1,6 @@
 const express = require('express');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
+const { downloadModFromModioList } = require('../gear/downloadamodiomod');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
@@ -82,6 +83,36 @@ router.post('/api/find-or-create-bg3-mods-folder', (req, res) => {
 			success: true,
 			modsFolderPath,
 			message: "Found Baldur's Gate 3 Mods folder.",
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/download-mod', async (req, res) => {
+	try {
+		const modName = typeof req.body?.modName === 'string' ? req.body.modName.trim() : '';
+		const modPage = typeof req.body?.modPage === 'string' ? req.body.modPage.trim() : '';
+
+		if (!modName && !modPage) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide modName or modPage.',
+			});
+		}
+
+		const result = await downloadModFromModioList({
+			modName: modName || undefined,
+			modPage: modPage || undefined,
+		});
+
+		return res.json({
+			success: true,
+			result,
+			message: `Successfully downloaded ${result.modName}`,
 		});
 	} catch (error) {
 		return res.status(500).json({

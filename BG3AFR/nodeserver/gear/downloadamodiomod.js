@@ -165,27 +165,30 @@ async function performDownload(modEntry) {
 	await fs.promises.mkdir(downloadsDir, { recursive: true });
 
 	const requestUrl = modEntry.DLLink;
-	const urlPathName = new URL(requestUrl).pathname;
-	const fallbackName = `${sanitizeFileName(modEntry.ModName)}.zip`;
-	const urlName = sanitizeFileName(path.basename(urlPathName || ''));
+	const tempFileName = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+	const tempPath = path.join(downloadsDir, tempFileName);
 
-	let targetName = urlName && urlName.toLowerCase() !== 'download' ? urlName : fallbackName;
-	if (!path.extname(targetName)) {
-		targetName = `${targetName}.zip`;
-	}
-
-	let destinationPath = path.join(downloadsDir, targetName);
-	const headers = await downloadFile(requestUrl, destinationPath);
+	const headers = await downloadFile(requestUrl, tempPath);
 
 	const headerFileName = sanitizeFileName(
 		getFilenameFromContentDisposition(headers['content-disposition'])
 	);
 
-	if (headerFileName && headerFileName !== targetName) {
-		const finalPath = path.join(downloadsDir, headerFileName);
-		await fs.promises.rename(destinationPath, finalPath);
-		destinationPath = finalPath;
-		targetName = headerFileName;
+	let targetName = headerFileName;
+
+	if (!targetName) {
+		const fallbackName = `${sanitizeFileName(modEntry.ModName)}.zip`;
+		targetName = fallbackName;
+	}
+
+	if (!path.extname(targetName)) {
+		targetName = `${targetName}.zip`;
+	}
+
+	const destinationPath = path.join(downloadsDir, targetName);
+
+	if (tempPath !== destinationPath) {
+		await fs.promises.rename(tempPath, destinationPath);
 	}
 
 	return {

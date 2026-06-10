@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const manualInput = document.getElementById('manual-bg3-path');
 	const modsButton = document.getElementById('find-bg3-mods-folder');
 	const modsStatus = document.getElementById('find-bg3-mods-status');
+	const startDownloadButton = document.getElementById('start-download');
+	const downloadStatus = document.getElementById('download-mods-status');
+	const downloadProgress = document.getElementById('download-progress');
+	const modDownloadList = document.getElementById('mod-download-list');
 	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
 	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
@@ -183,6 +187,75 @@ document.addEventListener('DOMContentLoaded', () => {
 			modsStatus.textContent = error.message;
 		} finally {
 			modsButton.disabled = false;
+		}
+	});
+
+	startDownloadButton.addEventListener('click', async () => {
+		startDownloadButton.disabled = true;
+		downloadStatus.textContent = 'Loading mod list...';
+		downloadProgress.hidden = false;
+		modDownloadList.innerHTML = '';
+
+		try {
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+
+			if (!Array.isArray(modList) || modList.length === 0) {
+				downloadStatus.textContent = 'No mods to download.';
+				return;
+			}
+
+			downloadStatus.textContent = `Starting download of ${modList.length} mods...`;
+
+			let successCount = 0;
+			let failureCount = 0;
+
+			for (const mod of modList) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - Downloading...`;
+				listItem.id = `mod-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				modDownloadList.appendChild(listItem);
+
+				try {
+					const downloadResponse = await fetch('/api/download-mod', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							modName: mod.ModName,
+							modPage: mod.ModPage,
+						}),
+					});
+
+					const downloadPayload = await downloadResponse.json();
+
+					if (!downloadResponse.ok || !downloadPayload.success) {
+						throw new Error(downloadPayload.message || 'Download failed.');
+					}
+
+					listItem.textContent = `${modName} - ✓ Downloaded (${downloadPayload.result.fileName})`;
+					listItem.style.color = 'green';
+					successCount += 1;
+				} catch (error) {
+					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					listItem.style.color = 'red';
+					failureCount += 1;
+				}
+			}
+
+			downloadStatus.textContent = `Download complete. Success: ${successCount}, Failed: ${failureCount}.`;
+		} catch (error) {
+			downloadStatus.textContent = error.message;
+		} finally {
+			startDownloadButton.disabled = false;
 		}
 	});
 });
