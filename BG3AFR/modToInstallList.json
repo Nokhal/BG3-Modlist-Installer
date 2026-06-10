@@ -941,14 +941,16 @@
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/dz8CM7jvrkOq.zip?n=%5BVisuals%5D%20Minthara.zip",
       "source": "rpghq.org",
-      "filename": "[Visuals] Minthara.zip"
+      "filename": "[Visuals] Minthara.zip",
+      "pakfile": "[Visuals] Minthara.pak"
     },
     {
       "ModName": "Better Companions - Jaheira - Visuals",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/DAB5tjYLigt0.zip?n=%5BVisuals%5D%20Jaheira.zip",
       "source": "rpghq.org",
-      "filename": "[Visuals] Jaheira.zip"
+      "filename": "[Visuals] Jaheira.zip",
+      "pakfile": "[Visuals] Jaheira.pak"
     }
   ]
 }
