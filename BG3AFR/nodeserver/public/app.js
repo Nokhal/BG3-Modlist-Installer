@@ -91,10 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse, modioDownloadResponse] = await Promise.all([
+			const [bg3Response, modsResponse, modioDownloadResponse, modsExtractedResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modiodownload', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/modsextracted', { method: 'GET', cache: 'no-store' }),
 			]);
 
 			if (bg3Response.ok) {
@@ -122,6 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
 						downloadModsItem.classList.add('checklist-item--checked');
 					}
 					downloadStatus.textContent = 'Mods downloaded previously.';
+					startDownloadButton.hidden = true;
+					startDownloadButton.disabled = true;
+					await displayAlreadyDownloadedMods();
+				}
+			}
+
+			if (modsExtractedResponse.ok) {
+				const extractedPayload = await modsExtractedResponse.json();
+				if (extractedPayload.success && extractedPayload.value === true) {
+					if (extractPackagesCheckmark && extractPackagesItem) {
+						extractPackagesCheckmark.textContent = '✓';
+						extractPackagesItem.classList.add('checklist-item--checked');
+					}
+					extractStatus.textContent = 'Mods extracted previously.';
+					startExtractButton.hidden = true;
+					startExtractButton.disabled = true;
+					await displayAlreadyExtractedMods();
 				}
 			}
 		} catch {
@@ -129,7 +147,134 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	hydrateChecklistFromSettings();
+	hydrateChecklistFromSettings().then(() => {
+		refreshChecklistProgress();
+	});
+
+	// localStorage helpers for persisting collapse state
+	function saveDownloadListCollapsedState(isCollapsed) {
+		localStorage.setItem('downloadListCollapsed', JSON.stringify(isCollapsed));
+	}
+
+	function loadDownloadListCollapsedState() {
+		const saved = localStorage.getItem('downloadListCollapsed');
+		return saved !== null ? JSON.parse(saved) : false;
+	}
+
+	function saveExtractListCollapsedState(isCollapsed) {
+		localStorage.setItem('extractListCollapsed', JSON.stringify(isCollapsed));
+	}
+
+	function loadExtractListCollapsedState() {
+		const saved = localStorage.getItem('extractListCollapsed');
+		return saved !== null ? JSON.parse(saved) : false;
+	}
+
+	function applyDownloadListCollapsedState() {
+		const isCollapsed = loadDownloadListCollapsedState();
+		if (isCollapsed) {
+			modDownloadList.classList.add('collapsed');
+			toggleModListButton.textContent = '▶ Show Downloads';
+		} else {
+			modDownloadList.classList.remove('collapsed');
+			toggleModListButton.textContent = '▼ Hide Downloads';
+		}
+	}
+
+	function applyExtractListCollapsedState() {
+		const isCollapsed = loadExtractListCollapsedState();
+		if (isCollapsed) {
+			extractList.classList.add('collapsed');
+			toggleExtractListButton.textContent = '▶ Show Extractions';
+		} else {
+			extractList.classList.remove('collapsed');
+			toggleExtractListButton.textContent = '▼ Hide Extractions';
+		}
+	}
+
+	async function displayAlreadyDownloadedMods() {
+		try {
+			downloadProgress.hidden = false;
+			modDownloadList.innerHTML = '';
+			downloadStatus.textContent = 'Loading previously downloaded mods...';
+			toggleModListButton.hidden = true;
+
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+			const downloadedMods = modList.filter((mod) => mod.filename);
+
+			if (downloadedMods.length === 0) {
+				downloadStatus.textContent = 'No previously downloaded mods found.';
+				return;
+			}
+
+			downloadStatus.textContent = `Showing ${downloadedMods.length} previously downloaded mods...`;
+
+			for (const mod of downloadedMods) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const filename = mod.filename || 'Unknown';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - ⬇ Already downloaded (${filename})`;
+				listItem.id = `mod-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				listItem.style.color = 'green';
+				modDownloadList.appendChild(listItem);
+			}
+
+			downloadStatus.textContent = `Showing ${downloadedMods.length} previously downloaded mods.`;
+			toggleModListButton.hidden = false;
+			applyDownloadListCollapsedState();
+		} catch (error) {
+			downloadStatus.textContent = `Error loading downloaded mods: ${error.message}`;
+		}
+	}
+
+	async function displayAlreadyExtractedMods() {
+		try {
+			extractProgress.hidden = false;
+			extractList.innerHTML = '';
+			extractStatus.textContent = 'Loading previously extracted mods...';
+			toggleExtractListButton.hidden = true;
+
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+			const extractedMods = modList.filter((mod) => mod.pakfile);
+
+			if (extractedMods.length === 0) {
+				extractStatus.textContent = 'No previously extracted mods found.';
+				return;
+			}
+
+			extractStatus.textContent = `Showing ${extractedMods.length} previously extracted mods...`;
+
+			for (const mod of extractedMods) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const pakfile = mod.pakfile || 'Unknown';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - ⬇ Already extracted (${pakfile})`;
+				listItem.id = `extract-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				listItem.style.color = 'green';
+				extractList.appendChild(listItem);
+			}
+
+			extractStatus.textContent = `Showing ${extractedMods.length} previously extracted mods.`;
+			toggleExtractListButton.hidden = false;
+			applyExtractListCollapsedState();
+		} catch (error) {
+			extractStatus.textContent = `Error loading extracted mods: ${error.message}`;
+		}
+	}
 
 	button.addEventListener('click', async () => {
 		button.disabled = true;
@@ -304,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		refreshChecklistProgress();
 			// Show the toggle button
 			toggleModListButton.hidden = false;
+			applyDownloadListCollapsedState();
 		} catch (error) {
 			downloadStatus.textContent = error.message;
 			startDownloadButton.hidden = false;
@@ -320,6 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			modDownloadList.classList.add('collapsed');
 			toggleModListButton.textContent = '▶ Show Downloads';
 		}
+		saveDownloadListCollapsedState(!isCollapsed);
 	});
 
 	startExtractButton.addEventListener('click', async () => {
@@ -400,12 +547,28 @@ document.addEventListener('DOMContentLoaded', () => {
 				extractPackagesCheckmark.textContent = '✓';
 				extractPackagesItem.classList.add('checklist-item--checked');
 			}
+		// Update settings to mark modsextracted as complete
+		try {
+			const settingsResponse = await fetch('/api/settings/modsextracted', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ value: true }),
+			});
 
+			if (!settingsResponse.ok) {
+				console.error('Failed to update modsextracted setting');
+			}
+		} catch (error) {
+			console.error('Error updating modsextracted setting:', error);
+		}
 			// Refresh checklist to hide completed step
 			refreshChecklistProgress();
 
 			// Show the toggle button
 			toggleExtractListButton.hidden = false;
+			applyExtractListCollapsedState();
 		} catch (error) {
 			extractStatus.textContent = error.message;
 			startExtractButton.hidden = false;
@@ -422,5 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			extractList.classList.add('collapsed');
 			toggleExtractListButton.textContent = '▶ Show Extractions';
 		}
+		saveExtractListCollapsedState(!isCollapsed);
 	});
 });
