@@ -97,10 +97,6 @@ function resolveModEntry(modNameOrPage) {
 		throw new Error(`Mod "${found.ModName}" does not have a DLLink.`);
 	}
 
-	if (found.source !== 'mod.io') {
-		throw new Error(`Mod "${found.ModName}" source is not 'mod.io' (current: ${found.source || 'undefined'}). Only mod.io mods are supported.`);
-	}
-
 	return found;
 }
 
