@@ -6,6 +6,7 @@ $nodeInstallRoot = Join-Path $toolsRoot "nodejs"
 $nodeExecutable = Join-Path $nodeInstallRoot "node.exe"
 $npmCommand = Join-Path $nodeInstallRoot "npm.cmd"
 $npmInstallRoot = Join-Path $nodeInstallRoot "node_modules\npm"
+$nodeServerRoot = Join-Path $PSScriptRoot "nodeserver"
 
 function Get-LatestWindowsX64NodeRelease {
 	$releaseIndex = Invoke-RestMethod -Uri "https://nodejs.org/dist/index.json"
@@ -106,6 +107,70 @@ function Install-NpmToTools {
 	Write-Host "npm was downloaded and installed to tools: $installedNpmVersion"
 }
 
+function Install-NodeServerDependencies {
+	if (-not (Test-Path $nodeServerRoot)) {
+		throw "The nodeserver folder was not found at $nodeServerRoot."
+	}
+
+	Write-Host "Running npm install in nodeserver..."
+	Push-Location $nodeServerRoot
+	try {
+		& $npmCommand install
+	} finally {
+		Pop-Location
+	}
+	Write-Host "npm install completed in nodeserver."
+}
+
+function Wait-ForTcpPort {
+	param(
+		[string]$HostName,
+		[int]$Port,
+		[int]$TimeoutSeconds = 30
+	)
+
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+
+	while ((Get-Date) -lt $deadline) {
+		try {
+			$client = New-Object System.Net.Sockets.TcpClient
+			$asyncResult = $client.BeginConnect($HostName, $Port, $null, $null)
+			if ($asyncResult.AsyncWaitHandle.WaitOne(500)) {
+				$client.EndConnect($asyncResult)
+				$client.Close()
+				return $true
+			}
+			$client.Close()
+		} catch {
+			if ($client) {
+				$client.Close()
+			}
+		}
+
+		[System.Threading.Thread]::Sleep(500)
+	}
+
+	return $false
+}
+
+function Start-NodeServerAndOpenHomepage {
+	$serverScript = Join-Path $nodeServerRoot "index.js"
+
+	if (-not (Test-Path $serverScript)) {
+		throw "The node server entrypoint was not found at $serverScript."
+	}
+
+	Write-Host "Launching the Node.js server on port 3001..."
+	Start-Process -FilePath $nodeExecutable -ArgumentList @($serverScript) -WorkingDirectory $nodeServerRoot | Out-Null
+
+	if (Wait-ForTcpPort -HostName "localhost" -Port 3001 -TimeoutSeconds 30) {
+		Write-Host "Opening the homepage in your browser..."
+		Start-Process "http://localhost:3001" | Out-Null
+	} else {
+		Write-Warning "The server did not become ready on port 3001 within 30 seconds."
+	}
+}
+
 if (-not (Test-Path $nodeExecutable)) {
 	Install-PortableNode
 	$env:Path = "$nodeInstallRoot;$env:Path"
@@ -123,3 +188,6 @@ if (-not (Test-Path $npmCommand)) {
 	$installedNpmVersion = & $npmCommand --version
 	Write-Host "npm is available in tools: $installedNpmVersion"
 }
+
+Install-NodeServerDependencies
+Start-NodeServerAndOpenHomepage
