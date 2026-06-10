@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const checkmark = checklistItem ? checklistItem.querySelector('.checkmark') : null;
 	const modsChecklistItem = document.getElementById('bg3-mods-folder-item');
 	const modsCheckmark = modsChecklistItem ? modsChecklistItem.querySelector('.checkmark') : null;
+	const AUTO_TRIGGER_DELAY_MS = 500;
 
 	function hideFindButton() {
 		button.hidden = true;
@@ -64,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				item.removeAttribute('aria-hidden');
 			}
 		});
+	}
+
+	function wait(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
 	function markChecklistItemAsDone() {
@@ -126,42 +131,27 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (modioDownloadResponse.ok) {
 				const modioPayload = await modioDownloadResponse.json();
 				if (modioPayload.success && modioPayload.value === true) {
-					if (downloadModsCheckmark && downloadModsItem) {
-						downloadModsCheckmark.textContent = '✓';
-						downloadModsItem.classList.add('checklist-item--checked');
-					}
-					downloadStatus.textContent = 'Mods downloaded previously.';
-					startDownloadButton.hidden = true;
-					startDownloadButton.disabled = true;
-					await displayAlreadyDownloadedMods();
+					// Run the same workflow as a manual click to keep behavior consistent.
+					await wait(AUTO_TRIGGER_DELAY_MS);
+					startDownloadButton.click();
 				}
 			}
 
 			if (rpghqDownloadResponse.ok) {
 				const rpghqPayload = await rpghqDownloadResponse.json();
 				if (rpghqPayload.success && rpghqPayload.value === true) {
-					if (downloadRpghqCheckmark && downloadRpghqItem) {
-						downloadRpghqCheckmark.textContent = '✓';
-						downloadRpghqItem.classList.add('checklist-item--checked');
-					}
-					downloadRpghqStatus.textContent = 'Mods downloaded previously.';
-					startDownloadRpghqButton.hidden = true;
-					startDownloadRpghqButton.disabled = true;
-					await displayAlreadyDownloadedRpghqMods();
+					// Run the same workflow as a manual click to keep behavior consistent.
+					await wait(AUTO_TRIGGER_DELAY_MS);
+					startDownloadRpghqButton.click();
 				}
 			}
 
 			if (modsExtractedResponse.ok) {
 				const extractedPayload = await modsExtractedResponse.json();
 				if (extractedPayload.success && extractedPayload.value === true) {
-					if (extractPackagesCheckmark && extractPackagesItem) {
-						extractPackagesCheckmark.textContent = '✓';
-						extractPackagesItem.classList.add('checklist-item--checked');
-					}
-					extractStatus.textContent = 'Mods extracted previously.';
-					startExtractButton.hidden = true;
-					startExtractButton.disabled = true;
-					await displayAlreadyExtractedMods();
+					// Run the same workflow as a manual click to keep behavior consistent.
+					await wait(AUTO_TRIGGER_DELAY_MS);
+					startExtractButton.click();
 				}
 			}
 		} catch {

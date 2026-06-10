@@ -104,7 +104,9 @@ function buildQueueKey(modEntry) {
 	return normalizeValue(modEntry.ModPage || modEntry.ModName);
 }
 
-function updateModioListFilename(modEntry, fileName) {
+function updateModioListFilename(modEntry, fileName, options = {}) {
+	const overwriteExisting = options.overwriteExisting === true;
+
 	try {
 		const raw = fs.readFileSync(modioListPath, 'utf8');
 		const parsed = JSON.parse(raw.replace(/^\uFEFF/, ''));
@@ -122,7 +124,7 @@ function updateModioListFilename(modEntry, fileName) {
 			return (modPage && ePage === modPage) || (modName && eName === modName);
 		});
 
-		if (entry && !entry.filename) {
+		if (entry && (!entry.filename || (overwriteExisting && entry.filename !== fileName))) {
 			entry.filename = fileName;
 			const updated = JSON.stringify(parsed, null, 2);
 			fs.writeFileSync(modioListPath, updated, 'utf8');
@@ -130,6 +132,31 @@ function updateModioListFilename(modEntry, fileName) {
 	} catch (error) {
 		console.error(`Failed to update modToInstallList.json with filename: ${error.message}`);
 	}
+}
+
+function findExistingDownloadByFilename(filename) {
+	if (typeof filename !== 'string' || !filename.trim()) {
+		return null;
+	}
+
+	const candidates = new Set();
+	const trimmed = filename.trim();
+	candidates.add(trimmed);
+
+	try {
+		candidates.add(decodeURIComponent(trimmed));
+	} catch {
+		// Ignore bad URI-encoding in stored filename.
+	}
+
+	for (const candidate of candidates) {
+		const existingPath = path.join(downloadsDir, candidate);
+		if (fs.existsSync(existingPath)) {
+			return { fileName: candidate, existingPath };
+		}
+	}
+
+	return null;
 }
 
 function downloadFile(url, destinationPath, redirectsLeft = maxRedirects) {
@@ -175,16 +202,19 @@ async function performDownload(modEntry) {
 
 	// Check if filename exists in modToInstallList.json and file already downloaded
 	if (modEntry.filename) {
-		const existingPath = path.join(downloadsDir, modEntry.filename);
-		if (fs.existsSync(existingPath)) {
+		const existingDownload = findExistingDownloadByFilename(modEntry.filename);
+		if (existingDownload) {
 			console.log(`[Download] Mod: ${modEntry.ModName}`);
-			console.log(`[Download] File already exists: ${modEntry.filename}`);
+			console.log(`[Download] File already exists: ${existingDownload.fileName}`);
+			if (existingDownload.fileName !== modEntry.filename) {
+				updateModioListFilename(modEntry, existingDownload.fileName, { overwriteExisting: true });
+			}
 			return {
 				modName: modEntry.ModName,
 				modPage: modEntry.ModPage,
 				downloadLink: modEntry.DLLink,
-				fileName: modEntry.filename,
-				savedTo: existingPath,
+				fileName: existingDownload.fileName,
+				savedTo: existingDownload.existingPath,
 				alreadyDownloaded: true,
 			};
 		}
