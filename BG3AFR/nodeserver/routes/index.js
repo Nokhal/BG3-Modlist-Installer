@@ -1,6 +1,6 @@
 const express = require('express');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
-const { downloadModFromModioList } = require('../gear/downloadamodiomod');
+const { downloadModFromModioList } = require('../gear/downloadmods');
 const { extractModArchive } = require('../gear/extractmods');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 

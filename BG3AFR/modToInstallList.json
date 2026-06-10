@@ -951,6 +951,12 @@
       "filename": "customdicesinpassiverolls_cecb-15zf.zip",
       "source": "mod.io",
       "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Aesthetics",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3961",
+      "source": "rpghq.org"
     }
   ]
 }
