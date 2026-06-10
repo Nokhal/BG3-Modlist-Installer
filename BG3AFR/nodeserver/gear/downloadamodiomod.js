@@ -4,7 +4,7 @@ const http = require('http');
 const https = require('https');
 const { pipeline } = require('stream/promises');
 
-const modioListPath = path.join(__dirname, '..', '..', 'modiolist.json');
+const modioListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
 const downloadsDir = path.join(__dirname, '..', '..', 'Downloads');
 const maxRedirects = 5;
 const downloadQueue = [];
@@ -13,14 +13,14 @@ let isProcessingQueue = false;
 
 function readModioList() {
 	if (!fs.existsSync(modioListPath)) {
-		throw new Error(`modiolist.json not found at ${modioListPath}`);
+		throw new Error(`modToInstallList.json not found at ${modioListPath}`);
 	}
 
 	const raw = fs.readFileSync(modioListPath, 'utf8');
 	const parsed = JSON.parse(raw.replace(/^\uFEFF/, ''));
 
 	if (!Array.isArray(parsed.ModList)) {
-		throw new Error('Invalid modiolist.json format: expected ModList array.');
+		throw new Error('Invalid modToInstallList.json format: expected ModList array.');
 	}
 
 	return parsed.ModList;
@@ -90,11 +90,15 @@ function resolveModEntry(modNameOrPage) {
 	});
 
 	if (!found) {
-		throw new Error('Mod not found in modiolist.json for the provided modName/modPage.');
+		throw new Error('Mod not found in modToInstallList.json for the provided modName/modPage.');
 	}
 
 	if (!found.DLLink) {
 		throw new Error(`Mod "${found.ModName}" does not have a DLLink.`);
+	}
+
+	if (found.source !== 'mod.io') {
+		throw new Error(`Mod "${found.ModName}" source is not 'mod.io' (current: ${found.source || 'undefined'}). Only mod.io mods are supported.`);
 	}
 
 	return found;
@@ -128,7 +132,7 @@ function updateModioListFilename(modEntry, fileName) {
 			fs.writeFileSync(modioListPath, updated, 'utf8');
 		}
 	} catch (error) {
-		console.error(`Failed to update modiolist.json with filename: ${error.message}`);
+		console.error(`Failed to update modToInstallList.json with filename: ${error.message}`);
 	}
 }
 
@@ -173,7 +177,7 @@ function downloadFile(url, destinationPath, redirectsLeft = maxRedirects) {
 async function performDownload(modEntry) {
 	await fs.promises.mkdir(downloadsDir, { recursive: true });
 
-	// Check if filename exists in modiolist.json and file already downloaded
+	// Check if filename exists in modToInstallList.json and file already downloaded
 	if (modEntry.filename) {
 		const existingPath = path.join(downloadsDir, modEntry.filename);
 		if (fs.existsSync(existingPath)) {

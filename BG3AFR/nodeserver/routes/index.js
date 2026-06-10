@@ -1,6 +1,7 @@
 const express = require('express');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
 const { downloadModFromModioList } = require('../gear/downloadamodiomod');
+const { extractModArchive } = require('../gear/extractmods');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
@@ -114,6 +115,32 @@ router.post('/api/download-mod', async (req, res) => {
 			success: true,
 			result,
 			message: `Successfully downloaded ${result.modName}`,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/extract-mod', async (req, res) => {
+	try {
+		const modArchiveFilename = typeof req.body?.modArchiveFilename === 'string' ? req.body.modArchiveFilename.trim() : '';
+
+		if (!modArchiveFilename) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide modArchiveFilename.',
+			});
+		}
+
+		const result = await extractModArchive(modArchiveFilename);
+
+		return res.json({
+			success: true,
+			result,
+			message: `Successfully extracted ${modArchiveFilename}`,
 		});
 	} catch (error) {
 		return res.status(500).json({

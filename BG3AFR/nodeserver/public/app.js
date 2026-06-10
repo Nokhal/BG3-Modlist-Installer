@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	const downloadStatus = document.getElementById('download-mods-status');
 	const downloadProgress = document.getElementById('download-progress');
 	const modDownloadList = document.getElementById('mod-download-list');
+	const toggleModListButton = document.getElementById('toggle-mod-list');
+	const downloadModsItem = document.getElementById('download-mods-item');
+	const downloadModsCheckmark = downloadModsItem ? downloadModsItem.querySelector('.checkmark') : null;
+	const startExtractButton = document.getElementById('start-extract');
+	const extractStatus = document.getElementById('extract-packages-status');
+	const extractProgress = document.getElementById('extract-progress');
+	const extractList = document.getElementById('extract-list');
+	const toggleExtractListButton = document.getElementById('toggle-extract-list');
+	const extractPackagesItem = document.getElementById('extract-packages-item');
+	const extractPackagesCheckmark = extractPackagesItem ? extractPackagesItem.querySelector('.checkmark') : null;
 	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
 	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
@@ -81,9 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse] = await Promise.all([
+			const [bg3Response, modsResponse, modioDownloadResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/modiodownload', { method: 'GET', cache: 'no-store' }),
 			]);
 
 			if (bg3Response.ok) {
@@ -100,6 +111,17 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (modsPayload.success && modsPayload.value && typeof modsPayload.value === 'string') {
 					markModsChecklistItemAsDone();
 					modsStatus.textContent = `Found Baldur's Gate 3 Mods folder in settings: ${modsPayload.value}`;
+				}
+			}
+
+			if (modioDownloadResponse.ok) {
+				const modioPayload = await modioDownloadResponse.json();
+				if (modioPayload.success && modioPayload.value === true) {
+					if (downloadModsCheckmark && downloadModsItem) {
+						downloadModsCheckmark.textContent = '✓';
+						downloadModsItem.classList.add('checklist-item--checked');
+					}
+					downloadStatus.textContent = 'Mods downloaded previously.';
 				}
 			}
 		} catch {
@@ -196,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		downloadStatus.textContent = 'Loading mod list...';
 		downloadProgress.hidden = false;
 		modDownloadList.innerHTML = '';
+		toggleModListButton.hidden = true;
 
 		try {
 			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
@@ -255,10 +278,149 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			downloadStatus.textContent = `Download complete. Success: ${successCount}, Failed: ${failureCount}.`;
+
+			// Mark the download task as checked
+			if (downloadModsCheckmark && downloadModsItem) {
+				downloadModsCheckmark.textContent = '✓';
+				downloadModsItem.classList.add('checklist-item--checked');
+			}
+		// Update settings to mark modiodownload as complete
+		try {
+			const settingsResponse = await fetch('/api/settings/modiodownload', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ value: true }),
+			});
+
+			if (!settingsResponse.ok) {
+				console.error('Failed to update modiodownload setting');
+			}
+		} catch (error) {
+			console.error('Error updating modiodownload setting:', error);
+		}
+		// Refresh checklist to show next step
+		refreshChecklistProgress();
+			// Show the toggle button
+			toggleModListButton.hidden = false;
 		} catch (error) {
 			downloadStatus.textContent = error.message;
 			startDownloadButton.hidden = false;
 			startDownloadButton.disabled = false;
+		}
+	});
+
+	toggleModListButton.addEventListener('click', () => {
+		const isCollapsed = modDownloadList.classList.contains('collapsed');
+		if (isCollapsed) {
+			modDownloadList.classList.remove('collapsed');
+			toggleModListButton.textContent = '▼ Hide Downloads';
+		} else {
+			modDownloadList.classList.add('collapsed');
+			toggleModListButton.textContent = '▶ Show Downloads';
+		}
+	});
+
+	startExtractButton.addEventListener('click', async () => {
+		startExtractButton.disabled = true;
+		startExtractButton.hidden = true;
+		extractStatus.textContent = 'Loading mod list...';
+		extractProgress.hidden = false;
+		extractList.innerHTML = '';
+		toggleExtractListButton.hidden = true;
+
+		try {
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+
+			if (!Array.isArray(modList) || modList.length === 0) {
+				extractStatus.textContent = 'No mods to extract.';
+				return;
+			}
+
+			const modsToExtract = modList.filter((mod) => mod.filename);
+			if (modsToExtract.length === 0) {
+				extractStatus.textContent = 'No mods with filenames found to extract.';
+				return;
+			}
+
+			extractStatus.textContent = `Starting extraction of ${modsToExtract.length} mods...`;
+
+			let successCount = 0;
+			let failureCount = 0;
+
+			for (const mod of modsToExtract) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const filename = mod.filename;
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - Extracting...`;
+				listItem.id = `extract-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				extractList.appendChild(listItem);
+
+				try {
+					const extractResponse = await fetch('/api/extract-mod', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							modArchiveFilename: filename,
+						}),
+					});
+
+					const extractPayload = await extractResponse.json();
+
+					if (!extractResponse.ok || !extractPayload.success) {
+						throw new Error(extractPayload.message || 'Extraction failed.');
+					}
+
+					const isAlreadyExtracted = extractPayload.result?.alreadyExtracted;
+					const statusText = isAlreadyExtracted ? '⬇ Already extracted' : '✓ Extracted';
+					listItem.textContent = `${modName} - ${statusText} (${filename})`;
+					listItem.style.color = 'green';
+					successCount += 1;
+				} catch (error) {
+					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					listItem.style.color = 'red';
+					failureCount += 1;
+				}
+			}
+
+			extractStatus.textContent = `Extraction complete. Success: ${successCount}, Failed: ${failureCount}.`;
+
+			// Mark the extract task as checked
+			if (extractPackagesCheckmark && extractPackagesItem) {
+				extractPackagesCheckmark.textContent = '✓';
+				extractPackagesItem.classList.add('checklist-item--checked');
+			}
+
+			// Refresh checklist to hide completed step
+			refreshChecklistProgress();
+
+			// Show the toggle button
+			toggleExtractListButton.hidden = false;
+		} catch (error) {
+			extractStatus.textContent = error.message;
+			startExtractButton.hidden = false;
+			startExtractButton.disabled = false;
+		}
+	});
+
+	toggleExtractListButton.addEventListener('click', () => {
+		const isCollapsed = extractList.classList.contains('collapsed');
+		if (isCollapsed) {
+			extractList.classList.remove('collapsed');
+			toggleExtractListButton.textContent = '▼ Hide Extractions';
+		} else {
+			extractList.classList.add('collapsed');
+			toggleExtractListButton.textContent = '▶ Show Extractions';
 		}
 	});
 });

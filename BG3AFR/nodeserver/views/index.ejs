@@ -50,7 +50,21 @@
       <p id="download-mods-status" class="status" aria-live="polite">Ready to download mods.</p>
       <button id="start-download" class="action-button" type="button">Start Download</button>
       <div id="download-progress" hidden>
+        <button id="toggle-mod-list" class="toggle-button" type="button" hidden>▼ Hide Downloads</button>
         <ul id="mod-download-list" class="mod-list"></ul>
+      </div>
+    </div>
+    </div>
+
+      <div class="checklist-item" id="extract-packages-item">
+    <span class="checkmark" aria-hidden="true">○</span>
+    <div>
+      <h2>Extract mods .pak files</h2>
+      <p id="extract-packages-status" class="status" aria-live="polite">Ready to extract mods.</p>
+      <button id="start-extract" class="action-button" type="button">Start Extraction</button>
+      <div id="extract-progress" hidden>
+        <button id="toggle-extract-list" class="toggle-button" type="button" hidden>▼ Hide Extractions</button>
+        <ul id="extract-list" class="mod-list"></ul>
       </div>
     </div>
     </div>

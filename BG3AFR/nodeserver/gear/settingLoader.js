@@ -4,7 +4,7 @@ const path = require('path');
 
 const router = express.Router();
 const settingsFilePath = path.join(__dirname, '..', '..', 'settings.json');
-const modioListPath = path.join(__dirname, '..', '..', 'modiolist.json');
+const modioListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
 
 function readSettingsFromDisk() {
 	if (!fs.existsSync(settingsFilePath)) {
@@ -66,6 +66,37 @@ router.get('/api/settings/:key', (req, res) => {
 	}
 });
 
+router.post('/api/settings/:key', (req, res) => {
+	try {
+		const settings = readSettingsFromDisk();
+		const key = req.params.key;
+		const value = req.body?.value;
+
+		if (key === undefined || value === undefined) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide a key and value.',
+			});
+		}
+
+		settings[key] = value;
+
+		fs.writeFileSync(settingsFilePath, JSON.stringify(settings, null, 2), 'utf8');
+
+		return res.json({
+			success: true,
+			key,
+			value,
+			message: `Successfully updated settings.json: ${key} = ${value}`,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: `Failed to update settings.json: ${error.message}`,
+		});
+	}
+});
+
 router.get('/api/modiolist', (req, res) => {
 	try {
 		const modioList = readModioListFromDisk();
@@ -76,7 +107,7 @@ router.get('/api/modiolist', (req, res) => {
 	} catch (error) {
 		return res.status(500).json({
 			success: false,
-			message: `Failed to read modiolist.json: ${error.message}`,
+			message: `Failed to read modToInstallList.json: ${error.message}`,
 		});
 	}
 });
@@ -100,7 +131,7 @@ router.get('/api/modiolist/mod/:index', (req, res) => {
 	} catch (error) {
 		return res.status(500).json({
 			success: false,
-			message: `Failed to read modiolist.json: ${error.message}`,
+			message: `Failed to read modToInstallList.json: ${error.message}`,
 		});
 	}
 });
