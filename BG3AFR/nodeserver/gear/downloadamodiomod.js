@@ -173,6 +173,23 @@ function downloadFile(url, destinationPath, redirectsLeft = maxRedirects) {
 async function performDownload(modEntry) {
 	await fs.promises.mkdir(downloadsDir, { recursive: true });
 
+	// Check if filename exists in modiolist.json and file already downloaded
+	if (modEntry.filename) {
+		const existingPath = path.join(downloadsDir, modEntry.filename);
+		if (fs.existsSync(existingPath)) {
+			console.log(`[Download] Mod: ${modEntry.ModName}`);
+			console.log(`[Download] File already exists: ${modEntry.filename}`);
+			return {
+				modName: modEntry.ModName,
+				modPage: modEntry.ModPage,
+				downloadLink: modEntry.DLLink,
+				fileName: modEntry.filename,
+				savedTo: existingPath,
+				alreadyDownloaded: true,
+			};
+		}
+	}
+
 	const requestUrl = modEntry.DLLink;
 	const tempFileName = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	const tempPath = path.join(downloadsDir, tempFileName);

@@ -242,7 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						throw new Error(downloadPayload.message || 'Download failed.');
 					}
 
-					listItem.textContent = `${modName} - ✓ Downloaded (${downloadPayload.result.fileName})`;
+					const isAlreadyDownloaded = downloadPayload.result?.alreadyDownloaded;
+					const statusText = isAlreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
+					listItem.textContent = `${modName} - ${statusText} (${downloadPayload.result.fileName})`;
 					listItem.style.color = 'green';
 					successCount += 1;
 				} catch (error) {
