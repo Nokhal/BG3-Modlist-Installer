@@ -190,6 +190,10 @@ async function performDownload(modEntry) {
 		}
 	}
 
+	console.log(`[Download] Mod: ${modEntry.ModName}`);
+	console.log(`[Download] Downloading From: ${modEntry.DLLink}`);
+	
+
 	const requestUrl = modEntry.DLLink;
 	const tempFileName = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	const tempPath = path.join(downloadsDir, tempFileName);
@@ -201,7 +205,7 @@ async function performDownload(modEntry) {
 	const contentDisposition = headers['content-disposition'] || '';
 	let targetName = getFilenameFromContentDisposition(contentDisposition);
 
-	console.log(`[Download] Mod: ${modEntry.ModName}`);
+
 	console.log(`[Download] Final URL: ${finalUrl}`);
 	console.log(`[Download] Content-Disposition: ${contentDisposition}`);
 	console.log(`[Download] Extracted from header: ${targetName}`);
