@@ -7,6 +7,253 @@ $nodeExecutable = Join-Path $nodeInstallRoot "node.exe"
 $npmCommand = Join-Path $nodeInstallRoot "npm.cmd"
 $npmInstallRoot = Join-Path $nodeInstallRoot "node_modules\npm"
 $nodeServerRoot = Join-Path $PSScriptRoot "nodeserver"
+$desktopRuntimeVersion = "8.0.15"
+$desktopRuntimeMetadataUrl = "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/8.0/releases.json"
+$desktopRuntimeDirectInstallerUrl = "https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/8.0.15/windowsdesktop-runtime-8.0.15-win-x64.exe"
+$vcRedistDownloadUrl = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+
+function Write-Section {
+	param(
+		[string]$Message
+	)
+
+	Write-Host ""
+	Write-Host "==== $Message ===="
+}
+
+function Write-DownloadNotice {
+	param(
+		[string]$Name,
+		[string]$Url
+	)
+
+	Write-Host "[DOWNLOAD] $Name"
+	Write-Host "[SOURCE]   $Url"
+}
+
+function Test-DotNetDesktopRuntime8015Installed {
+	$requiredVersion = [version]$desktopRuntimeVersion
+	$detectedVersions = New-Object System.Collections.Generic.List[version]
+
+	function Add-VersionIfValid {
+		param(
+			[string]$VersionText
+		)
+
+		if ([string]::IsNullOrWhiteSpace($VersionText)) {
+			return
+		}
+
+		try {
+			$parsed = [version]($VersionText.Trim().TrimStart('v', 'V'))
+			$detectedVersions.Add($parsed)
+		} catch {
+			# Ignore invalid version strings.
+		}
+	}
+
+	# Primary check: shared framework folders on disk.
+	$sharedFrameworkPaths = @(
+		(Join-Path $env:ProgramFiles "dotnet\shared\Microsoft.WindowsDesktop.App"),
+		(Join-Path ${env:ProgramFiles(x86)} "dotnet\shared\Microsoft.WindowsDesktop.App")
+	)
+
+	foreach ($sharedPath in $sharedFrameworkPaths) {
+		if (-not $sharedPath -or -not (Test-Path $sharedPath)) {
+			continue
+		}
+
+		$folders = Get-ChildItem -Path $sharedPath -Directory -ErrorAction SilentlyContinue
+		foreach ($folder in $folders) {
+			Add-VersionIfValid -VersionText $folder.Name
+		}
+	}
+
+	# Secondary check: official .NET sharedfx registry keys.
+	$sharedFxRoot = "HKLM:\SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App"
+	if (Test-Path $sharedFxRoot) {
+		$subKeys = Get-ChildItem -Path $sharedFxRoot -ErrorAction SilentlyContinue
+		foreach ($subKey in $subKeys) {
+			Add-VersionIfValid -VersionText $subKey.PSChildName
+		}
+	}
+
+	# Tertiary check: dotnet CLI runtime listing.
+	try {
+		$runtimeLines = & dotnet --list-runtimes 2>$null
+		if ($LASTEXITCODE -eq 0) {
+			foreach ($line in $runtimeLines) {
+				if ($line -match '^Microsoft\.WindowsDesktop\.App\s+([0-9]+\.[0-9]+\.[0-9]+)\s+\[') {
+					Add-VersionIfValid -VersionText $Matches[1]
+				}
+			}
+		}
+	} catch {
+		# dotnet CLI not available, continue with remaining checks.
+	}
+
+	# Last-resort check: uninstall entries (less reliable formatting).
+	$uninstallRoots = @(
+		"HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
+		"HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+	)
+
+	foreach ($root in $uninstallRoots) {
+		if (-not (Test-Path $root)) {
+			continue
+		}
+
+		$entries = Get-ChildItem -Path $root -ErrorAction SilentlyContinue
+		foreach ($entry in $entries) {
+			$displayName = (Get-ItemProperty -Path $entry.PSPath -ErrorAction SilentlyContinue).DisplayName
+			if ($displayName -match '^Microsoft Windows Desktop Runtime - ([0-9]+\.[0-9]+\.[0-9]+) \(x64\)$') {
+				Add-VersionIfValid -VersionText $Matches[1]
+			}
+		}
+	}
+
+	foreach ($version in $detectedVersions | Sort-Object -Descending -Unique) {
+		if ($version -ge $requiredVersion) {
+			Write-Host "Detected .NET Desktop Runtime version: $version"
+			return $true
+		}
+	}
+
+	return $false
+}
+
+function Get-DotNetDesktopRuntimeInstallerUrl {
+	try {
+		$metadata = Invoke-RestMethod -Uri $desktopRuntimeMetadataUrl
+		$release = $metadata.releases | Where-Object {
+			$_.'release-version' -eq $desktopRuntimeVersion
+		} | Select-Object -First 1
+
+		if ($release -and $release.'windowsdesktop-runtime' -and $release.'windowsdesktop-runtime'.files) {
+			$runtimeFile = $release.'windowsdesktop-runtime'.files | Where-Object {
+				$_.name -eq "windowsdesktop-runtime-$desktopRuntimeVersion-win-x64.exe"
+			} | Select-Object -First 1
+
+			if ($runtimeFile -and $runtimeFile.url) {
+				return $runtimeFile.url
+			}
+		}
+	} catch {
+		Write-Warning "Could not resolve installer URL from .NET release metadata: $($_.Exception.Message)"
+	}
+
+	Write-Warning "Falling back to direct .NET installer URL."
+	return $desktopRuntimeDirectInstallerUrl
+}
+
+function Install-DotNetDesktopRuntime8015 {
+	Write-Section ".NET Desktop Runtime"
+	Write-Host "Downloading .NET Desktop Runtime 8.0.15 (x64)..."
+
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+	$installerUrl = Get-DotNetDesktopRuntimeInstallerUrl
+	Write-DownloadNotice -Name ".NET Desktop Runtime 8.0.15 (x64)" -Url $installerUrl
+
+	$tempRoot = Join-Path $env:TEMP "bg3afr-dotnet-runtime"
+	$installerPath = Join-Path $tempRoot "windowsdesktop-runtime-8.0.15-win-x64.exe"
+
+	New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+	Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath -MaximumRedirection 10
+
+	if (-not (Test-Path $installerPath)) {
+		throw "Failed to download the .NET Desktop Runtime installer."
+	}
+
+	$fileInfo = Get-Item -Path $installerPath
+	if ($fileInfo.Length -lt 1024KB) {
+		throw "Downloaded .NET installer is unexpectedly small; download may have failed."
+	}
+
+	Write-Host "Installing .NET Desktop Runtime 8.0.15 (x64)..."
+	Write-Host "If Windows asks for permission to run this installer (UAC/SmartScreen), please allow it to continue."
+	try {
+		$process = Start-Process -FilePath $installerPath -ArgumentList @("/install", "/quiet", "/norestart") -Wait -PassThru
+	} catch {
+		throw "Failed to launch the .NET installer executable: $($_.Exception.Message)"
+	}
+
+	if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+		throw ".NET Desktop Runtime installer failed with exit code $($process.ExitCode)."
+	}
+
+	Write-Host ".NET Desktop Runtime installer completed with exit code $($process.ExitCode)."
+}
+
+function Get-InstalledVcRedistX64Version {
+	$vcRuntimeKey = "HKLM:\SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64"
+
+	if (-not (Test-Path $vcRuntimeKey)) {
+		return $null
+	}
+
+	$runtime = Get-ItemProperty -Path $vcRuntimeKey -ErrorAction SilentlyContinue
+	if (-not $runtime -or $runtime.Installed -ne 1 -or -not $runtime.Version) {
+		return $null
+	}
+
+	try {
+		return [version]($runtime.Version.ToString().TrimStart('v', 'V'))
+	} catch {
+		return $null
+	}
+}
+
+function Install-LatestVcRedistX64 {
+	Write-Section "Microsoft Visual C++ Redistributable"
+	Write-Host "Checking for latest Microsoft Visual C++ Redistributable (x64)..."
+
+	$installedVersion = Get-InstalledVcRedistX64Version
+	if ($installedVersion) {
+		Write-Host "Microsoft Visual C++ Redistributable (x64) is already installed: $installedVersion"
+		Write-Host "Skipping download/install for vc_redist.x64.exe."
+		return
+	}
+
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+	$tempRoot = Join-Path $env:TEMP "bg3afr-vcredist"
+	$installerPath = Join-Path $tempRoot "vc_redist.x64.exe"
+
+	New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+	Write-DownloadNotice -Name "Microsoft Visual C++ Redistributable (x64)" -Url $vcRedistDownloadUrl
+	Invoke-WebRequest -Uri $vcRedistDownloadUrl -OutFile $installerPath -MaximumRedirection 10
+
+	if (-not (Test-Path $installerPath)) {
+		throw "Failed to download vc_redist.x64 installer."
+	}
+
+	$installerVersion = $null
+	try {
+		$installerVersion = [version](Get-Item -Path $installerPath).VersionInfo.FileVersionRaw
+	} catch {
+		$installerVersion = $null
+	}
+
+	Write-Host "Installing Microsoft Visual C++ Redistributable (x64)..."
+	Write-Host "If Windows asks for permission to run this installer (UAC/SmartScreen), please allow it to continue."
+
+	try {
+		$process = Start-Process -FilePath $installerPath -ArgumentList @("/install", "/quiet", "/norestart") -Wait -PassThru
+	} catch {
+		throw "Failed to launch vc_redist.x64 installer: $($_.Exception.Message)"
+	}
+
+	if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010 -and $process.ExitCode -ne 1638) {
+		throw "vc_redist.x64 installer failed with exit code $($process.ExitCode)."
+	}
+
+	$newVersion = Get-InstalledVcRedistX64Version
+	if (-not $newVersion) {
+		throw "Failed to verify Microsoft Visual C++ Redistributable (x64) after installation."
+	}
+
+	Write-Host "Microsoft Visual C++ Redistributable (x64) is installed: $newVersion"
+}
 
 function Get-LatestWindowsX64NodeRelease {
 	$releaseIndex = Invoke-RestMethod -Uri "https://nodejs.org/dist/index.json"
@@ -16,6 +263,7 @@ function Get-LatestWindowsX64NodeRelease {
 }
 
 function Install-PortableNode {
+	Write-Section "Node.js"
 	Write-Host "Node.js is not installed locally. Downloading a portable 64-bit build into tools..."
 
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -29,6 +277,7 @@ function Install-PortableNode {
 	$version = $release.version
 	$archiveName = "node-$version-win-x64.zip"
 	$downloadUrl = "https://nodejs.org/dist/$version/$archiveName"
+	Write-DownloadNotice -Name "Node.js $version (win-x64 zip)" -Url $downloadUrl
 	$tempRoot = Join-Path $env:TEMP "bg3afr-node"
 	$archivePath = Join-Path $tempRoot $archiveName
 	$extractPath = Join-Path $tempRoot "extract"
@@ -92,6 +341,7 @@ function Stop-ProcessOnPort {
 }
 
 function Install-NpmToTools {
+	Write-Section "npm"
 	Write-Host "npm is not installed locally. Downloading a portable copy into the tools folder..."
 
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -99,6 +349,7 @@ function Install-NpmToTools {
 	$npmMetadata = Invoke-RestMethod -Uri "https://registry.npmjs.org/npm/latest"
 	$npmVersion = $npmMetadata.version
 	$tarballUrl = $npmMetadata.dist.tarball
+	Write-DownloadNotice -Name "npm $npmVersion" -Url $tarballUrl
 	$tempRoot = Join-Path $env:TEMP "bg3afr-npm"
 	$tarballPath = Join-Path $tempRoot "npm-$npmVersion.tgz"
 	$extractPath = Join-Path $tempRoot "extract"
@@ -192,6 +443,22 @@ function Start-NodeServerAndOpenHomepage {
 		Write-Warning "The server did not become ready on port 3001 within 30 seconds."
 	}
 }
+
+Write-Host "Checking for .NET Desktop Runtime 8.0.15 (x64)..."
+if (Test-DotNetDesktopRuntime8015Installed) {
+	Write-Host ".NET Desktop Runtime 8.0.15 (x64) is installed."
+} else {
+	Write-Warning ".NET Desktop Runtime 8.0.15 (x64) is not installed. Installing it now..."
+	Install-DotNetDesktopRuntime8015
+
+	if (Test-DotNetDesktopRuntime8015Installed) {
+		Write-Host ".NET Desktop Runtime 8.0.15 (x64) is now installed."
+	} else {
+		throw "Failed to verify .NET Desktop Runtime 8.0.15 (x64) after installation."
+	}
+}
+
+Install-LatestVcRedistX64
 
 if (-not (Test-Path $nodeExecutable)) {
 	Install-PortableNode

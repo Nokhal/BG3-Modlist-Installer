@@ -11,8 +11,29 @@
     <p class="eyebrow"><%= title %></p>
     <h1><%= headline %></h1>
     <p><%= description %></p>
-    <button id="find-bg3-folder" class="action-button" type="button">Find Baldur's Gate 3 installation folder</button>
-    <p id="find-bg3-status" class="status" aria-live="polite"></p>
+    <section class="checklist" aria-label="Setup checklist">
+      <div class="checklist-item checklist-item--checked">
+        <span class="checkmark" aria-hidden="true">✓</span>
+        <div>
+          <h2>Node.js and npm installed</h2>
+          <p>Ready to run the local toolchain.</p>
+        </div>
+      </div>
+
+      <div class="checklist-item" id="bg3-installation-item">
+        <span class="checkmark" aria-hidden="true">○</span>
+        <div>
+          <h2>Find Baldur's Gate 3 installation folder</h2>
+          <p id="find-bg3-status" aria-live="polite">Not checked yet.</p>
+          <button id="find-bg3-folder" class="action-button" type="button">Find Baldur's Gate 3 installation folder</button>
+          <form id="manual-bg3-form" class="manual-form" hidden>
+            <label for="manual-bg3-path">Set folder manually</label>
+            <input id="manual-bg3-path" name="manualBg3Path" type="text" placeholder="C:\Program Files (x86)\Steam\steamapps\common\Baldur's Gate 3" autocomplete="off">
+            <button type="submit" class="action-button">Save this path</button>
+          </form>
+        </div>
+      </div>
+    </section>
     <div class="badge">Port 3001 · Express + EJS</div>
   </main>
   <script src="/app.js"></script>

@@ -1,11 +1,13 @@
 :root {
   color-scheme: dark;
-  --bg: #0f172a;
-  --panel: rgba(15, 23, 42, 0.78);
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --border: rgba(148, 163, 184, 0.2);
+  --bg: #0f0b09;
+  --panel: rgba(36, 24, 16, 0.84);
+  --text: #e9dcc2;
+  --muted: #b9a98a;
+  --accent: #c8a35f;
+  --accent-strong: #e2be77;
+  --ember: #9c3d24;
+  --border: rgba(200, 163, 95, 0.34);
 }
 
 * {
@@ -20,9 +22,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(56, 189, 248, 0.26), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.18), transparent 28%),
-    linear-gradient(135deg, #020617 0%, var(--bg) 100%);
+    radial-gradient(circle at top left, rgba(200, 163, 95, 0.2), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(156, 61, 36, 0.18), transparent 30%),
+    linear-gradient(135deg, #060404 0%, #120d09 35%, var(--bg) 100%);
 }
 
 main {
@@ -32,7 +34,7 @@ main {
   border-radius: 24px;
   background: var(--panel);
   backdrop-filter: blur(14px);
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
 }
 
 .eyebrow {
@@ -58,13 +60,64 @@ p {
   line-height: 1.6;
 }
 
+.checklist {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(24, 17, 12, 0.52);
+}
+
+.checklist-item h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.checklist-item p {
+  margin: 0.35rem 0 0;
+  max-width: none;
+}
+
+.checklist-item--checked {
+  border-color: rgba(200, 163, 95, 0.68);
+  background: rgba(200, 163, 95, 0.12);
+}
+
+.checkmark {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.checklist-item--checked .checkmark {
+  border-color: rgba(226, 190, 119, 0.75);
+  background: rgba(226, 190, 119, 0.16);
+  color: var(--accent-strong);
+}
+
 .badge {
   display: inline-flex;
   margin-top: 1.5rem;
   padding: 0.6rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(148, 163, 184, 0.08);
+  background: rgba(200, 163, 95, 0.1);
   color: var(--text);
   font-size: 0.92rem;
 }
@@ -73,11 +126,11 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 0.9rem 1.1rem;
-  border: 1px solid rgba(56, 189, 248, 0.45);
+  border: 1px solid rgba(200, 163, 95, 0.55);
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(34, 197, 94, 0.2));
+  background: linear-gradient(135deg, rgba(200, 163, 95, 0.28), rgba(156, 61, 36, 0.2));
   color: var(--text);
   font: inherit;
   font-weight: 700;
@@ -87,7 +140,7 @@ p {
 
 .action-button:hover {
   transform: translateY(-1px);
-  border-color: rgba(56, 189, 248, 0.7);
+  border-color: rgba(226, 190, 119, 0.75);
 }
 
 .action-button:disabled {
@@ -97,6 +150,37 @@ p {
 
 .status {
   min-height: 1.5em;
-  margin-top: 0.9rem;
+  margin-top: 0.5rem;
   color: var(--muted);
+}
+
+.manual-form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.manual-form[hidden] {
+  display: none;
+}
+
+.manual-form label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.manual-form input {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--text);
+  font: inherit;
+}
+
+.manual-form input:focus {
+  outline: none;
+  border-color: rgba(226, 190, 119, 0.75);
+  box-shadow: 0 0 0 2px rgba(200, 163, 95, 0.24);
 }

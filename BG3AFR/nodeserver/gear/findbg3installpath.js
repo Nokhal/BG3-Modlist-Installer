@@ -144,6 +144,14 @@ function updateSettingsFile(installPath) {
 	fs.writeFileSync(settingsFilePath, `${JSON.stringify(settings, null, 4)}\n`, 'utf8');
 }
 
+function isValidBg3InstallPath(candidatePath) {
+	if (!candidatePath || typeof candidatePath !== 'string') {
+		return false;
+	}
+
+	return hasGameFiles(candidatePath);
+}
+
 function findAndSaveBg3InstallPath() {
 	const installPath = findBg3InstallPath();
 
@@ -170,4 +178,5 @@ module.exports = {
 	findBg3InstallPath,
 	findAndSaveBg3InstallPath,
 	updateSettingsFile,
+	isValidBg3InstallPath,
 };
