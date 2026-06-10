@@ -234,6 +234,36 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function isValidHttpUrl(url) {
+		if (typeof url !== 'string' || !url.trim()) {
+			return false;
+		}
+
+		try {
+			const parsed = new URL(url.trim());
+			return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+		} catch {
+			return false;
+		}
+	}
+
+	function setFeedbackLineWithSourceLink(listItem, message, modPage) {
+		listItem.textContent = message;
+
+		if (!isValidHttpUrl(modPage)) {
+			return;
+		}
+
+		listItem.appendChild(document.createTextNode(' | '));
+		const sourceLink = document.createElement('a');
+		sourceLink.href = modPage;
+		sourceLink.target = '_blank';
+		sourceLink.rel = 'noopener noreferrer';
+		sourceLink.textContent = 'Source';
+		sourceLink.className = 'mod-source-link';
+		listItem.appendChild(sourceLink);
+	}
+
 	async function displayAlreadyDownloadedMods() {
 		try {
 			downloadProgress.hidden = false;
@@ -262,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const modName = mod.ModName || 'Unknown Mod';
 				const filename = mod.filename || 'Unknown';
 				const listItem = document.createElement('li');
-				listItem.textContent = `${modName} - ⬇ Already downloaded (${filename})`;
+				setFeedbackLineWithSourceLink(listItem, `${modName} - ⬇ Already downloaded (${filename})`, mod.ModPage);
 				listItem.id = `mod-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
 				listItem.style.color = 'green';
 				modDownloadList.appendChild(listItem);
@@ -304,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const modName = mod.ModName || 'Unknown Mod';
 				const filename = mod.filename || 'Unknown';
 				const listItem = document.createElement('li');
-				listItem.textContent = `${modName} - ⬇ Already downloaded (${filename})`;
+				setFeedbackLineWithSourceLink(listItem, `${modName} - ⬇ Already downloaded (${filename})`, mod.ModPage);
 				listItem.id = `rpghq-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
 				listItem.style.color = 'green';
 				rpghqDownloadList.appendChild(listItem);
@@ -499,11 +529,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					const isAlreadyDownloaded = downloadPayload.result?.alreadyDownloaded;
 					const statusText = isAlreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
-					listItem.textContent = `${modName} - ${statusText} (${downloadPayload.result.fileName})`;
+					setFeedbackLineWithSourceLink(
+						listItem,
+						`${modName} - ${statusText} (${downloadPayload.result.fileName})`,
+						downloadPayload.result?.modPage || mod.ModPage,
+					);
 					listItem.style.color = 'green';
 					successCount += 1;
 				} catch (error) {
-					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					setFeedbackLineWithSourceLink(listItem, `${modName} - ✗ Failed: ${error.message}`, mod.ModPage);
 					listItem.style.color = 'red';
 					failureCount += 1;
 				}
@@ -732,11 +766,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					const isAlreadyDownloaded = downloadPayload.result?.alreadyDownloaded;
 					const statusText = isAlreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
-					listItem.textContent = `${modName} - ${statusText} (${downloadPayload.result.fileName})`;
+					setFeedbackLineWithSourceLink(
+						listItem,
+						`${modName} - ${statusText} (${downloadPayload.result.fileName})`,
+						downloadPayload.result?.modPage || mod.ModPage,
+					);
 					listItem.style.color = 'green';
 					successCount += 1;
 				} catch (error) {
-					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					setFeedbackLineWithSourceLink(listItem, `${modName} - ✗ Failed: ${error.message}`, mod.ModPage);
 					listItem.style.color = 'red';
 					failureCount += 1;
 				}

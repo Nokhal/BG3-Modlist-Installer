@@ -237,6 +237,16 @@ p {
   overflow-wrap: break-word;
 }
 
+.mod-source-link {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mod-source-link:hover {
+  color: #f1d9a4;
+}
+
 .mod-list.collapsed {
   display: none;
 }
