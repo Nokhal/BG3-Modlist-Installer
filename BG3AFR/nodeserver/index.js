@@ -1,19 +1,15 @@
 const express = require('express');
 const path = require('path');
+const routes = require('./routes');
 
 const app = express();
 const port = 3001;
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-	res.render('index', {
-		title: 'BG3 Ad Fundamenta Redire',
-		headline: 'Welcome home',
-		description: 'A basic Express server rendering an EJS homepage on port 3001.',
-	});
-});
+app.use('/', routes);
 
 function startServer() {
 	app.listen(port, () => {

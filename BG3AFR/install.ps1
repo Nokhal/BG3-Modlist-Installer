@@ -72,6 +72,25 @@ SET "NODE_EXE=%~dp0node.exe"
 '@ | Set-Content -Path (Join-Path $nodeInstallRoot "npx.cmd") -Encoding ASCII
 }
 
+function Stop-ProcessOnPort {
+	param(
+		[int]$Port
+	)
+
+	$connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+
+	foreach ($connection in $connections) {
+		if ($connection.OwningProcess) {
+			try {
+				Stop-Process -Id $connection.OwningProcess -Force -ErrorAction Stop
+				Write-Host "Stopped existing process on port $Port (PID $($connection.OwningProcess))."
+			} catch {
+				Write-Warning "Could not stop PID $($connection.OwningProcess) on port $Port: $($_.Exception.Message)"
+			}
+		}
+	}
+}
+
 function Install-NpmToTools {
 	Write-Host "npm is not installed locally. Downloading a portable copy into tools..."
 
@@ -160,8 +179,11 @@ function Start-NodeServerAndOpenHomepage {
 		throw "The node server entrypoint was not found at $serverScript."
 	}
 
+	Stop-ProcessOnPort -Port 3001
+
 	Write-Host "Launching the Node.js server on port 3001..."
-	Start-Process -FilePath $nodeExecutable -ArgumentList @($serverScript) -WorkingDirectory $nodeServerRoot | Out-Null
+	$serverCommand = "`"$nodeExecutable`" `"$serverScript`""
+	Start-Process -FilePath "cmd.exe" -ArgumentList @("/k", $serverCommand) -WorkingDirectory $nodeServerRoot -WindowStyle Normal | Out-Null
 
 	if (Wait-ForTcpPort -HostName "localhost" -Port 3001 -TimeoutSeconds 30) {
 		Write-Host "Opening the homepage in your browser..."
