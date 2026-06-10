@@ -68,3 +68,35 @@ p {
   color: var(--text);
   font-size: 0.92rem;
 }
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(34, 197, 94, 0.2));
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.7);
+}
+
+.action-button:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.status {
+  min-height: 1.5em;
+  margin-top: 0.9rem;
+  color: var(--muted);
+}

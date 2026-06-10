@@ -29,7 +29,7 @@ function readRegistryValue(registryKey, valueName) {
 
 		const lines = output.split(/\r?\n/);
 		for (const line of lines) {
-			const match = line.match(new RegExp(`^\s*${valueName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\s+REG_\w+\s+(.+)$`, 'i'));
+			const match = line.match(new RegExp(`^\\s*${valueName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+REG_\\w+\\s+(.+)$`, 'i'));
 			if (match) {
 				return normalizePath(match[1]);
 			}
@@ -144,8 +144,18 @@ function updateSettingsFile(installPath) {
 	fs.writeFileSync(settingsFilePath, `${JSON.stringify(settings, null, 4)}\n`, 'utf8');
 }
 
-if (require.main === module) {
+function findAndSaveBg3InstallPath() {
 	const installPath = findBg3InstallPath();
+
+	if (installPath) {
+		updateSettingsFile(installPath);
+	}
+
+	return installPath;
+}
+
+if (require.main === module) {
+	const installPath = findAndSaveBg3InstallPath();
 
 	if (installPath) {
 		updateSettingsFile(installPath);
@@ -158,4 +168,6 @@ if (require.main === module) {
 
 module.exports = {
 	findBg3InstallPath,
+	findAndSaveBg3InstallPath,
+	updateSettingsFile,
 };

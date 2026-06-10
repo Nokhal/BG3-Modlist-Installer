@@ -85,14 +85,14 @@ function Stop-ProcessOnPort {
 				Stop-Process -Id $connection.OwningProcess -Force -ErrorAction Stop
 				Write-Host "Stopped existing process on port $Port (PID $($connection.OwningProcess))."
 			} catch {
-				Write-Warning "Could not stop PID $($connection.OwningProcess) on port $Port: $($_.Exception.Message)"
+				Write-Warning "Could not stop PID $($connection.OwningProcess) on port ${Port}: $($_.Exception.Message)"
 			}
 		}
 	}
 }
 
 function Install-NpmToTools {
-	Write-Host "npm is not installed locally. Downloading a portable copy into tools..."
+	Write-Host "npm is not installed locally. Downloading a portable copy into the tools folder..."
 
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -182,8 +182,8 @@ function Start-NodeServerAndOpenHomepage {
 	Stop-ProcessOnPort -Port 3001
 
 	Write-Host "Launching the Node.js server on port 3001..."
-	$serverCommand = "`"$nodeExecutable`" `"$serverScript`""
-	Start-Process -FilePath "cmd.exe" -ArgumentList @("/k", $serverCommand) -WorkingDirectory $nodeServerRoot -WindowStyle Normal | Out-Null
+	$serverCommand = "Set-Location -LiteralPath '$nodeServerRoot'; & '$nodeExecutable' '$serverScript'"
+	Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $serverCommand) -WindowStyle Normal | Out-Null
 
 	if (Wait-ForTcpPort -HostName "localhost" -Port 3001 -TimeoutSeconds 30) {
 		Write-Host "Opening the homepage in your browser..."
