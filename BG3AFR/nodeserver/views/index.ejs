@@ -9,8 +9,8 @@
 <body>
   <main>
     <p class="eyebrow"><%= title %></p>
-    <h1><%= headline %></h1>
-    <p><%= description %></p>
+    <h1>Install checklist</h1>
+    <p class="intro-text">Follow this checklist steps by steps. <br>Do not close the "Windows PowerShell" window during the setup process.</p>
     <section class="checklist" aria-label="Setup checklist">
       <div class="checklist-item checklist-item--checked">
         <span class="checkmark" aria-hidden="true">✓</span>
@@ -23,7 +23,7 @@
       <div class="checklist-item" id="bg3-installation-item">
         <span class="checkmark" aria-hidden="true">○</span>
         <div>
-          <h2>Find Baldur's Gate 3 installation folder</h2>
+          <h2>Install Baldur's Gate 3</h2>
           <p id="find-bg3-status" aria-live="polite">Not checked yet.</p>
           <button id="find-bg3-folder" class="action-button" type="button">Find Baldur's Gate 3 installation folder</button>
           <form id="manual-bg3-form" class="manual-form" hidden>
@@ -33,6 +33,15 @@
           </form>
         </div>
       </div>
+
+      <div class="checklist-item" id="bg3-mods-folder-item">
+    <span class="checkmark" aria-hidden="true">○</span>
+    <div>
+      <h2>Baldur's Gate 3 Mods Folder</h2>
+      <p id="find-bg3-mods-status" class="status" aria-live="polite">Not checked yet.</p>
+      <button id="find-bg3-mods-folder" class="action-button" type="button">Find Baldur's Gate 3 Mods folder</button>
+    </div>
+    </div>
     </section>
     <div class="badge">Port 3001 · Express + EJS</div>
   </main>

@@ -20,6 +20,57 @@ function normalizePath(value) {
 	return value.replace(/^"|"$/g, '').trim();
 }
 
+function toWindowsStylePath(value) {
+	if (!value || typeof value !== 'string') {
+		return value;
+	}
+
+	return path.win32.normalize(normalizePath(value).replace(/\//g, '\\'));
+}
+
+function getBg3ModsFolderPath() {
+	const localAppData = process.env.LOCALAPPDATA;
+
+	if (!localAppData) {
+		throw new Error('LOCALAPPDATA is not set on this machine.');
+	}
+
+	return toWindowsStylePath(path.join(localAppData, 'Larian Studios', "Baldur's Gate 3", 'Mods'));
+}
+
+function ensureBg3ModsFolderExists() {
+	const modsFolderPath = getBg3ModsFolderPath();
+
+	if (!fs.existsSync(modsFolderPath)) {
+		fs.mkdirSync(modsFolderPath, { recursive: true });
+	}
+
+	return modsFolderPath;
+}
+
+function readSettingsFromDisk() {
+	if (!fs.existsSync(settingsFilePath)) {
+		return {};
+	}
+
+	const rawSettings = fs.readFileSync(settingsFilePath, 'utf8');
+	if (!rawSettings.trim()) {
+		return {};
+	}
+
+	return JSON.parse(rawSettings);
+}
+
+function writeSettingsToDisk(settings) {
+	fs.writeFileSync(settingsFilePath, `${JSON.stringify(settings, null, 4)}\n`, 'utf8');
+}
+
+function updateSettingsValue(key, value) {
+	const settings = readSettingsFromDisk();
+	settings[key] = value;
+	writeSettingsToDisk(settings);
+}
+
 function readRegistryValue(registryKey, valueName) {
 	try {
 		const output = execFileSync('reg.exe', ['query', registryKey, '/v', valueName], {
@@ -134,14 +185,8 @@ function findBg3InstallPath() {
 }
 
 function updateSettingsFile(installPath) {
-	const rawSettings = fs.existsSync(settingsFilePath)
-		? fs.readFileSync(settingsFilePath, 'utf8')
-		: '{}';
-	const settings = JSON.parse(rawSettings);
-
-	settings.bg3InstallPath = installPath;
-
-	fs.writeFileSync(settingsFilePath, `${JSON.stringify(settings, null, 4)}\n`, 'utf8');
+	const windowsPath = toWindowsStylePath(installPath);
+	updateSettingsValue('bg3InstallPath', windowsPath);
 }
 
 function isValidBg3InstallPath(candidatePath) {
@@ -149,11 +194,11 @@ function isValidBg3InstallPath(candidatePath) {
 		return false;
 	}
 
-	return hasGameFiles(candidatePath);
+	return hasGameFiles(toWindowsStylePath(candidatePath));
 }
 
 function findAndSaveBg3InstallPath() {
-	const installPath = findBg3InstallPath();
+	const installPath = toWindowsStylePath(findBg3InstallPath());
 
 	if (installPath) {
 		updateSettingsFile(installPath);
@@ -179,4 +224,8 @@ module.exports = {
 	findAndSaveBg3InstallPath,
 	updateSettingsFile,
 	isValidBg3InstallPath,
+	toWindowsStylePath,
+	getBg3ModsFolderPath,
+	ensureBg3ModsFolderExists,
+	updateSettingsValue,
 };

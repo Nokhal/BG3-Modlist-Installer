@@ -1,5 +1,6 @@
 const express = require('express');
-const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile } = require('../gear/findbg3installpath');
+const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
+const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
 
@@ -21,6 +22,8 @@ router.post('/api/find-bg3-installation-folder', (req, res) => {
 				message: "Could not find Baldur's Gate 3 on this machine. Please launch Baldur's Gate 3 at least once, then try again.",
 			});
 		}
+
+		updateSettingsValue('bg3ModsFolderPath', getBg3ModsFolderPath());
 
 		return res.json({
 			success: true,
@@ -54,10 +57,12 @@ router.post('/api/set-bg3-installation-folder', (req, res) => {
 		}
 
 		updateSettingsFile(rawPath);
+		const savedPath = toWindowsStylePath(rawPath);
+		updateSettingsValue('bg3ModsFolderPath', getBg3ModsFolderPath());
 
 		return res.json({
 			success: true,
-			installPath: rawPath,
+			installPath: savedPath,
 			message: "Saved Baldur's Gate 3 installation folder.",
 		});
 	} catch (error) {
@@ -67,5 +72,25 @@ router.post('/api/set-bg3-installation-folder', (req, res) => {
 		});
 	}
 });
+
+router.post('/api/find-or-create-bg3-mods-folder', (req, res) => {
+	try {
+		const modsFolderPath = ensureBg3ModsFolderExists();
+		updateSettingsValue('bg3ModsFolderPath', modsFolderPath);
+
+		return res.json({
+			success: true,
+			modsFolderPath,
+			message: "Found Baldur's Gate 3 Mods folder.",
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.use(settingsLoaderRoutes);
 
 module.exports = router;

@@ -1,3 +1,5 @@
 {
-    "dependanciesInstalled": false
+    "dependanciesInstalled": false,
+    "bg3InstallPath": "G:\\SteamLibrary\\steamapps\\common\\Baldurs Gate 3",
+    "bg3ModsFolderPath": "C:\\Users\\nokhal\\AppData\\Local\\Larian Studios\\Baldur's Gate 3\\Mods"
 }

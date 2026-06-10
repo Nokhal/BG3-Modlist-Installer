@@ -3,20 +3,107 @@ document.addEventListener('DOMContentLoaded', () => {
 	const status = document.getElementById('find-bg3-status');
 	const manualForm = document.getElementById('manual-bg3-form');
 	const manualInput = document.getElementById('manual-bg3-path');
+	const modsButton = document.getElementById('find-bg3-mods-folder');
+	const modsStatus = document.getElementById('find-bg3-mods-status');
+	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
-	if (!button || !status || !manualForm || !manualInput) {
+	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
 		return;
 	}
 
 	const checklistItem = document.getElementById('bg3-installation-item');
 	const checkmark = checklistItem ? checklistItem.querySelector('.checkmark') : null;
+	const modsChecklistItem = document.getElementById('bg3-mods-folder-item');
+	const modsCheckmark = modsChecklistItem ? modsChecklistItem.querySelector('.checkmark') : null;
+
+	function hideFindButton() {
+		button.hidden = true;
+		button.disabled = true;
+	}
+
+	function hideFindModsButton() {
+		modsButton.hidden = true;
+		modsButton.disabled = true;
+	}
+
+	function refreshChecklistProgress() {
+		const firstNotDoneIndex = checklistItems.findIndex((item) => {
+			return !item.classList.contains('checklist-item--checked');
+		});
+
+		checklistItems.forEach((item, index) => {
+			const isDone = item.classList.contains('checklist-item--checked');
+			const isNext = index === firstNotDoneIndex;
+
+			if (!isDone && !isNext) {
+				item.classList.add('checklist-item--hidden');
+				item.setAttribute('aria-hidden', 'true');
+			} else {
+				item.classList.remove('checklist-item--hidden');
+				item.removeAttribute('aria-hidden');
+			}
+		});
+	}
 
 	function markChecklistItemAsDone() {
 		if (checkmark && checklistItem) {
 			checkmark.textContent = '✓';
 			checklistItem.classList.add('checklist-item--checked');
 		}
+
+		hideFindButton();
+		refreshChecklistProgress();
 	}
+
+	function markModsChecklistItemAsDone() {
+		if (modsCheckmark && modsChecklistItem) {
+			modsCheckmark.textContent = '✓';
+			modsChecklistItem.classList.add('checklist-item--checked');
+		}
+
+		hideFindModsButton();
+		refreshChecklistProgress();
+	}
+
+	if (checklistItem && checklistItem.classList.contains('checklist-item--checked')) {
+		hideFindButton();
+	}
+
+	if (modsChecklistItem && modsChecklistItem.classList.contains('checklist-item--checked')) {
+		hideFindModsButton();
+	}
+
+	refreshChecklistProgress();
+
+	async function hydrateChecklistFromSettings() {
+		try {
+			const [bg3Response, modsResponse] = await Promise.all([
+				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
+			]);
+
+			if (bg3Response.ok) {
+				const bg3Payload = await bg3Response.json();
+				if (bg3Payload.success && bg3Payload.value && typeof bg3Payload.value === 'string') {
+					markChecklistItemAsDone();
+					manualForm.hidden = true;
+					status.textContent = `Found Baldur's Gate 3 installation folder in settings: ${bg3Payload.value}`;
+				}
+			}
+
+			if (modsResponse.ok) {
+				const modsPayload = await modsResponse.json();
+				if (modsPayload.success && modsPayload.value && typeof modsPayload.value === 'string') {
+					markModsChecklistItemAsDone();
+					modsStatus.textContent = `Found Baldur's Gate 3 Mods folder in settings: ${modsPayload.value}`;
+				}
+			}
+		} catch {
+			// Ignore startup settings load errors; manual/automatic discovery still works.
+		}
+	}
+
+	hydrateChecklistFromSettings();
 
 	button.addEventListener('click', async () => {
 		button.disabled = true;
@@ -73,6 +160,29 @@ document.addEventListener('DOMContentLoaded', () => {
 			status.textContent = `${payload.message} ${payload.installPath}`;
 		} catch (error) {
 			status.textContent = error.message;
+		}
+	});
+
+	modsButton.addEventListener('click', async () => {
+		modsButton.disabled = true;
+		modsStatus.textContent = "Finding Baldur's Gate 3 Mods folder...";
+
+		try {
+			const response = await fetch('/api/find-or-create-bg3-mods-folder', {
+				method: 'POST',
+			});
+			const payload = await response.json();
+
+			if (!response.ok) {
+				throw new Error(payload.message || "Could not find or create Baldur's Gate 3 Mods folder.");
+			}
+
+			markModsChecklistItemAsDone();
+			modsStatus.textContent = `${payload.message} ${payload.modsFolderPath}`;
+		} catch (error) {
+			modsStatus.textContent = error.message;
+		} finally {
+			modsButton.disabled = false;
 		}
 	});
 });
