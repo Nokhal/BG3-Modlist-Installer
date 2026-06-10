@@ -1,956 +1,837 @@
-﻿{
+{
   "ModList": [
     {
       "ModName": "FaerunColors",
       "ModPage": "https://mod.io/g/baldursgate3/m/faeruncolors",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4122086/files/7719753/download",
       "filename": "faeruncolors_a669cf0b-926c-4d5-0iqa.zip",
-      "source": "mod.io",
-      "pakfile": "FaerunColors_a669cf0b-926c-4d50-988d-59bc089a0df2.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Faces of Faerun",
       "ModPage": "https://mod.io/g/baldursgate3/m/faces-of-faerun",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4134411/files/6293177/download",
       "filename": "aloija_new_heads_8c611d4b-75d9-2n1j.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "ImpUI (ImprovedUI)",
       "ModPage": "https://mod.io/g/baldursgate3/m/impui",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4138213/files/6301190/download",
       "filename": "impui_26922ba9-6018-5252-075d-eqgb.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "UnlockLevelCurve - Level 13-20 | Patch 8",
       "ModPage": "https://mod.io/g/baldursgate3/m/unlocklevelcurve",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4166963/files/6276828/download",
       "filename": "unlocklevelcurve_a2ffd0e4-c407-4p40.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Fireproof Karlach",
       "ModPage": "https://mod.io/g/baldursgate3/m/fireproof-karlach",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4187677/files/5375674/download",
       "filename": "fireproofkarlach_16f151f9-fddc-1wuw.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Containers",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-containers",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4190260/files/6276966/download",
       "filename": "bettercontainers_cb42bc3a-f1d2-afwl.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Noira_PhysicsPiercingImprovement",
       "ModPage": "https://mod.io/g/baldursgate3/m/noira-physicspiercingimprovement",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4201176/files/5931240/download",
       "filename": "noira_physicspiercingimproveme-4fnb.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Context Menu",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-context-menu",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4202580/files/6795851/download",
       "filename": "bettercontextmenu_f9dd909a-360-9soj.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Dyeing",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-dyeing",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4202819/files/6276755/download",
       "filename": "betterdyeing_03b0b84a-2689-77c-3ymd.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "ContainersExtended",
       "ModPage": "https://mod.io/g/baldursgate3/m/containersextended",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4213146/files/6389788/download",
       "filename": "containersextended_c52c2d4d-2a-bn0o.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "PixellBytes' Adjustable Party Limit",
       "ModPage": "https://mod.io/g/baldursgate3/m/adjustable-party-limit",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4256380/files/6310374/download",
       "filename": "configurablepartylimit_33c1de8-bwds.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "BFR: Gale - Find Familiar: Tara",
       "ModPage": "https://mod.io/g/baldursgate3/m/gale-find-familiar-tara",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4304145/files/6617321/download",
       "filename": "gale_findfamiliar_tara_f88fd73-8uaa.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Inspirations Uncapped",
       "ModPage": "https://mod.io/g/baldursgate3/m/inspirations-uncapped",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4318441/files/5540253/download",
       "filename": "inspirationsuncapped_742764d7-jjbv.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Vampire Funhouse",
       "ModPage": "https://mod.io/g/baldursgate3/m/vampire-funhouse",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4326945/files/6602519/download",
       "filename": "vampirefunhouse_ab713758-38a0-2kl2.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "The Celestial Warlock Subclass - 5e Rules",
       "ModPage": "https://mod.io/g/baldursgate3/m/the-celestial-warlock-subclass-5e-rules",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4328427/files/6312601/download",
       "filename": "celestialwarlockdnd5_614705b7-bnac.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Do Not Eat Owlbear Egg",
       "ModPage": "https://mod.io/g/baldursgate3/m/do-not-eat-owlbear-egg",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4329085/files/5555393/download",
       "filename": "donoteat_2536d55c-7543-6309-36-2rif.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Facial Animations",
       "ModPage": "https://mod.io/g/baldursgate3/m/facial-animations",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4346541/files/5658466/download",
       "filename": "facial_animations_f8e39ac7-87d-dlgr.zip",
-      "source": "mod.io",
-      "pakfile": "Aloija_New_Heads_8c611d4b-75d9-40eb-ad61-15f898396e12.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "ACT1 Capes and Cloaks",
       "ModPage": "https://mod.io/g/baldursgate3/m/act1-capes-and-cloaks",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4360405/files/5728809/download",
       "filename": "act1_capes_139ee212-9e2c-78ef-7pgb.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Shadowheart's Better Starting Gear by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-better-starting-gear-shadowheart",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4375234/files/5993886/download",
       "filename": "aza_shart_halfplate_edec7b9d-0-eofu.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Save Alfira",
       "ModPage": "https://mod.io/g/baldursgate3/m/save-alfira",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4377465/files/5806388/download",
       "filename": "savealfira_142323a2-cd9e-68bd-bs7r.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Healing Potions",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-healing-potions",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4378586/files/5626257/download",
       "filename": "betterhealingpotions_a909a143-gw7g.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Pernament Laviatar's Love",
       "ModPage": "https://mod.io/g/baldursgate3/m/pernament-laviatars-love",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4379015/files/5626842/download",
       "filename": "pernamentlaviatarlove_5f496179-1ask.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mystra's Spells",
       "ModPage": "https://mod.io/g/baldursgate3/m/mystras-spells",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4379538/files/6315452/download",
       "filename": "test_4b516620-9c56-aa18-96ae-a-dk21.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Traders Drop All Loot",
       "ModPage": "https://mod.io/g/baldursgate3/m/traders-drop-all-loot",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4385124/files/6356011/download",
       "filename": "traderdropallloot_887688c7-6db-9aff.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "OIOPrime - DCs, Approvals, and Flags in Dialogues",
       "ModPage": "https://mod.io/g/baldursgate3/m/oioprime",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4399924/files/6277220/download",
       "filename": "oioprime_a44c79a0-641f-5757-0d-bvtc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "TPT_Companion_Edits_Shart",
       "ModPage": "https://mod.io/g/baldursgate3/m/tpt-companion-edits-shart1",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4413289/files/5702032/download",
       "filename": "tpt_companion_edits_shart_0724-kzjv.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Show Camp Night Notification",
       "ModPage": "https://mod.io/g/baldursgate3/m/show-camp-night-notification",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4417761/files/6300108/download",
       "filename": "showcampnightnotification_6357-8uk7.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Larian's Leftovers: Inaccessible Items",
       "ModPage": "https://mod.io/g/baldursgate3/m/larians-leftovers",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4424065/files/5686416/download",
       "filename": "bixlariansleftovers_ef550ba3-e-bzi6.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "TPT_Companion_Edits_Minthara",
       "ModPage": "https://mod.io/g/baldursgate3/m/tptcompanionedits-minthara",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4437368/files/5726749/download",
       "filename": "tpt_companion_edits_minthara_0-0lyn.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "DLC Items Remastered",
       "ModPage": "https://mod.io/g/baldursgate3/m/definitive-edition-dlc-items-remastered",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4461207/files/5789927/download",
       "filename": "dlc-items-remastered_78cbf5b6-7fl2.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Starting Gear for Lae'zel by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-better-starting-gear-laezel",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4462094/files/6480568/download",
       "filename": "aza_laezel_bettergear_b637575e-a4c7.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "New Colors for Lae'zel by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-new-colors-laezel",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4462171/files/5752890/download",
       "filename": "aza_laezel_appearance_58fcb060-7xxh.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "More enemies in basic fights",
       "ModPage": "https://mod.io/g/baldursgate3/m/more-enemies-in-basic-fights",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4484017/files/6285706/download",
       "filename": "extra_enemies_honour_a33f6ead-cyki.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Custom Companions Lite",
       "ModPage": "https://mod.io/g/baldursgate3/m/customcompanionslite",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4522893/files/6674286/download",
       "filename": "customcompanionslite_288daa48-9h5o.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "[Aza] NPC Redesign: The Emerald Grove (All-in-One)",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-the-emerald-grove",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4611671/files/7633964/download",
       "filename": "aza_npcre_theemeraldgrove_74cb-6mnq.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "[Aza] NPC Redesign: Gortash",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-gortash",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4662606/files/6861221/download",
       "filename": "aza_npcre_gortash_4bf296c4-9e1-a78a.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mithral Ore From Grym (Adamantine Golem)",
       "ModPage": "https://mod.io/g/baldursgate3/m/mithral-ore-from-grym-adamantine-golem",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4675483/files/6022576/download",
       "filename": "mithralorefromadamantinegolem_-cswv.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Just Bugs Me: QoL, item, tooltip + pedantic fixes!",
       "ModPage": "https://mod.io/g/baldursgate3/m/just-bugs-me-qol-item-tooltip-pedantic-fixes",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4689732/files/6036910/download",
       "filename": "justbugsmeok_d85305a3-0ba8-45f-5l5f.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "NPC Redesign: Church of Shar by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-church-of-shar",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4700370/files/6050733/download",
       "filename": "aza_npcre_churchofshar_full_51-7ile.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "All Heads All Horns All Everything for All Races",
       "ModPage": "https://mod.io/g/baldursgate3/m/all-heads-all-horns-for-all-races",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4724334/files/6278166/download",
       "filename": "allheadsallraces_1db3e478-fcfa-exfc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Useful Blood of Lathander",
       "ModPage": "https://mod.io/g/baldursgate3/m/useful-blood-of-lathander",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4750389/files/6364416/download",
       "filename": "lathanderpurge_108f3c10-d334-8-li6p.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Moon - Head Preset",
       "ModPage": "https://mod.io/g/baldursgate3/m/moon-head-preset",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4793119/files/6176775/download",
       "filename": "moonhead_69c74f0c-c97d-0ba4-d2-3qra.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantis' Tiefling Duo Presets",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantis-tiefling-duo-presets",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4817521/files/6207568/download",
       "filename": "mantistieflingduoheads_d21b3c4-728f.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantis' Fantasy Face Presets",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantis-fantasy-face-presets",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4824639/files/6216476/download",
       "filename": "mantisfantasyheads_a1cd6994-07-cxkx.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantis' Face Preset Collection I",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantis-face-preset-collection-i",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4827901/files/6221019/download",
       "filename": "mantiscollectioni_4253e2c0-a1e-3rhp.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantis' Face Preset Collection II",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantis-face-preset-collection-ii",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4832977/files/6227094/download",
       "filename": "mantiscollectionii_4cd3ad72-b2-atym.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "House of Hope Restyled",
       "ModPage": "https://mod.io/g/baldursgate3/m/house-of-hope-restyled",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4835879/files/6230889/download",
       "filename": "house_of_hope_restyled_7cfefef-68pe.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Koralina's Aesthetics - Head Collection",
       "ModPage": "https://mod.io/g/baldursgate3/m/koralinas-aesthetics-head-collection",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4838989/files/6234987/download",
       "filename": "koralinasheads_71820a46-bb56-9-9pmy.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Koralina's Aesthetics - Even More Heads",
       "ModPage": "https://mod.io/g/baldursgate3/m/koralinas-aesthetics-even-more-heads",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4841220/files/6237842/download",
       "filename": "koralinasmoreheads_8471ffec-bc-ijzh.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Minthara's Poison Kiss",
       "ModPage": "https://mod.io/g/baldursgate3/m/ht-mintharas-poison-kiss",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4844784/files/6598234/download",
       "filename": "ht_mintharakiss_0d3c8e22-0376-2rqc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Warlock Gear Collection",
       "ModPage": "https://mod.io/g/baldursgate3/m/caster-warlock-gear-collection",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4846232/files/6427114/download",
       "filename": "warlockgear_093fd1fa-90f7-0a48-43oz.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "NPC Redesign: Mystra (Alt. Head) by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-mystra-alt-head",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4855079/files/6254157/download",
       "filename": "aza_npcre_mystraalt_d3edcc92-8-37ia.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Tasha's Cauldron of Hairstyles",
       "ModPage": "https://mod.io/g/baldursgate3/m/tashas-cauldron-of-hairstyles",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4859295/files/6259829/download",
       "filename": "tashascauldronhairstyles_1af5b-i3zl.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Tasha's Cauldron of Hairstyles Pack 2",
       "ModPage": "https://mod.io/g/baldursgate3/m/tashas-cauldron-of-hairstyles-pack-2",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4860540/files/6261356/download",
       "filename": "tashascauldronhairstyles2_2a02-amqp.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mystra's Scrolls",
       "ModPage": "https://mod.io/g/baldursgate3/m/mystras-scrolls",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4863811/files/6315526/download",
       "filename": "mystrasscrolls_1c1568b8-8a77-e-hqgw.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mystra's Scrolls Loot",
       "ModPage": "https://mod.io/g/baldursgate3/m/mystras-scrolls-loot",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4864046/files/6315546/download",
       "filename": "mystrasscrollsloot_ba4c9edf-f9-4htb.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Akira - Head Preset",
       "ModPage": "https://mod.io/g/baldursgate3/m/akira-head-preset",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4873517/files/6278238/download",
       "filename": "akirahead_f3946607-b5d6-ec2f-b-dtu6.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "[Aza] Better Starting Gear (Gale) + Tutorial Chest",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-better-starting-gear-handsome-wizard-gale",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4874758/files/7452809/download",
       "filename": "aza_bsg_gale_32378f72-9a6a-960-m8mr.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Karlach's Long Hair",
       "ModPage": "https://mod.io/g/baldursgate3/m/karlachs-long-hair",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4876777/files/6282801/download",
       "filename": "tashakarlachslonghair_af4e2cd6-4sg0.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "ImprovedAdamantineWeapons",
       "ModPage": "https://mod.io/g/baldursgate3/m/improvedadamantineweapons",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4889857/files/6300227/download",
       "filename": "improvedadamantineweapons_0bc9-hmfs.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Justice For Nessa",
       "ModPage": "https://mod.io/g/baldursgate3/m/justice-for-nessa",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4893667/files/6503584/download",
       "filename": "justice_for_nessa_593b02e9-e8c-awd9.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Hatch the Owlbear Egg",
       "ModPage": "https://mod.io/g/baldursgate3/m/hatch-the-owlbear-egg",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4900501/files/6314645/download",
       "filename": "littlestowlbear_6ccd276a-4c11-44gc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Scratch And Shovel",
       "ModPage": "https://mod.io/g/baldursgate3/m/scratch-and-shovel",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4903920/files/6492381/download",
       "filename": "scratch_and_shovel_78753062-b4-2nov.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Night With Drow (Minthara Romance Alternative)",
       "ModPage": "https://mod.io/g/baldursgate3/m/nightwithdrow",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4907118/files/6323796/download",
       "filename": "noraidneeded_fe880b6e-1fd9-943-2dxz.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Fade's Equipment Distribution AIO",
       "ModPage": "https://mod.io/g/baldursgate3/m/fades-equipment-distribution-aio",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4918115/files/7728625/download",
       "filename": "xfed_aio_af330e86-7335-b20c-ce-7dny.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Hag Hair",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-hag-hair",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4918863/files/6433511/download",
       "filename": "betterhaghair_7c345e8f-a290-e2-4pg5.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Potion of Everlasting Vigour",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-potion-of-everlasting-vigour",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4919847/files/6340430/download",
       "filename": "betterpotionofeverlastingvigou-6bw7.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Camp Casting",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-camp-casting",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4924283/files/6412394/download",
       "filename": "bettercampcasting_c90a3f3b-a7f-1ajj.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Tasha's Cauldron of Faces",
       "ModPage": "https://mod.io/g/baldursgate3/m/tashas-cauldron-of-faces",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4946247/files/6376333/download",
       "filename": "tashascauldronfaces_6774b964-d-fvpr.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Withers Wondrous Wares",
       "ModPage": "https://mod.io/g/baldursgate3/m/withers-wondrous-wares",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4952707/files/6393268/download",
       "filename": "witherswondrouswares_263f6f94-fgpj.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mizora's Human Form Restored - Complete Immersion",
       "ModPage": "https://mod.io/g/baldursgate3/m/mizorahumanformwyrmcrossingonly",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4966064/files/6520516/download",
       "filename": "mizorahumanformwyrmcrossingonl-0u5r.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Rebalance Gear",
       "ModPage": "https://mod.io/g/baldursgate3/m/rebalance-gear",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4970736/files/7754788/download",
       "filename": "rebalance_gear_f324020f-de52-3-gaig.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Mirror of Loss",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-mirror-of-loss",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4991333/files/6433454/download",
       "filename": "bettermirrorofloss_556ee609-f2-3alq.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Waypoints Expanded",
       "ModPage": "https://mod.io/g/baldursgate3/m/waypoints-expanded",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5002882/files/6448917/download",
       "filename": "waypoints_400daab4-2ffe-436d-d-8nh8.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Amanda Hairstyle",
       "ModPage": "https://mod.io/g/baldursgate3/m/amanda-hairstyle",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5037984/files/7024094/download",
       "filename": "cazyc147r_10594079-c345-7c35-9-6sho.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "NPC Redesign: Cazador Szarr by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-cazador-szarr",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5055698/files/6898351/download",
       "filename": "aza_npcre_cazador_blossom_1def-7sj9.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dint999_Hairstyles",
       "ModPage": "https://mod.io/g/baldursgate3/m/dint999-hairstyles",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5080659/files/6594856/download",
       "filename": "dint999_hairstyles_69b3279a-d5-ext3.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Speak With Dead Unlimited",
       "ModPage": "https://mod.io/g/baldursgate3/m/speak-with-dead-unlimited",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5125248/files/7684351/download",
       "filename": "speakwithdeadunlimited_f156d3b-d6tq.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "More Noblestalk",
       "ModPage": "https://mod.io/g/baldursgate3/m/more-noblestalk",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5147339/files/6645145/download",
       "filename": "lix_morenoblestalk_138e27e8-43-aofv.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Wyll Better Starting Gear",
       "ModPage": "https://mod.io/g/baldursgate3/m/wyll-better-starting-gear",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5186299/files/6705435/download",
       "filename": "wyll_better_starting_gear_3a2b-8fz5.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantle of Blood: A Bhaal-Themed Cloak",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantle-of-blood",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5188099/files/6703934/download",
       "filename": "bloodrevenant_ad431948-03e5-2d-dafn.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Wyll's Devil Bonuses",
       "ModPage": "https://mod.io/g/baldursgate3/m/devilwyll",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5202009/files/6724590/download",
       "filename": "devilwyll_895e700b-8a9d-62bb-5-c1ph.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Orin the Red: Redesign Mashup by AzazeL x Lynia",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-orin-the-red-redesign-mashup",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5209747/files/6735462/download",
       "filename": "aza_orin_npcre-makeover_mashup-awwj.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "NPC Redesign: Waukeen's Rest by AzazeL",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-waukeens-rest",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5290997/files/6846298/download",
       "filename": "aza_npcre_waukensinn_a74d34b5-eod4.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Camp Event Overhaul",
       "ModPage": "https://mod.io/g/baldursgate3/m/ht-camp-event-overhaul",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5304919/files/6869755/download",
       "filename": "camp-scene-overhaul_d756bfd1-e-71f7.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dark Urge - True Origin Immersion",
       "ModPage": "https://mod.io/g/baldursgate3/m/dark-urge-true-origin-immersion4",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5321521/files/6980632/download",
       "filename": "darkurge_true_start_b5985b29-e-conv.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "[Aza] NPC Redesign: Zhentarim Hideout",
       "ModPage": "https://mod.io/g/baldursgate3/m/aza-npc-redesign-zhentarim-hideout",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5363929/files/7643943/download",
       "filename": "aza_npcre_zhentarimhideout_77b-3nvs.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Hotbar 2",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-hotbar-2",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4199527/files/6278453/download",
       "filename": "betterhotbar2_a43f8334-d0cd-b6-64ke.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Inventory UI",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-inventory-ui1",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4228735/files/6795889/download",
       "filename": "betterinventoryui_6b585be8-ed7-bplo.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Target Info",
       "ModPage": "https://mod.io/g/baldursgate3/m/bettertargetinfo1",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4142479/files/6276768/download",
       "filename": "bettertargetinfo_1186f940-7338-cp8j.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Better Topbar",
       "ModPage": "https://mod.io/g/baldursgate3/m/better-topbar",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4208836/files/6276855/download",
       "filename": "bettertopbar_d9582df8-6eef-a75-4cx6.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "BetterTooltips",
       "ModPage": "https://mod.io/g/baldursgate3/m/bettertooltips2",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4168834/files/6795823/download",
       "filename": "bettertooltips_bc1081b4-e2a9-c-esik.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dynamic Sidebar",
       "ModPage": "https://mod.io/g/baldursgate3/m/dynamic-sidebar",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4199791/files/6278624/download",
       "filename": "dynamicsidebar_1e649013-e371-9-0qxh.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "UnlockLevelCurve Patch: XP x 0.75",
       "ModPage": "https://mod.io/g/baldursgate3/m/unlocklevelcurve-patch-xp-x075",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4187517/files/5395141/download",
       "filename": "unlocklevelcurve_patch_xp_x075-0mln.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "The Dark Urge",
       "ModPage": "https://mod.io/g/baldursgate3/m/thedarkurgeclass",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5340717/files/6968226/download",
       "filename": "durge_b9304c14-a803-efe1-478e-hun2.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "AddonBetterInventoryUI",
       "ModPage": "https://mod.io/g/baldursgate3/m/addonbetterinventoryui",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4180899/files/6276673/download",
       "filename": "addonbetterinventoryui_8c7d340-3bzc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "ContainersExtendedExtraplanar",
       "ModPage": "https://mod.io/g/baldursgate3/m/containersextendedextraplanar",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4839118/files/6369643/download",
       "filename": "containersextendedextraplanar_-1eld.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "FemalePlanarAlly",
       "ModPage": "https://mod.io/g/baldursgate3/m/femaleplanarally",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4547703/files/7131808/download",
       "filename": "femaleplanarally_60d271fc-a79f-ainf.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "PolyamoryFixes",
       "ModPage": "https://mod.io/g/baldursgate3/m/polyamoryfixes",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4335717/files/6887749/download",
       "filename": "polyamoryfixes_6c253629-15d1-2-2muf.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Fade's Equipment Distribution",
       "ModPage": "https://mod.io/g/baldursgate3/m/fades-equipment-distribution-fed",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4458227/files/6736053/download",
       "filename": "fed_3baef2b9-80d3-777b-a256-39-9yh3.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dryad Revealing",
       "ModPage": "https://mod.io/g/baldursgate3/m/dryad-revealing",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5271078/files/6855472/download",
       "filename": "nudedryad_ab670528-cce4-de6e-7-2fjx.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Larger pen*s With Flopping Physics",
       "ModPage": "https://mod.io/g/baldursgate3/m/na163251",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5036174/files/7104239/download",
       "filename": "largerpeniswithfloppingphysics-9jdn.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Replay Love Test",
       "ModPage": "https://mod.io/g/baldursgate3/m/replaylovetest",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5859757/files/7491084/download",
       "filename": "replaylovetest_6285250d-c749-c-oxkt.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Priestess Gut's New Look: Revamped",
       "ModPage": "https://mod.io/g/baldursgate3/m/priestess-guts-new-look-revamped",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5785024/files/7392291/download",
       "filename": "priestess_gut_new_look_revampe-0rmd.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dror Ragzlin's New Look: Revamped",
       "ModPage": "https://mod.io/g/baldursgate3/m/dror-ragzlins-new-look-revamped",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5785003/files/7392268/download",
       "filename": "dror_ragzlin_new_look_revamped-beem.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Ultimate Cut Content Restoration Mod",
       "ModPage": "https://mod.io/g/baldursgate3/m/ultimate-cut-content-restoration-mod",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5762190/files/7488258/download",
       "filename": "ultimatecutcontentrestorationm-7r1s.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Royal Knight - Progressive Equipment Set",
       "ModPage": "https://mod.io/g/baldursgate3/m/royal-knight-progressive-equipment-set",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5651125/files/7380296/download",
       "filename": "rknghtbrs_c21250da-3aa7-d2ea-0-8fwc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Fade's Assorted Treasure Expansion",
       "ModPage": "https://mod.io/g/baldursgate3/m/fades-assorted-treasure-expansion",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5520506/files/7728581/download",
       "filename": "xfate_fef3fbd7-4a38-01e2-d37c-g76m.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Female Planar Ally",
       "ModPage": "https://mod.io/g/baldursgate3/m/female-planar-ally",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/5475105/files/7033489/download",
       "filename": "femaleplanarally_c9a7fbe4-6cfa-1mzc.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Mantis' Le Printemps Preset Collection (BT1 and 2)",
       "ModPage": "https://mod.io/g/baldursgate3/m/mantis-le-printemps-preset-collection",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4883866/files/6291850/download",
       "filename": "mantisleprintempscollection_88-fp8a.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dawnstar's Grimoire",
       "ModPage": "https://mod.io/g/baldursgate3/m/dawnstars-grimoire",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4843154/files/7097456/download",
       "filename": "bloodofwitches_f9fdd8af-7637-a-iac3.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Flagellant's Finery - Loviatar robe refits",
       "ModPage": "https://mod.io/g/baldursgate3/m/flagellants-finery-loviatar-robe-refits",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4766946/files/6360661/download",
       "filename": "penitentpetitioners_88a574d6-d-1drb.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Skirbie's Vintage Firearms Pack",
       "ModPage": "https://mod.io/g/baldursgate3/m/skirbies-firearms-pack",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4670749/files/6119699/download",
       "filename": "skrbfrms_18e46967-50b1-f6fb-56-evvt.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Infernal Intimates - Stockings for all",
       "ModPage": "https://mod.io/g/baldursgate3/m/infernal-intimates-tk",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4635066/files/5987346/download",
       "filename": "infernalintimatestk_3d146a0c-4-o6hi.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "CL_Inconstant Moon - Cleric Gear",
       "ModPage": "https://mod.io/g/baldursgate3/m/cl-shadowheart-gear",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4483673/files/7206641/download",
       "filename": "cl_shadowheart_gear_13cca0f0-d-ie18.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Gifts of the Absolute: Branded Equipment",
       "ModPage": "https://mod.io/g/baldursgate3/m/gifts-of-the-absolute-branded-equipment",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4421222/files/7405472/download",
       "filename": "gota_equipment_a7230f48-7bce-a-2nub.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Dark Urge - Slayer Equipments and Spells",
       "ModPage": "https://mod.io/g/baldursgate3/m/dark-urge-slayer-equipment-and-spells",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4368921/files/7274728/download",
       "filename": "helloworld_391f8c7c-d49d-ee1c-fkrt.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Underwear of Rituals",
       "ModPage": "https://mod.io/g/baldursgate3/m/underwearrituals",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4320014/files/5844539/download",
       "filename": "underwearofminorrituals_3100f4-eklr.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     },
     {
       "ModName": "Custom Dices In Passive Rolls",
       "ModPage": "https://mod.io/g/baldursgate3/m/custom-dices-in-passive-rolls",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4222734/files/6278804/download",
       "filename": "customdicesinpassiverolls_cecb-15zf.zip",
-      "source": "mod.io",
-      "pakfile": "ACT1_Capes_139ee212-9e2c-78ef-98b9-a5c99ddd6e0c.pak"
+      "source": "mod.io"
     }
   ]
 }
