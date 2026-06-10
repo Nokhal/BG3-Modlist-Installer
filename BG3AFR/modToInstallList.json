@@ -691,12 +691,19 @@
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3961",
       "source": "rpghq.org",
-      "filename": "RealmsRestored_Aesthetics-v4.2.zip"
+      "filename": "RealmsRestored_HumanCrowds80pc-v1.0.zip"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Human Crowds 80pc",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3989",
+      "source": "rpghq.org"
     },
     {
       "ModName": "Realms Restored 4.2 - Heads",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
       "DLLink": "https://rpghq.org/forums/api/mods/dl/3967",
+      "filename": "RealmsRestored_Heads-v3.1.zip",
       "source": "rpghq.org"
     },
     {
@@ -724,12 +731,6 @@
       "source": "rpghq.org"
     },
     {
-      "ModName": "Realms Restored 4.2 - Human Crowds 80pc",
-      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
-      "DLLink": "https://rpghq.org/forums/api/mods/dl/3989",
-      "source": "rpghq.org"
-    },
-    {
       "ModName": "Better Companions - Astaria - Visuals",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/yW7NowE3qBrD.zip?n=%5BVisuals%5D%20Astaria.zip",
@@ -739,6 +740,7 @@
       "ModName": "Better Companions - Astaria - Voice Conversion (Dialogue)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/osw5gM4gcW35.zip?n=VCAstaria.zip",
+      "filename": "VCAstaria.zip",
       "source": "rpghq.org"
     },
     {
@@ -763,6 +765,7 @@
       "ModName": "Better Companions - Gaile -  Voice Conversion (Dialogue)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/yAvAxCFDBJKk.zip?n=VCGaile.zip",
+      "filename": "VCGaile.zip",
       "source": "rpghq.org"
     },
     {
