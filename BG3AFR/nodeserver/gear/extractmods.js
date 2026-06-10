@@ -45,13 +45,73 @@ function findPakFiles(dirPath, baseDir = dirPath) {
 	return pakFiles;
 }
 
-function getPakFileSet(baseDir) {
-	return new Set(findPakFiles(baseDir));
+function isPathInsideDirectory(baseDir, targetPath) {
+	const relativePath = path.relative(baseDir, targetPath);
+	return relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
 }
 
-function getNewPakFiles(beforePakSet, baseDir) {
-	const afterPakFiles = findPakFiles(baseDir);
-	return afterPakFiles.filter((pakFile) => !beforePakSet.has(pakFile));
+function getPakCandidatesFromZipEntryNames(entryNames) {
+	const pakCandidates = [];
+
+	for (const entryName of entryNames) {
+		if (typeof entryName !== 'string') {
+			continue;
+		}
+
+		const normalizedEntry = path.normalize(entryName);
+		if (normalizedEntry.includes('..') || path.isAbsolute(normalizedEntry)) {
+			continue;
+		}
+
+		if (normalizedEntry.toLowerCase().endsWith('.pak')) {
+			pakCandidates.push(normalizedEntry);
+		}
+	}
+
+	return pakCandidates;
+}
+
+function resolveExtractedPakFromCandidates(pakCandidates) {
+	for (const pakCandidate of pakCandidates) {
+		const pakFilePath = path.join(modsDirPath, pakCandidate);
+		if (isPathInsideDirectory(modsDirPath, pakFilePath) && fs.existsSync(pakFilePath)) {
+			return pakCandidate;
+		}
+	}
+
+	return null;
+}
+
+function getPakCandidatesFromArchiveWithPowerShell(realArchivePath, callback) {
+	const { execFile } = require('child_process');
+	const listPakEntriesScript = [
+		'Add-Type -AssemblyName System.IO.Compression.FileSystem',
+		'$zip = [System.IO.Compression.ZipFile]::OpenRead($args[0])',
+		'try {',
+		'  $zip.Entries | Where-Object { -not [string]::IsNullOrEmpty($_.Name) -and $_.FullName.ToLower().EndsWith(".pak") } | ForEach-Object { $_.FullName }',
+		'} finally {',
+		'  $zip.Dispose()',
+		'}',
+	].join('; ');
+
+	execFile('powershell', [
+		'-NoProfile',
+		'-Command',
+		listPakEntriesScript,
+		realArchivePath,
+	], (listErr, stdout) => {
+		if (listErr) {
+			callback(listErr);
+			return;
+		}
+
+		const entryNames = stdout
+			.split(/\r?\n/)
+			.map((line) => line.trim())
+			.filter(Boolean);
+
+		callback(null, getPakCandidatesFromZipEntryNames(entryNames));
+	});
 }
 
 function updateModToInstallListWithPakFile(modArchiveFilename, pakFileName) {
@@ -150,7 +210,6 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Ensure Mods directory exists
 	await fs.promises.mkdir(modsDirPath, { recursive: true });
-	const pakFilesBeforeExtraction = getPakFileSet(modsDirPath);
 
 	// Use a simple extraction approach - try to use unzip if available, otherwise use decompress
 	// For now, we'll try to use the built-in zip support via a child process
@@ -159,12 +218,14 @@ async function extractModArchive(modArchiveFilename) {
 			const AdmZip = require('adm-zip');
 			const zip = new AdmZip(realArchivePath);
 			const zipEntries = zip.getEntries();
+			const pakCandidates = getPakCandidatesFromZipEntryNames(zipEntries.map((entry) => entry.entryName));
 
 			zipEntries.forEach((entry) => {
-				const targetPath = path.join(modsDirPath, entry.entryName);
+				const normalizedEntryPath = path.normalize(entry.entryName);
+				const targetPath = path.join(modsDirPath, normalizedEntryPath);
 
 				// Prevent directory traversal in zip
-				if (!targetPath.startsWith(modsDirPath)) {
+				if (!isPathInsideDirectory(modsDirPath, targetPath)) {
 					return;
 				}
 
@@ -176,12 +237,9 @@ async function extractModArchive(modArchiveFilename) {
 				}
 			});
 
-			// Only use pak files added by this extraction.
-			const pakFiles = getNewPakFiles(pakFilesBeforeExtraction, modsDirPath);
-			let pakFileName = null;
+			const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
 
-			if (pakFiles.length > 0) {
-				pakFileName = pakFiles[0]; // Use the first .pak file found
+			if (pakFileName) {
 				updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
 			}
 
@@ -196,30 +254,34 @@ async function extractModArchive(modArchiveFilename) {
 			if (error.code === 'MODULE_NOT_FOUND') {
 				// Fallback: try using command line unzip
 				const { execFile } = require('child_process');
-				execFile('powershell', [
-					'-NoProfile',
-					'-Command',
-					`Expand-Archive -Path "${realArchivePath}" -DestinationPath "${modsDirPath}" -Force`,
-				], (err) => {
-					if (err) {
-						reject(new Error(`Failed to extract archive: ${err.message}`));
-					} else {
-						// Only use pak files added by this extraction.
-						const pakFiles = getNewPakFiles(pakFilesBeforeExtraction, modsDirPath);
-						let pakFileName = null;
-
-						if (pakFiles.length > 0) {
-							pakFileName = pakFiles[0]; // Use the first .pak file found
-							updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
-						}
-
-						resolve({
-							success: true,
-							archiveFilename: modArchiveFilename,
-							extractedTo: modsDirPath,
-							pakfile: pakFileName,
-						});
+				getPakCandidatesFromArchiveWithPowerShell(realArchivePath, (listErr, pakCandidates = []) => {
+					if (listErr) {
+						reject(new Error(`Failed to inspect archive entries: ${listErr.message}`));
+						return;
 					}
+
+					execFile('powershell', [
+						'-NoProfile',
+						'-Command',
+						`Expand-Archive -Path "${realArchivePath}" -DestinationPath "${modsDirPath}" -Force`,
+					], (err) => {
+						if (err) {
+							reject(new Error(`Failed to extract archive: ${err.message}`));
+						} else {
+							const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
+
+							if (pakFileName) {
+								updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
+							}
+
+							resolve({
+								success: true,
+								archiveFilename: modArchiveFilename,
+								extractedTo: modsDirPath,
+								pakfile: pakFileName,
+							});
+						}
+					});
 				});
 			} else {
 				reject(new Error(`Failed to extract archive: ${error.message}`));
