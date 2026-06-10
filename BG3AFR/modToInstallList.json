@@ -881,7 +881,7 @@
       "pakfile": "[Visuals] Gaile.pak"
     },
     {
-      "ModName": "Better Companions - Gaile -  Voice Conversion (Dialogue)",
+      "ModName": "Better Companions - Gaile - Voice Conversion (Dialogue)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/yAvAxCFDBJKk.zip?n=VCGaile.zip",
       "filename": "VCGaile.zip",
@@ -889,7 +889,7 @@
       "pakfile": "VCGaile.pak"
     },
     {
-      "ModName": "Better Companions - Gaile -  Voice Conversion (Point and Click)",
+      "ModName": "Better Companions - Gaile - Voice Conversion (Point and Click)",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
       "DLLink": "https://f.rpghq.org/wc8CUeuvLkss.zip?n=PCGaile.zip",
       "filename": "PCGaile.zip",
@@ -911,6 +911,44 @@
       "source": "rpghq.org",
       "filename": "[Visuals]_Wilhelmine.zip",
       "pakfile": "[Visuals]_Wilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Voice Conversion (Dialogue)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/9n7n2hjRiYjK.zip?n=VCWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "VCWilhelmine.zip",
+      "pakfile": "VCWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Voice Conversion (Point and Click)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/ceseE2X44g5e.zip?n=PCWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "PCWilhelmine.zip",
+      "pakfile": "PCWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Localization",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/FqK5MOOZL0nh.zip?n=LocaWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "LocaWilhelmine.zip",
+      "pakfile": "LocaWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Minthara - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/dz8CM7jvrkOq.zip?n=%5BVisuals%5D%20Minthara.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Minthara.zip"
+    },
+    {
+      "ModName": "Better Companions - Jaheira - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/DAB5tjYLigt0.zip?n=%5BVisuals%5D%20Jaheira.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Jaheira.zip"
     }
   ]
 }
