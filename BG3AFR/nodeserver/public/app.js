@@ -98,10 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse, modioDownloadResponse, modsExtractedResponse] = await Promise.all([
+			const [bg3Response, modsResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modiodownload', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/rpghqdownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modsextracted', { method: 'GET', cache: 'no-store' }),
 			]);
 
@@ -133,6 +134,20 @@ document.addEventListener('DOMContentLoaded', () => {
 					startDownloadButton.hidden = true;
 					startDownloadButton.disabled = true;
 					await displayAlreadyDownloadedMods();
+				}
+			}
+
+			if (rpghqDownloadResponse.ok) {
+				const rpghqPayload = await rpghqDownloadResponse.json();
+				if (rpghqPayload.success && rpghqPayload.value === true) {
+					if (downloadRpghqCheckmark && downloadRpghqItem) {
+						downloadRpghqCheckmark.textContent = '✓';
+						downloadRpghqItem.classList.add('checklist-item--checked');
+					}
+					downloadRpghqStatus.textContent = 'Mods downloaded previously.';
+					startDownloadRpghqButton.hidden = true;
+					startDownloadRpghqButton.disabled = true;
+					await displayAlreadyDownloadedRpghqMods();
 				}
 			}
 
@@ -258,6 +273,48 @@ document.addEventListener('DOMContentLoaded', () => {
 			applyDownloadListCollapsedState();
 		} catch (error) {
 			downloadStatus.textContent = `Error loading downloaded mods: ${error.message}`;
+		}
+	}
+
+	async function displayAlreadyDownloadedRpghqMods() {
+		try {
+			downloadRpghqProgress.hidden = false;
+			rpghqDownloadList.innerHTML = '';
+			downloadRpghqStatus.textContent = 'Loading previously downloaded mods...';
+			toggleRpghqListButton.hidden = true;
+
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+			const downloadedRpghqMods = modList.filter((mod) => mod.filename && mod.source === 'rpghq.org');
+
+			if (downloadedRpghqMods.length === 0) {
+				downloadRpghqStatus.textContent = 'No previously downloaded rpghq.org mods found.';
+				return;
+			}
+
+			downloadRpghqStatus.textContent = `Showing ${downloadedRpghqMods.length} previously downloaded mods...`;
+
+			for (const mod of downloadedRpghqMods) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const filename = mod.filename || 'Unknown';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - ⬇ Already downloaded (${filename})`;
+				listItem.id = `rpghq-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				listItem.style.color = 'green';
+				rpghqDownloadList.appendChild(listItem);
+			}
+
+			downloadRpghqStatus.textContent = `Showing ${downloadedRpghqMods.length} previously downloaded mods.`;
+			toggleRpghqListButton.hidden = false;
+			applyRpghqListCollapsedState();
+		} catch (error) {
+			downloadRpghqStatus.textContent = `Error loading downloaded mods: ${error.message}`;
 		}
 	}
 
@@ -621,10 +678,106 @@ document.addEventListener('DOMContentLoaded', () => {
 	startDownloadRpghqButton.addEventListener('click', async () => {
 		startDownloadRpghqButton.disabled = true;
 		startDownloadRpghqButton.hidden = true;
-		downloadRpghqStatus.textContent = 'No rpghq.org mods available yet.';
-		downloadRpghqProgress.hidden = true;
+		downloadRpghqStatus.textContent = 'Loading mod list...';
+		downloadRpghqProgress.hidden = false;
 		rpghqDownloadList.innerHTML = '';
 		toggleRpghqListButton.hidden = true;
+
+		try {
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+
+			// Filter to only rpghq.org mods
+			const rpghqMods = modList.filter(mod => mod.source === 'rpghq.org');
+
+			if (!Array.isArray(rpghqMods) || rpghqMods.length === 0) {
+				downloadRpghqStatus.textContent = 'No rpghq.org mods to download.';
+				return;
+			}
+
+			downloadRpghqStatus.textContent = `Starting download of ${rpghqMods.length} mods...`;
+
+			let successCount = 0;
+			let failureCount = 0;
+
+			for (const mod of rpghqMods) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - Downloading...`;
+				listItem.id = `rpghq-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				rpghqDownloadList.appendChild(listItem);
+
+				try {
+					const downloadResponse = await fetch('/api/download-mod', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							modName: mod.ModName,
+						}),
+					});
+
+					const downloadPayload = await downloadResponse.json();
+
+					if (!downloadResponse.ok || !downloadPayload.success) {
+						throw new Error(downloadPayload.message || 'Download failed.');
+					}
+
+					const isAlreadyDownloaded = downloadPayload.result?.alreadyDownloaded;
+					const statusText = isAlreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
+					listItem.textContent = `${modName} - ${statusText} (${downloadPayload.result.fileName})`;
+					listItem.style.color = 'green';
+					successCount += 1;
+				} catch (error) {
+					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					listItem.style.color = 'red';
+					failureCount += 1;
+				}
+			}
+
+			downloadRpghqStatus.textContent = `Download complete. Success: ${successCount}, Failed: ${failureCount}.`;
+
+			// Mark the download task as checked
+			if (downloadRpghqCheckmark && downloadRpghqItem) {
+				downloadRpghqCheckmark.textContent = '✓';
+				downloadRpghqItem.classList.add('checklist-item--checked');
+			}
+
+			// Update settings to mark rpghqdownload as complete
+			try {
+				const settingsResponse = await fetch('/api/settings/rpghqdownload', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ value: true }),
+				});
+
+				if (!settingsResponse.ok) {
+					console.error('Failed to update rpghqdownload setting');
+				}
+			} catch (error) {
+				console.error('Error updating rpghqdownload setting:', error);
+			}
+
+			// Refresh checklist to show next step
+			refreshChecklistProgress();
+
+			// Show the toggle button
+			toggleRpghqListButton.hidden = false;
+			applyRpghqListCollapsedState();
+		} catch (error) {
+			downloadRpghqStatus.textContent = error.message;
+			startDownloadRpghqButton.hidden = false;
+			startDownloadRpghqButton.disabled = false;
+		}
 	});
 
 	toggleRpghqListButton.addEventListener('click', () => {
