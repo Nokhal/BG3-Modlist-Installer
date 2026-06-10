@@ -45,6 +45,15 @@ function findPakFiles(dirPath, baseDir = dirPath) {
 	return pakFiles;
 }
 
+function getPakFileSet(baseDir) {
+	return new Set(findPakFiles(baseDir));
+}
+
+function getNewPakFiles(beforePakSet, baseDir) {
+	const afterPakFiles = findPakFiles(baseDir);
+	return afterPakFiles.filter((pakFile) => !beforePakSet.has(pakFile));
+}
+
 function updateModToInstallListWithPakFile(modArchiveFilename, pakFileName) {
 	try {
 		if (!fs.existsSync(modToInstallListPath)) {
@@ -141,6 +150,7 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Ensure Mods directory exists
 	await fs.promises.mkdir(modsDirPath, { recursive: true });
+	const pakFilesBeforeExtraction = getPakFileSet(modsDirPath);
 
 	// Use a simple extraction approach - try to use unzip if available, otherwise use decompress
 	// For now, we'll try to use the built-in zip support via a child process
@@ -166,8 +176,8 @@ async function extractModArchive(modArchiveFilename) {
 				}
 			});
 
-			// Find .pak files after extraction
-			const pakFiles = findPakFiles(modsDirPath);
+			// Only use pak files added by this extraction.
+			const pakFiles = getNewPakFiles(pakFilesBeforeExtraction, modsDirPath);
 			let pakFileName = null;
 
 			if (pakFiles.length > 0) {
@@ -194,8 +204,8 @@ async function extractModArchive(modArchiveFilename) {
 					if (err) {
 						reject(new Error(`Failed to extract archive: ${err.message}`));
 					} else {
-						// Find .pak files after extraction
-						const pakFiles = findPakFiles(modsDirPath);
+						// Only use pak files added by this extraction.
+						const pakFiles = getNewPakFiles(pakFilesBeforeExtraction, modsDirPath);
 						let pakFileName = null;
 
 						if (pakFiles.length > 0) {
