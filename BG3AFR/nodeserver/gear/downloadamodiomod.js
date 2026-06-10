@@ -47,8 +47,17 @@ function getFilenameFromContentDisposition(headerValue) {
 		return decodeURIComponent(utf8Match[1]);
 	}
 
-	const plainMatch = headerValue.match(/filename="?([^";]+)"?/i);
-	return plainMatch && plainMatch[1] ? plainMatch[1] : '';
+	const quotedMatch = headerValue.match(/filename="([^"]+)"/i);
+	if (quotedMatch && quotedMatch[1]) {
+		return quotedMatch[1];
+	}
+
+	const unquotedMatch = headerValue.match(/filename=([^;\s]+)/i);
+	if (unquotedMatch && unquotedMatch[1]) {
+		return unquotedMatch[1];
+	}
+
+	return '';
 }
 
 function resolveModEntry(modNameOrPage) {
@@ -153,7 +162,7 @@ function downloadFile(url, destinationPath, redirectsLeft = maxRedirects) {
 			const fileStream = fs.createWriteStream(destinationPath);
 
 			pipeline(response, fileStream)
-				.then(() => resolve(response.headers))
+				.then(() => resolve({ headers: response.headers, finalUrl: response.url || url }))
 				.catch((error) => reject(error));
 		});
 
@@ -168,17 +177,31 @@ async function performDownload(modEntry) {
 	const tempFileName = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	const tempPath = path.join(downloadsDir, tempFileName);
 
-	const headers = await downloadFile(requestUrl, tempPath);
+	const downloadResult = await downloadFile(requestUrl, tempPath);
+	const headers = downloadResult.headers || {};
+	const finalUrl = downloadResult.finalUrl || requestUrl;
 
-	const headerFileName = sanitizeFileName(
-		getFilenameFromContentDisposition(headers['content-disposition'])
-	);
+	const contentDisposition = headers['content-disposition'] || '';
+	let targetName = getFilenameFromContentDisposition(contentDisposition);
 
-	let targetName = headerFileName;
+	console.log(`[Download] Mod: ${modEntry.ModName}`);
+	console.log(`[Download] Final URL: ${finalUrl}`);
+	console.log(`[Download] Content-Disposition: ${contentDisposition}`);
+	console.log(`[Download] Extracted from header: ${targetName}`);
+
+	// If no filename from header, try to extract from final URL
+	if (!targetName) {
+		const urlPathName = new URL(finalUrl).pathname;
+		const urlBaseName = path.basename(urlPathName);
+		if (urlBaseName && urlBaseName.toLowerCase() !== 'download' && !urlBaseName.includes('=')) {
+			targetName = urlBaseName;
+			console.log(`[Download] Extracted from URL: ${targetName}`);
+		}
+	}
 
 	if (!targetName) {
-		const fallbackName = `${sanitizeFileName(modEntry.ModName)}.zip`;
-		targetName = fallbackName;
+		targetName = `${sanitizeFileName(modEntry.ModName)}.zip`;
+		console.log(`[Download] Falling back to mod name: ${targetName}`);
 	}
 
 	if (!path.extname(targetName)) {
@@ -190,6 +213,8 @@ async function performDownload(modEntry) {
 	if (tempPath !== destinationPath) {
 		await fs.promises.rename(tempPath, destinationPath);
 	}
+
+	console.log(`[Download] Final filename: ${targetName}`);
 
 	return {
 		modName: modEntry.ModName,

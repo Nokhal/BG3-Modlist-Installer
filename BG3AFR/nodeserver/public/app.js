@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	startDownloadButton.addEventListener('click', async () => {
 		startDownloadButton.disabled = true;
+		startDownloadButton.hidden = true;
 		downloadStatus.textContent = 'Loading mod list...';
 		downloadProgress.hidden = false;
 		modDownloadList.innerHTML = '';
@@ -254,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			downloadStatus.textContent = `Download complete. Success: ${successCount}, Failed: ${failureCount}.`;
 		} catch (error) {
 			downloadStatus.textContent = error.message;
-		} finally {
+			startDownloadButton.hidden = false;
 			startDownloadButton.disabled = false;
 		}
 	});

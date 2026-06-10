@@ -39,6 +39,7 @@ main {
   background: var(--panel);
   backdrop-filter: blur(14px);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  margin-bottom: 4rem;
 }
 
 .eyebrow {
