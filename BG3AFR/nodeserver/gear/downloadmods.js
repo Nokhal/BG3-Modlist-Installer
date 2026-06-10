@@ -49,15 +49,35 @@ function getFilenameFromContentDisposition(headerValue) {
 
 	const quotedMatch = headerValue.match(/filename="([^"]+)"/i);
 	if (quotedMatch && quotedMatch[1]) {
-		return quotedMatch[1];
+		try {
+			return decodeURIComponent(quotedMatch[1]);
+		} catch {
+			return quotedMatch[1];
+		}
 	}
 
 	const unquotedMatch = headerValue.match(/filename=([^;\s]+)/i);
 	if (unquotedMatch && unquotedMatch[1]) {
-		return unquotedMatch[1];
+		try {
+			return decodeURIComponent(unquotedMatch[1]);
+		} catch {
+			return unquotedMatch[1];
+		}
 	}
 
 	return '';
+}
+
+function decodeFilenameIfEncoded(fileName) {
+	if (typeof fileName !== 'string' || !fileName.trim()) {
+		return fileName;
+	}
+
+	try {
+		return decodeURIComponent(fileName);
+	} catch {
+		return fileName;
+	}
 }
 
 function resolveModEntry(modNameOrPage) {
@@ -104,9 +124,7 @@ function buildQueueKey(modEntry) {
 	return normalizeValue(modEntry.ModPage || modEntry.ModName);
 }
 
-function updateModioListFilename(modEntry, fileName, options = {}) {
-	const overwriteExisting = options.overwriteExisting === true;
-
+function updateModioListFilename(modEntry, fileName) {
 	try {
 		const raw = fs.readFileSync(modioListPath, 'utf8');
 		const parsed = JSON.parse(raw.replace(/^\uFEFF/, ''));
@@ -124,7 +142,8 @@ function updateModioListFilename(modEntry, fileName, options = {}) {
 			return (modPage && ePage === modPage) || (modName && eName === modName);
 		});
 
-		if (entry && (!entry.filename || (overwriteExisting && entry.filename !== fileName))) {
+		// Always sync to the actual downloaded file name when it differs.
+		if (entry && entry.filename !== fileName) {
 			entry.filename = fileName;
 			const updated = JSON.stringify(parsed, null, 2);
 			fs.writeFileSync(modioListPath, updated, 'utf8');
@@ -207,7 +226,7 @@ async function performDownload(modEntry) {
 			console.log(`[Download] Mod: ${modEntry.ModName}`);
 			console.log(`[Download] File already exists: ${existingDownload.fileName}`);
 			if (existingDownload.fileName !== modEntry.filename) {
-				updateModioListFilename(modEntry, existingDownload.fileName, { overwriteExisting: true });
+				updateModioListFilename(modEntry, existingDownload.fileName);
 			}
 			return {
 				modName: modEntry.ModName,
@@ -254,6 +273,8 @@ async function performDownload(modEntry) {
 		targetName = `${sanitizeFileName(modEntry.ModName)}.zip`;
 		console.log(`[Download] Falling back to mod name: ${targetName}`);
 	}
+
+	targetName = decodeFilenameIfEncoded(targetName);
 
 	if (!path.extname(targetName)) {
 		targetName = `${targetName}.zip`;
