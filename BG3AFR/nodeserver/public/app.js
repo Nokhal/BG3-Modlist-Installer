@@ -641,7 +641,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					const isAlreadyExtracted = extractPayload.result?.alreadyExtracted;
 					const statusText = isAlreadyExtracted ? '⬇ Already extracted' : '✓ Extracted';
-					listItem.textContent = `${modName} - ${statusText} (${filename})`;
+					const pakFileName = extractPayload.result?.pakfile;
+					if (isAlreadyExtracted && pakFileName) {
+						listItem.textContent = `${modName} - ${statusText} (${filename}) [${pakFileName}]`;
+					} else {
+						listItem.textContent = `${modName} - ${statusText} (${filename})`;
+					}
 					listItem.style.color = 'green';
 					successCount += 1;
 				} catch (error) {

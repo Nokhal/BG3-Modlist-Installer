@@ -82,38 +82,6 @@ function resolveExtractedPakFromCandidates(pakCandidates) {
 	return null;
 }
 
-function getPakCandidatesFromArchiveWithPowerShell(realArchivePath, callback) {
-	const { execFile } = require('child_process');
-	const listPakEntriesScript = [
-		'Add-Type -AssemblyName System.IO.Compression.FileSystem',
-		'$zip = [System.IO.Compression.ZipFile]::OpenRead($args[0])',
-		'try {',
-		'  $zip.Entries | Where-Object { -not [string]::IsNullOrEmpty($_.Name) -and $_.FullName.ToLower().EndsWith(".pak") } | ForEach-Object { $_.FullName }',
-		'} finally {',
-		'  $zip.Dispose()',
-		'}',
-	].join('; ');
-
-	execFile('powershell', [
-		'-NoProfile',
-		'-Command',
-		listPakEntriesScript,
-		realArchivePath,
-	], (listErr, stdout) => {
-		if (listErr) {
-			callback(listErr);
-			return;
-		}
-
-		const entryNames = stdout
-			.split(/\r?\n/)
-			.map((line) => line.trim())
-			.filter(Boolean);
-
-		callback(null, getPakCandidatesFromZipEntryNames(entryNames));
-	});
-}
-
 function updateModToInstallListWithPakFile(modArchiveFilename, pakFileName) {
 	try {
 		if (!fs.existsSync(modToInstallListPath)) {
@@ -152,29 +120,29 @@ function updateModToInstallListWithPakFile(modArchiveFilename, pakFileName) {
 function isPakFileAlreadyExtracted(modArchiveFilename) {
 	try {
 		if (!fs.existsSync(modToInstallListPath)) {
-			return false;
+			return null;
 		}
 
 		const raw = fs.readFileSync(modToInstallListPath, 'utf8');
 		const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
 
 		if (!Array.isArray(data.ModList)) {
-			return false;
+			return null;
 		}
 
 		// Find the mod entry by filename
 		const modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
 
 		if (!modEntry || !modEntry.pakfile) {
-			return false;
+			return null;
 		}
 
 		// Check if the pakfile exists in the Mods directory
 		const pakFilePath = path.join(modsDirPath, modEntry.pakfile);
-		return fs.existsSync(pakFilePath);
+		return fs.existsSync(pakFilePath) ? modEntry.pakfile : null;
 	} catch (error) {
 		console.error(`Error checking if pak file is already extracted: ${error.message}`);
-		return false;
+		return null;
 	}
 }
 
@@ -198,12 +166,15 @@ async function extractModArchive(modArchiveFilename) {
 	}
 
 	// Check if pak file is already extracted
-	if (isPakFileAlreadyExtracted(modArchiveFilename)) {
+	const alreadyExtractedPakFile = isPakFileAlreadyExtracted(modArchiveFilename);
+	if (alreadyExtractedPakFile) {
+		console.log(`[Extract] Mod already extracted, skipping: ${modArchiveFilename}`);
 		// Pak file already extracted, skip extraction
 		return Promise.resolve({
 			success: true,
 			archiveFilename: modArchiveFilename,
 			alreadyExtracted: true,
+			pakfile: alreadyExtractedPakFile,
 			message: 'Pak file already extracted, skipping extraction.',
 		});
 	}
@@ -252,37 +223,7 @@ async function extractModArchive(modArchiveFilename) {
 			});
 		} catch (error) {
 			if (error.code === 'MODULE_NOT_FOUND') {
-				// Fallback: try using command line unzip
-				const { execFile } = require('child_process');
-				getPakCandidatesFromArchiveWithPowerShell(realArchivePath, (listErr, pakCandidates = []) => {
-					if (listErr) {
-						reject(new Error(`Failed to inspect archive entries: ${listErr.message}`));
-						return;
-					}
-
-					execFile('powershell', [
-						'-NoProfile',
-						'-Command',
-						`Expand-Archive -Path "${realArchivePath}" -DestinationPath "${modsDirPath}" -Force`,
-					], (err) => {
-						if (err) {
-							reject(new Error(`Failed to extract archive: ${err.message}`));
-						} else {
-							const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
-
-							if (pakFileName) {
-								updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
-							}
-
-							resolve({
-								success: true,
-								archiveFilename: modArchiveFilename,
-								extractedTo: modsDirPath,
-								pakfile: pakFileName,
-							});
-						}
-					});
-				});
+				reject(new Error('Failed to extract archive: missing dependency "adm-zip". Run npm install adm-zip in nodeserver.'));
 			} else {
 				reject(new Error(`Failed to extract archive: ${error.message}`));
 			}
