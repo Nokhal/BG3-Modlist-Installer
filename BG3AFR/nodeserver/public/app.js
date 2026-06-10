@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const manualInput = document.getElementById('manual-bg3-path');
 	const modsButton = document.getElementById('find-bg3-mods-folder');
 	const modsStatus = document.getElementById('find-bg3-mods-status');
+	const installBg3MmButton = document.getElementById('install-bg3mm-button');
+	const installBg3MmStatus = document.getElementById('install-bg3mm-status');
+	const installBg3MmItem = document.getElementById('install-bg3-mod-manager-item');
+	const installBg3MmCheckmark = installBg3MmItem ? installBg3MmItem.querySelector('.checkmark') : null;
 	const startDownloadButton = document.getElementById('start-download');
 	const downloadStatus = document.getElementById('download-mods-status');
 	const downloadProgress = document.getElementById('download-progress');
@@ -37,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const modsChecklistItem = document.getElementById('bg3-mods-folder-item');
 	const modsCheckmark = modsChecklistItem ? modsChecklistItem.querySelector('.checkmark') : null;
 	const AUTO_TRIGGER_DELAY_MS = 500;
+	const BG3MM_PROJECT_URL = 'https://github.com/LaughingLeader/BG3ModManager';
 
 	function hideFindButton() {
 		button.hidden = true;
@@ -91,6 +96,46 @@ document.addEventListener('DOMContentLoaded', () => {
 		refreshChecklistProgress();
 	}
 
+	function renderBg3MmDetectedStatus(exePath) {
+		if (!installBg3MmStatus) {
+			return;
+		}
+
+		installBg3MmStatus.textContent = '';
+		installBg3MmStatus.appendChild(document.createTextNode(`BGMM detected at: ${exePath}`));
+		installBg3MmStatus.appendChild(document.createElement('br'));
+
+		const downloadLink = document.createElement('a');
+		downloadLink.href = BG3MM_PROJECT_URL;
+		downloadLink.target = '_blank';
+		downloadLink.rel = 'noopener noreferrer';
+		downloadLink.textContent = 'Downloadable Here';
+		downloadLink.className = 'mod-source-link';
+		installBg3MmStatus.appendChild(downloadLink);
+	}
+
+	function applyBg3MmDetectionStatus(detectionResult) {
+		if (!installBg3MmItem || !installBg3MmCheckmark || !installBg3MmStatus || !installBg3MmButton) {
+			return;
+		}
+
+		if (detectionResult?.detected) {
+			installBg3MmCheckmark.textContent = '✓';
+			installBg3MmItem.classList.add('checklist-item--checked');
+			installBg3MmButton.hidden = true;
+			installBg3MmButton.disabled = true;
+			renderBg3MmDetectedStatus(detectionResult.exePath);
+		} else {
+			installBg3MmCheckmark.textContent = '○';
+			installBg3MmItem.classList.remove('checklist-item--checked');
+			installBg3MmButton.hidden = false;
+			installBg3MmButton.disabled = false;
+			installBg3MmStatus.textContent = 'BGMM not detected. Install BG3 Mod Manager before continuing.';
+		}
+
+		refreshChecklistProgress();
+	}
+
 	if (checklistItem && checklistItem.classList.contains('checklist-item--checked')) {
 		hideFindButton();
 	}
@@ -103,9 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse] = await Promise.all([
+			const [bg3Response, modsResponse, bg3mmStatusResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/install-bg3-mod-manager/status', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modiodownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/rpghqdownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modsextracted', { method: 'GET', cache: 'no-store' }),
@@ -125,6 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (modsPayload.success && modsPayload.value && typeof modsPayload.value === 'string') {
 					markModsChecklistItemAsDone();
 					modsStatus.textContent = `Found Baldur's Gate 3 Mods folder in settings: ${modsPayload.value}`;
+				}
+			}
+
+			if (bg3mmStatusResponse.ok) {
+				const bg3mmPayload = await bg3mmStatusResponse.json();
+				if (bg3mmPayload.success) {
+					applyBg3MmDetectionStatus(bg3mmPayload.result);
 				}
 			}
 
@@ -460,6 +513,44 @@ document.addEventListener('DOMContentLoaded', () => {
 			modsButton.disabled = false;
 		}
 	});
+
+	if (installBg3MmButton && installBg3MmStatus) {
+		installBg3MmButton.addEventListener('click', async () => {
+			installBg3MmButton.disabled = true;
+			installBg3MmStatus.textContent = 'Downloading and extracting latest BG3 Mod Manager...';
+
+			try {
+				const response = await fetch('/api/install-bg3-mod-manager', {
+					method: 'POST',
+				});
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					throw new Error(payload.message || 'Failed to install BG3 Mod Manager.');
+				}
+
+				const alreadyDownloaded = payload.result?.alreadyDownloaded;
+				const fileName = payload.result?.fileName || 'archive';
+				const extractedTo = payload.result?.extractedTo || 'tools/bgmm';
+				const statusPrefix = alreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
+				installBg3MmStatus.textContent = `${statusPrefix} ${fileName}; extracted to ${extractedTo}.`;
+
+				const statusResponse = await fetch('/api/install-bg3-mod-manager/status', { method: 'GET', cache: 'no-store' });
+				if (statusResponse.ok) {
+					const statusPayload = await statusResponse.json();
+					if (statusPayload.success) {
+						applyBg3MmDetectionStatus(statusPayload.result);
+					}
+				}
+			} catch (error) {
+				installBg3MmStatus.textContent = `✗ Failed: ${error.message}`;
+			} finally {
+				if (!installBg3MmButton.hidden) {
+					installBg3MmButton.disabled = false;
+				}
+			}
+		});
+	}
 
 	startDownloadButton.addEventListener('click', async () => {
 		startDownloadButton.disabled = true;

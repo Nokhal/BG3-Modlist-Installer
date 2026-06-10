@@ -2,6 +2,7 @@ const express = require('express');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
 const { downloadModFromModioList } = require('../gear/downloadmods');
 const { extractModArchive } = require('../gear/extractmods');
+const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
@@ -141,6 +142,40 @@ router.post('/api/extract-mod', async (req, res) => {
 			success: true,
 			result,
 			message: `Successfully extracted ${modArchiveFilename}`,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/install-bg3-mod-manager', async (req, res) => {
+	try {
+		const result = await downloadLatestBg3ModManagerRelease();
+
+		return res.json({
+			success: true,
+			result,
+			message: result.alreadyDownloaded
+				? 'Latest BG3 Mod Manager archive already exists in Downloads.'
+				: 'Downloaded latest BG3 Mod Manager archive to Downloads.',
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.get('/api/install-bg3-mod-manager/status', (req, res) => {
+	try {
+		const result = getBg3ModManagerDetectionStatus();
+		return res.json({
+			success: true,
+			result,
 		});
 	} catch (error) {
 		return res.status(500).json({
