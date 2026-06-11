@@ -58,6 +58,26 @@
     </div>
     </div>
 
+      <div class="checklist-item" id="select-modlist-item">
+    <span class="checkmark" aria-hidden="true">○</span>
+    <div>
+      <h2>Select modlist</h2>
+      <p id="select-modlist-status" class="status" aria-live="polite">Loading modlists...</p>
+      <label for="modlist-dropdown">Choose a modlist:</label>
+      <div class="modlist-controls">
+        <select id="modlist-dropdown" class="modlist-dropdown" aria-describedby="modlist-description">
+          <option value="">Loading...</option>
+        </select>
+        <button id="import-modlist-button" class="action-button" type="button">Import</button>
+        <input id="modlist-file-input" type="file" accept=".json" hidden>
+      </div>
+      <div id="modlist-description-container" hidden>
+        <p id="modlist-description" class="modlist-description"></p>
+      </div>
+      <button id="install-selected-modlist-button" class="action-button" type="button">Install the currently selected modlist</button>
+    </div>
+    </div>
+
       <div class="checklist-item" id="download-mods-item">
     <span class="checkmark" aria-hidden="true">○</span>
     <div>

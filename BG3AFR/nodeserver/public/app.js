@@ -49,6 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const setLoadOrderStatus = document.getElementById('set-load-order-status');
 	const setLoadOrderItem = document.getElementById('set-load-order-item');
 	const setLoadOrderCheckmark = setLoadOrderItem ? setLoadOrderItem.querySelector('.checkmark') : null;
+	const modlistDropdown = document.getElementById('modlist-dropdown');
+	const modlistStatus = document.getElementById('select-modlist-status');
+	const modlistDescriptionContainer = document.getElementById('modlist-description-container');
+	const modlistDescription = document.getElementById('modlist-description');
+	const modlistItem = document.getElementById('select-modlist-item');
+	const modlistCheckmark = modlistItem ? modlistItem.querySelector('.checkmark') : null;
+	const importModlistButton = document.getElementById('import-modlist-button');
+	const modlistFileInput = document.getElementById('modlist-file-input');
+	const installSelectedModlistButton = document.getElementById('install-selected-modlist-button');
 	const restartButton = document.getElementById('restart-button');
 	const clearDownloadsButton = document.getElementById('clear-downloads-button');
 	const clearModsButton = document.getElementById('clear-mods-button');
@@ -134,6 +143,48 @@ document.addEventListener('DOMContentLoaded', () => {
 		downloadLink.textContent = 'Downloadable Here';
 		downloadLink.className = 'mod-source-link';
 		installBg3MmStatus.appendChild(downloadLink);
+
+		// Add separator
+		installBg3MmStatus.appendChild(document.createTextNode(' | '));
+
+		// Add launch link
+		const launchLink = document.createElement('button');
+		launchLink.textContent = 'Launch BG3ModManager.exe';
+		launchLink.className = 'mod-source-link';
+		launchLink.style.background = 'none';
+		launchLink.style.border = 'none';
+		launchLink.style.padding = '0';
+		launchLink.style.cursor = 'pointer';
+		launchLink.style.font = 'inherit';
+		launchLink.style.textDecoration = 'underline';
+		launchLink.style.textUnderlineOffset = '2px';
+		launchLink.style.color = 'inherit';
+
+		launchLink.addEventListener('click', async () => {
+			try {
+				const response = await fetch('/api/launch-bg3mm', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const data = await response.json();
+
+				if (!response.ok || !data.success) {
+					alert(`Error launching BG3ModManager: ${data.message}`);
+					return;
+				}
+
+				// Optional: show success message
+				console.log('BG3ModManager launched successfully');
+			} catch (error) {
+				console.error('Error launching BG3ModManager:', error);
+				alert(`Error launching BG3ModManager: ${error.message}`);
+			}
+		});
+
+		installBg3MmStatus.appendChild(launchLink);
 	}
 
 	function applyBg3MmDetectionStatus(detectionResult) {
@@ -255,6 +306,206 @@ document.addEventListener('DOMContentLoaded', () => {
 	hydrateChecklistFromSettings().then(() => {
 		refreshChecklistProgress();
 	});
+
+	// Initialize modlist dropdown
+	async function initializeModlistDropdown() {
+		if (!modlistDropdown || !modlistStatus) {
+			return;
+		}
+
+		try {
+			const response = await fetch('/api/browse-modlists', { method: 'GET', cache: 'no-store' });
+			
+			if (!response.ok) {
+				modlistStatus.textContent = 'Failed to load modlists.';
+				return;
+			}
+
+			const data = await response.json();
+			
+			if (!data.success || !Array.isArray(data.modlists)) {
+				modlistStatus.textContent = 'No modlists found.';
+				return;
+			}
+
+			// Sort modlists by LastUpdated in descending order
+			const sortedModlists = data.modlists.sort((a, b) => {
+				const dateA = new Date(a.LastUpdated || 0);
+				const dateB = new Date(b.LastUpdated || 0);
+				return dateB - dateA;
+			});
+
+			// Clear existing options
+			modlistDropdown.innerHTML = '';
+
+			// Add options to dropdown
+			sortedModlists.forEach((modlist) => {
+				const option = document.createElement('option');
+				const displayDate = modlist.LastUpdated ? new Date(modlist.LastUpdated).toLocaleDateString() : 'Unknown';
+				option.value = modlist.filename;
+				option.textContent = `${modlist.Name} - ${displayDate}`;
+				option.dataset.description = modlist.Description;
+				modlistDropdown.appendChild(option);
+			});
+
+			// Check if there's a saved modlist selection
+			const selectedResponse = await fetch('/api/get-selected-modlist', { method: 'GET', cache: 'no-store' });
+			const selectedData = await selectedResponse.json();
+			const selectedModlist = selectedData.selectedModlist;
+
+			if (selectedModlist) {
+				// Modlist already selected - lock controls
+				modlistDropdown.value = selectedModlist;
+				const selectedOption = modlistDropdown.options[modlistDropdown.selectedIndex];
+				if (selectedOption) {
+					modlistDescription.textContent = selectedOption.dataset.description;
+					modlistDescriptionContainer.hidden = false;
+				}
+				modlistStatus.textContent = `Modlist installed: ${selectedOption.textContent}`;
+				
+				// Hide and disable controls
+				modlistDropdown.disabled = true;
+				importModlistButton.hidden = true;
+				installSelectedModlistButton.hidden = true;
+
+				// Mark step as complete
+				if (modlistCheckmark && modlistItem) {
+					modlistCheckmark.textContent = '✓';
+					modlistItem.classList.add('checklist-item--checked');
+				}
+				refreshChecklistProgress();
+			} else {
+				// Find and select Nokhal's Modlist by default
+				const nokhalOption = Array.from(modlistDropdown.options).find(
+					(option) => option.textContent.includes("Nokhal's Modlist")
+				);
+				if (nokhalOption) {
+					modlistDropdown.value = nokhalOption.value;
+					modlistDescription.textContent = nokhalOption.dataset.description;
+					modlistDescriptionContainer.hidden = false;
+				}
+
+				modlistStatus.textContent = 'Modlist selected. Ready to proceed.';
+			}
+		} catch (error) {
+			console.error('Error loading modlists:', error);
+			modlistStatus.textContent = 'Error loading modlists.';
+		}
+	}
+
+	initializeModlistDropdown();
+
+	// Handle modlist dropdown change
+	if (modlistDropdown) {
+		modlistDropdown.addEventListener('change', () => {
+			// Don't allow changes if dropdown is disabled
+			if (modlistDropdown.disabled) {
+				return;
+			}
+
+			const selectedOption = modlistDropdown.options[modlistDropdown.selectedIndex];
+			if (selectedOption && selectedOption.dataset.description) {
+				modlistDescription.textContent = selectedOption.dataset.description;
+				modlistDescriptionContainer.hidden = false;
+			} else {
+				modlistDescriptionContainer.hidden = true;
+			}
+		});
+	}
+
+	// Handle import modlist button click
+	if (importModlistButton && modlistFileInput) {
+		importModlistButton.addEventListener('click', () => {
+			modlistFileInput.click();
+		});
+
+		modlistFileInput.addEventListener('change', async () => {
+			const file = modlistFileInput.files[0];
+			if (!file) {
+				return;
+			}
+
+			try {
+				const formData = new FormData();
+				formData.append('file', file);
+
+				const response = await fetch('/api/upload-modlist', {
+					method: 'POST',
+					body: formData,
+				});
+
+				const data = await response.json();
+
+				if (!response.ok || !data.success) {
+					modlistStatus.textContent = `Error uploading modlist: ${data.message}`;
+					return;
+				}
+
+				modlistStatus.textContent = `Successfully imported ${file.name}. Refreshing...`;
+				
+				// Reset the file input
+				modlistFileInput.value = '';
+
+				// Refresh the dropdown
+				await wait(500);
+				await initializeModlistDropdown();
+			} catch (error) {
+				console.error('Error importing modlist:', error);
+				modlistStatus.textContent = 'Error importing modlist.';
+			}
+		});
+	}
+
+	// Handle install selected modlist button click
+	if (installSelectedModlistButton) {
+		installSelectedModlistButton.addEventListener('click', async () => {
+			const selectedFilename = modlistDropdown ? modlistDropdown.value : null;
+
+			if (!selectedFilename) {
+				modlistStatus.textContent = 'Please select a modlist first.';
+				return;
+			}
+
+			try {
+				installSelectedModlistButton.disabled = true;
+				modlistStatus.textContent = 'Installing modlist...';
+
+				const response = await fetch('/api/install-modlist', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ filename: selectedFilename }),
+				});
+
+				const data = await response.json();
+
+				if (!response.ok || !data.success) {
+					modlistStatus.textContent = `Error installing modlist: ${data.message}`;
+					installSelectedModlistButton.disabled = false;
+					return;
+				}
+
+				// Mark the step as complete
+				if (modlistCheckmark && modlistItem) {
+					modlistCheckmark.textContent = '✓';
+					modlistItem.classList.add('checklist-item--checked');
+				}
+
+				// Hide buttons and disable controls
+				installSelectedModlistButton.hidden = true;
+				importModlistButton.hidden = true;
+				modlistDropdown.disabled = true;
+
+				modlistStatus.textContent = 'Modlist installed successfully.';
+				refreshChecklistProgress();
+			} catch (error) {
+				console.error('Error installing modlist:', error);
+				modlistStatus.textContent = 'Error installing modlist.';
+				installSelectedModlistButton.disabled = false;
+			}
+		});
+	}
 
 	// localStorage helpers for persisting collapse state
 	function saveDownloadListCollapsedState(isCollapsed) {
@@ -1359,6 +1610,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			try {
+				await fetch('/api/clear-selected-modlist', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
 				const response = await fetch('/api/settings/reset', {
 					method: 'POST',
 					headers: {

@@ -3,11 +3,15 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const { pipeline } = require('stream/promises');
+const { spawn } = require('child_process');
+const express = require('express');
 
 const downloadsDirPath = path.join(__dirname, '..', '..', 'Downloads');
 const bgmmToolsDirPath = path.join(__dirname, '..', '..', '..', 'tools', 'bg3mm');
 const githubLatestReleaseApiUrl = 'https://api.github.com/repos/LaughingLeader/BG3ModManager/releases/latest';
 const maxRedirects = 5;
+
+const router = express.Router();
 
 function requestJson(url, redirectsLeft = maxRedirects) {
 	return new Promise((resolve, reject) => {
@@ -184,7 +188,42 @@ function getBg3ModManagerDetectionStatus() {
 	};
 }
 
+/**
+ * POST /api/launch-bg3mm
+ * Launches BG3ModManager.exe
+ */
+router.post('/launch-bg3mm', (req, res) => {
+	try {
+		const exePath = path.join(bgmmToolsDirPath, 'BG3ModManager.exe');
+
+		if (!fs.existsSync(exePath)) {
+			return res.status(404).json({
+				success: false,
+				message: 'BG3ModManager.exe not found. Please install it first.',
+			});
+		}
+
+		// Launch the executable without waiting for it to complete
+		spawn(exePath, [], {
+			detached: true,
+			stdio: 'ignore',
+		}).unref();
+
+		return res.json({
+			success: true,
+			message: 'BG3ModManager launched successfully.',
+		});
+	} catch (error) {
+		console.error('Error launching BG3ModManager:', error.message);
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
 module.exports = {
 	downloadLatestBg3ModManagerRelease,
 	getBg3ModManagerDetectionStatus,
+	router,
 };

@@ -250,3 +250,53 @@ p {
 .mod-list.collapsed {
   display: none;
 }
+
+.modlist-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.modlist-dropdown {
+  flex: 1;
+  max-width: 600px;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.modlist-dropdown:focus {
+  outline: none;
+  border-color: rgba(226, 190, 119, 0.75);
+  box-shadow: 0 0 0 2px rgba(200, 163, 95, 0.24);
+}
+
+.modlist-dropdown option {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.modlist-controls .action-button {
+  margin-top: 0;
+  padding: 0.75rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modlist-description {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(200, 163, 95, 0.12);
+  border: 1px solid rgba(200, 163, 95, 0.34);
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}

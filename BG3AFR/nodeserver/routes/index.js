@@ -5,11 +5,12 @@ const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, to
 const { downloadModFromModioList } = require('../gear/downloadmods');
 const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus, onDownloadEvent, offDownloadEvent, updateModToInstallListFilename } = require('../gear/downloadModsNexus');
 const { extractModArchive } = require('../gear/extractmods');
-const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
+const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus, router: bg3mmRoutes } = require('../gear/installbg3mm');
 const installModsQueue = require('../gear/installMods');
 const { copyLocalFiles } = require('../gear/copyLocalFiles');
 const { setLoadOrder } = require('../gear/setLoadOrder');
 const settingsLoaderRoutes = require('../gear/settingLoader');
+const modlistPickerRoutes = require('../gear/modlistpicker');
 
 const router = express.Router();
 
@@ -662,6 +663,8 @@ router.post('/api/set-load-order', async (req, res) => {
 	}
 });
 
+router.use('/api', modlistPickerRoutes);
+router.use('/api', bg3mmRoutes);
 router.use(settingsLoaderRoutes);
 
 module.exports = router;
