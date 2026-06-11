@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	const downloadNexusmodsItem = document.getElementById('download-nexusmods-item');
 	const downloadNexusmodsCheckmark = downloadNexusmodsItem ? downloadNexusmodsItem.querySelector('.checkmark') : null;
 	const nexusmodsApiKeyInput = document.getElementById('nexusmods-api-key');
+	const restartButton = document.getElementById('restart-button');
+	const clearDownloadsButton = document.getElementById('clear-downloads-button');
+	const clearModsButton = document.getElementById('clear-mods-button');
 	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
 	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
@@ -1082,4 +1085,89 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		saveNexusmodsListCollapsedState(!isCollapsed);
 	});
+
+	if (restartButton) {
+		restartButton.addEventListener('click', async () => {
+			const confirmRestart = confirm('Are you sure you want to restart the setup? All progress will be reset (except your Nexus Mods API key).');
+			if (!confirmRestart) {
+				return;
+			}
+
+			try {
+				const response = await fetch('/api/settings/reset', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					throw new Error(payload.message || 'Failed to reset settings.');
+				}
+
+				// Reload the page to reflect the reset
+				window.location.reload();
+			} catch (error) {
+				alert(`Error resetting setup: ${error.message}`);
+			}
+		});
+	}
+
+	if (clearDownloadsButton) {
+		clearDownloadsButton.addEventListener('click', async () => {
+			const confirmClear = confirm('Are you sure you want to delete all files in the Downloads folder? This cannot be undone.');
+			if (!confirmClear) {
+				return;
+			}
+
+			try {
+				const response = await fetch('/api/clear-downloads', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					throw new Error(payload.message || 'Failed to clear Downloads folder.');
+				}
+
+				alert(`Downloads folder cleared successfully. ${payload.deleted} files deleted.`);
+			} catch (error) {
+				alert(`Error clearing Downloads folder: ${error.message}`);
+			}
+		});
+	}
+
+	if (clearModsButton) {
+		clearModsButton.addEventListener('click', async () => {
+			const confirmClear = confirm('Are you sure you want to delete all files in the Mods folder? This cannot be undone.');
+			if (!confirmClear) {
+				return;
+			}
+
+			try {
+				const response = await fetch('/api/clear-mods', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					throw new Error(payload.message || 'Failed to clear Mods folder.');
+				}
+
+				alert(`Mods folder cleared successfully. ${payload.deleted} files deleted.`);
+			} catch (error) {
+				alert(`Error clearing Mods folder: ${error.message}`);
+			}
+		});
+	}
 });

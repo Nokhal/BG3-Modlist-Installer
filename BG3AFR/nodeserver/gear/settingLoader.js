@@ -66,6 +66,36 @@ router.get('/api/settings/:key', (req, res) => {
 	}
 });
 
+router.post('/api/settings/reset', (req, res) => {
+	try {
+		const currentSettings = readSettingsFromDisk();
+		const nexusModApiKey = currentSettings.nexusModApiKey || null;
+
+		const resetSettings = {
+			dependanciesInstalled: false,
+			bg3InstallPath: null,
+			bg3ModsFolderPath: null,
+			modiodownload: false,
+			modsextracted: false,
+			rpghqdownload: false,
+			nexusModApiKey: nexusModApiKey,
+		};
+
+		fs.writeFileSync(settingsFilePath, JSON.stringify(resetSettings, null, 2), 'utf8');
+
+		return res.json({
+			success: true,
+			message: 'Settings reset successfully. nexusModApiKey preserved.',
+			settings: resetSettings,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: `Failed to reset settings: ${error.message}`,
+		});
+	}
+});
+
 router.post('/api/settings/:key', (req, res) => {
 	try {
 		const settings = readSettingsFromDisk();
@@ -132,6 +162,87 @@ router.get('/api/modiolist/mod/:index', (req, res) => {
 		return res.status(500).json({
 			success: false,
 			message: `Failed to read modToInstallList.json: ${error.message}`,
+		});
+	}
+});
+
+function deleteFilesInDirectory(dirPath) {
+	try {
+		if (!fs.existsSync(dirPath)) {
+			return { success: true, deleted: 0, message: 'Directory does not exist.' };
+		}
+
+		const files = fs.readdirSync(dirPath);
+		let deletedCount = 0;
+
+		for (const file of files) {
+			const filePath = path.join(dirPath, file);
+			const stats = fs.statSync(filePath);
+
+			if (stats.isDirectory()) {
+				// Recursively delete subdirectories
+				const subdirResult = deleteFilesInDirectory(filePath);
+				deletedCount += subdirResult.deleted;
+				fs.rmdirSync(filePath);
+			} else {
+				// Delete file
+				fs.unlinkSync(filePath);
+				deletedCount += 1;
+			}
+		}
+
+		return { success: true, deleted: deletedCount };
+	} catch (error) {
+		return { success: false, error: error.message };
+	}
+}
+
+router.post('/api/clear-downloads', (req, res) => {
+	try {
+		const downloadsPath = path.join(__dirname, '..', '..', 'Downloads');
+		const result = deleteFilesInDirectory(downloadsPath);
+
+		if (!result.success) {
+			return res.status(500).json({
+				success: false,
+				message: `Failed to clear Downloads folder: ${result.error}`,
+			});
+		}
+
+		return res.json({
+			success: true,
+			message: `Downloads folder cleared. ${result.deleted} files deleted.`,
+			deleted: result.deleted,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: `Failed to clear Downloads folder: ${error.message}`,
+		});
+	}
+});
+
+router.post('/api/clear-mods', (req, res) => {
+	try {
+		const modsPath = path.join(__dirname, '..', '..', 'Mods');
+		const result = deleteFilesInDirectory(modsPath);
+
+		if (!result.success) {
+			return res.status(500).json({
+				success: false,
+				message: `Failed to clear Mods folder: ${result.error}`,
+			});
+		}
+
+		return res.json({
+			success: true,
+			message: `Mods folder cleared. ${result.deleted} files deleted.`,
+			deleted: result.deleted,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: `Failed to clear Mods folder: ${error.message}`,
 		});
 	}
 });

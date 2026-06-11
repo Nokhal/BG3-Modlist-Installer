@@ -979,6 +979,40 @@
       "NexusFileId": 120840,
       "filename": "MazzleDocs 2.4.2-18883-2-4-2-1778343845.zip",
       "pakfile": "Mazzle_Docs.pak"
+    },
+    {
+      "ModName": "Mod Configuration Menu (MCM)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/9162",
+      "source": "nexusmods.com",
+      "NexusFileId": 116239,
+      "filename": "Mod Configuration Menu 1.40.1-9162-1-40-1-1772845681.zip",
+      "pakfile": "Mod Configuration Menu.pak"
+    },
+    {
+      "ModName": "Records - A Party Statistics Tracker",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/19021",
+      "source": "nexusmods.com",
+      "NexusFileId": 119872,
+      "filename": "Records-19021-2-0-0-1-1777159585.zip",
+      "pakfile": "Records.pak"
+    },
+    {
+      "ModName": "Native Camera Tweaks",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/945",
+      "source": "nexusmods.com",
+      "NexusFileId": 103535,
+      "filename": "Native Camera Tweaks-945-2-4-5-1758665322.zip",
+      "isNotPak": true,
+      "contentTo": "gameroot",
+      "fileToCheck": "gameroot//bin//NativeMods//BG3NativeCameraTweaks.dll"
+    },{
+      "ModName": "Achievement Enabler",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/668",
+      "source": "nexusmods.com",
+      "NexusFileId": 100387,
+      "isNotPak": true,
+      "contentTo": "gameroot",
+      "fileToCheck": "gameroot//bin//NativeMods//BG3AchievementEnabler.dll"
     }
   ],
   "modsettingslsxBase64": ""
