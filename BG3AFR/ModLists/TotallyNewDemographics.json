@@ -1,0 +1,239 @@
+{
+  "Name":"Totally New Demographics",
+  "Description":"What if BG3 was developped by straight white men in the 90s ? Aesthetic and QOL only",
+  "ModList": [
+    {
+      "ModName": "Realms Restored 4.2 - Aesthetics",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3961",
+      "source": "rpghq.org",
+      "filename": "RealmsRestored_Aesthetics-v4.2.zip",
+      "pakfile": "RealmsRestored_Aesthetics.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Human Crowds 80pc",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3989",
+      "source": "rpghq.org",
+      "filename": "RealmsRestored_HumanCrowds80pc-v1.0.zip",
+      "pakfile": "RealmsRestored_HumanCrowds80pc.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Heads",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3967",
+      "filename": "RealmsRestored_Heads-v3.1.zip",
+      "source": "rpghq.org",
+      "pakfile": "RealmsRestored_Heads.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Name Changes",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3972",
+      "source": "rpghq.org",
+      "filename": "RealmsRestored_NameChanges-v3.0.zip",
+      "pakfile": "RealmsRestored_NameChanges.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Unique Drow Heads",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3975",
+      "filename": "RealmsRestored_Drow-v2.2.zip",
+      "source": "rpghq.org",
+      "pakfile": "RealmsRestored_Drow.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Swaps",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3979",
+      "filename": "RealmsRestored_Swaps-v4.0.zip",
+      "source": "rpghq.org",
+      "pakfile": "RealmsRestored_Swaps.pak"
+    },
+    {
+      "ModName": "Realms Restored 4.2 - Voices",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/3983",
+      "filename": "RealmsRestored_Voices-v3.0.zip",
+      "source": "rpghq.org",
+      "pakfile": "RealmsRestored_Voices.pak"
+    },
+    {
+      "ModName": "Better Companions - Astaria - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/yW7NowE3qBrD.zip?n=%5BVisuals%5D%20Astaria.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Astaria.zip",
+      "pakfile": "[Visuals] Astaria.pak"
+    },
+    {
+      "ModName": "Better Companions - Astaria - Voice Conversion (Dialogue)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/osw5gM4gcW35.zip?n=VCAstaria.zip",
+      "filename": "VCAstaria.zip",
+      "source": "rpghq.org",
+      "pakfile": "VCAstaria.pak"
+    },
+    {
+      "ModName": "Better Companions - Astaria - Voice Conversion (Point and Click)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/ljCb3wgWFfXN.zip?n=PCAstaria.zip",
+      "filename": "PCAstaria.zip",
+      "source": "rpghq.org",
+      "pakfile": "PCAstaria.pak"
+    },
+    {
+      "ModName": "Better Companions - Astaria - Localization",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/Dob5krX1rXyK.zip?n=LocaAstaria.zip",
+      "source": "rpghq.org",
+      "filename": "LocaAstaria.zip",
+      "pakfile": "LocaAstaria.pak"
+    },
+    {
+      "ModName": "Better Companions - Gaile - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/AoNUGn6xNomY.zip?n=%5BVisuals%5D%20Gaile.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Gaile.zip",
+      "pakfile": "[Visuals] Gaile.pak"
+    },
+    {
+      "ModName": "Better Companions - Gaile - Voice Conversion (Dialogue)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/yAvAxCFDBJKk.zip?n=VCGaile.zip",
+      "filename": "VCGaile.zip",
+      "source": "rpghq.org",
+      "pakfile": "VCGaile.pak"
+    },
+    {
+      "ModName": "Better Companions - Gaile - Voice Conversion (Point and Click)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/wc8CUeuvLkss.zip?n=PCGaile.zip",
+      "filename": "PCGaile.zip",
+      "source": "rpghq.org",
+      "pakfile": "PCGaile.pak"
+    },
+    {
+      "ModName": "Better Companions - Gaile - Localization",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/q9eOjJkfeIiD.zip?n=LocaGaile.zip",
+      "source": "rpghq.org",
+      "filename": "LocaGaile.zip",
+      "pakfile": "LocaGaile.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/op5P9gyjvYzs.zip?n=%5BVisuals%5D_Wilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals]_Wilhelmine.zip",
+      "pakfile": "[Visuals]_Wilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Voice Conversion (Dialogue)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/9n7n2hjRiYjK.zip?n=VCWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "VCWilhelmine.zip",
+      "pakfile": "VCWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Voice Conversion (Point and Click)",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/ceseE2X44g5e.zip?n=PCWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "PCWilhelmine.zip",
+      "pakfile": "PCWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Wilhelmine - Localization",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/FqK5MOOZL0nh.zip?n=LocaWilhelmine.zip",
+      "source": "rpghq.org",
+      "filename": "LocaWilhelmine.zip",
+      "pakfile": "LocaWilhelmine.pak"
+    },
+    {
+      "ModName": "Better Companions - Minthara - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/dz8CM7jvrkOq.zip?n=%5BVisuals%5D%20Minthara.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Minthara.zip",
+      "pakfile": "[Visuals] Minthara.pak"
+    },
+    {
+      "ModName": "Better Companions - Jaheira - Visuals",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=62159",
+      "DLLink": "https://f.rpghq.org/DAB5tjYLigt0.zip?n=%5BVisuals%5D%20Jaheira.zip",
+      "source": "rpghq.org",
+      "filename": "[Visuals] Jaheira.zip",
+      "pakfile": "[Visuals] Jaheira.pak"
+    },
+    {
+      "ModName": "Script Extender",
+      "ModPage": "https://github.com/Norbyte/bg3se/releases",
+      "DLLink": "https://github.com/Norbyte/bg3se/releases/download/v31/BG3SE-Updater-20260417.zip",
+      "source": "rpghq.org",
+      "isNotPak": true,
+      "filename": "BG3SE-Updater-20260417.zip",
+      "contentTo": "gameroot//bin",
+      "fileToCheck": "gameroot//bin//DWrite.dll"
+    },
+    {
+      "ModName": "Native Mod Loader",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/944",
+      "source": "nexusmods.com",
+      "NexusFileId": 8910,
+      "isNotPak": true,
+      "contentTo": "gameroot",
+      "fileToCheck": "gameroot//bin//bink2w64_original.dll",
+      "filename": "NativeModLoader-944-1-1692533783.zip"
+    },
+    {
+      "ModName": "Mazzle's EZ-Documentation (MazzleDocs)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/18883",
+      "source": "nexusmods.com",
+      "NexusFileId": 120840,
+      "filename": "MazzleDocs 2.4.2-18883-2-4-2-1778343845.zip",
+      "pakfile": "Mazzle_Docs.pak"
+    },
+    {
+      "ModName": "Mod Configuration Menu (MCM)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/9162",
+      "source": "nexusmods.com",
+      "NexusFileId": 116239,
+      "filename": "Mod Configuration Menu 1.40.1-9162-1-40-1-1772845681.zip",
+      "pakfile": "Mod Configuration Menu.pak"
+    },
+    {
+      "ModName": "Records - A Party Statistics Tracker",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/19021",
+      "source": "nexusmods.com",
+      "NexusFileId": 119872,
+      "filename": "Records-19021-2-0-0-1-1777159585.zip",
+      "pakfile": "Records.pak"
+    },
+    {
+      "ModName": "Native Camera Tweaks",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/945",
+      "source": "nexusmods.com",
+      "NexusFileId": 103535,
+      "filename": "Native Camera Tweaks-945-2-4-5-1758665322.zip",
+      "isNotPak": true,
+      "contentTo": "gameroot",
+      "fileToCheck": "gameroot//bin//NativeMods//BG3NativeCameraTweaks.dll"
+    }
+  ],
+  "localFilesToCopyArray": [
+    {
+      "from": ".\\LocalMods\\ScriptExtenderV32\\bin\\ScriptExtenderSettings.json",
+      "to": ".\\Mods\\gameroot\\bin\\ScriptExtenderSettings.json"
+    },
+    {
+      "from": ".\\LocalMods\\ScriptExtenderV32\\bin\\ScriptExtenderUpdaterConfig.json",
+      "to": ".\\Mods\\gameroot\\bin\\ScriptExtenderUpdaterConfig.json"
+    }
+  ],
+  "modsettingslsxBase64": ""
+}
