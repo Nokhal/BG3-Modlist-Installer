@@ -433,7 +433,6 @@ async function processDownloadQueue() {
 				// Update modToInstallList.json with the filename
 				const fileName = downloadResult.fileName;
 				updateModToInstallListFilename(queueItem.modName, fileName, queueItem.modToInstallListPath);
-				}
 
 				queueItem.result.downloaded.push({
 					modName: queueItem.modName,
@@ -446,7 +445,6 @@ async function processDownloadQueue() {
 					fileName,
 				});
 			} else {
-
 				queueItem.result.failed.push({
 					modName: queueItem.modName,
 					reason: 'Download failed',
