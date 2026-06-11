@@ -1,6 +1,7 @@
 {
   "Name":"Nokhal's Modlist",
   "Description":"Aesthetics, genderbent companions, lots more items, lots of QOL. Much easier than Vanilla",
+  "LastUpdated:": "2026-06-12",
   "ModList": [
     {
       "ModName": "FaerunColors",
@@ -753,6 +754,12 @@
       "filename": "customdicesinpassiverolls_cecb-15zf.zip",
       "source": "mod.io",
       "pakfile": "CustomDicesInPassiveRolls_cecb3423-daf3-19e7-e5ae-3c005c531214.pak"
+    },
+    {
+      "ModName": "No Alphabets 7.1 - CCreator",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2386",
+      "source": "rpghq.org"
     },
     {
       "ModName": "Realms Restored 4.2 - Aesthetics",

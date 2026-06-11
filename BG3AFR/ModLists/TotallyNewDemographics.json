@@ -1,7 +1,38 @@
 {
   "Name":"Totally New Demographics",
-  "Description":"What if BG3 was developped by straight white men in the 90s ? Aesthetic and QOL only",
+  "Description":"What if BG3 was developped by straight European men in the 90s ? Aesthetic and QOL only",
+  "LastUpdated:": "2026-06-11",
   "ModList": [
+    {
+      "ModName": "No Alphabets 7.1 - Aesthetics",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2381",
+      "source": "rpghq.org"
+    },
+    {
+      "ModName": "No Alphabets 7.1 - Voice",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2382",
+      "source": "rpghq.org"
+    },  
+    {
+      "ModName": "No Alphabets 7.1 - Lingo",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2371",
+      "source": "rpghq.org"
+    },
+    {
+      "ModName": "No Alphabets 7.1 - DialogTree",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2384",
+      "source": "rpghq.org"
+    },    
+    {
+      "ModName": "No Alphabets 7.1 - CCreator",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?t=1122",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/2386",
+      "source": "rpghq.org"
+    },
     {
       "ModName": "Realms Restored 4.2 - Aesthetics",
       "ModPage": "https://rpghq.org/forums/viewtopic.php?t=3839-realms-restored-3-0-baldur-s-gate-3",
