@@ -179,6 +179,28 @@ async function extractModArchive(modArchiveFilename) {
 		});
 	}
 
+	// Check if mod is marked as isNotPak before extracting
+	try {
+		if (fs.existsSync(modToInstallListPath)) {
+			const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+			const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+			if (Array.isArray(data.ModList)) {
+				const modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
+				if (modEntry && modEntry.isNotPak === true) {
+					return Promise.resolve({
+						success: false,
+						archiveFilename: modArchiveFilename,
+						message: `Mod "${modEntry.ModName || modArchiveFilename}" is marked as isNotPak and should not be extracted to the Mods folder.`,
+						isNotPak: true,
+					});
+				}
+			}
+		}
+	} catch (error) {
+		console.warn(`Warning checking isNotPak status: ${error.message}`);
+	}
+
 	// Ensure Mods directory exists
 	await fs.promises.mkdir(modsDirPath, { recursive: true });
 

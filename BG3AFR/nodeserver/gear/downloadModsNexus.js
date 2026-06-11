@@ -2,10 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const { pipeline } = require('stream/promises');
+const { EventEmitter } = require('events');
 
 const NEXUS_API_BASE = 'https://api.nexusmods.com/v1';
 const GAME_DOMAIN = 'baldursgate3';
 const downloadsDir = path.join(__dirname, '..', '..', 'Downloads');
+
+// Global download queue and status
+let downloadQueue = [];
+let isDownloading = false;
+const downloadEmitter = new EventEmitter();
 
 // Ensure Downloads directory exists
 function ensureDownloadsDir() {
@@ -111,24 +117,24 @@ async function getNexusModInfo(apiKey, modId) {
 }
 
 /**
- * Get latest file for a mod
+ * Get mod files
  * @param {string} apiKey - Nexus Mods API key
  * @param {number} modId - Mod ID (game-scoped)
- * @returns {Promise<Object>} Latest file info
+ * @returns {Promise<Array>} Array of file objects
  */
-async function getNexusLatestModFile(apiKey, modId) {
+async function getNexusModFiles(apiKey, modId) {
 	if (!modId) {
 		throw new Error('Please provide modId');
 	}
 
-	const endpoint = `/games/${GAME_DOMAIN}/mods/${modId}/files/latest`;
+	const endpoint = `/games/${GAME_DOMAIN}/mods/${modId}/files`;
 	const result = await makeNexusApiRequest(apiKey, endpoint);
 
-	if (!result) {
-		throw new Error('Failed to obtain latest file from Nexus Mods API');
+	if (!result || !Array.isArray(result.files)) {
+		throw new Error('Failed to obtain files from Nexus Mods API');
 	}
 
-	return result;
+	return result.files;
 }
 
 /**
@@ -208,7 +214,7 @@ function sanitizeFileName(name) {
  * @param {Object} options - Download options
  * @param {string} options.apiKey - Nexus Mods API key
  * @param {number} options.modId - Mod ID (game-scoped ID from URL)
- * @param {number} options.fileId - File ID (optional - uses latest if not provided)
+ * @param {number} options.fileId - File ID (optional - uses primary if not provided)
  * @returns {Promise<Object>} Download result with file info
  */
 async function downloadModFromNexus(options) {
@@ -227,18 +233,27 @@ async function downloadModFromNexus(options) {
 		const modInfo = await getNexusModInfo(apiKey, modId);
 		const modName = modInfo.name || `Mod_${modId}`;
 
-		// Get latest file or use specified fileId
+		// Get or find file ID
 		let targetFileId = fileId;
-		let fileInfo;
-
 		if (!targetFileId) {
-			// Get latest file
-			fileInfo = await getNexusLatestModFile(apiKey, modId);
-			targetFileId = fileInfo.file_id;
-
-			if (!targetFileId) {
-				throw new Error('Could not determine file ID for this mod');
+			// Get list of files and use the primary one
+			const files = await getNexusModFiles(apiKey, modId);
+			
+			if (!files || files.length === 0) {
+				throw new Error('No files found for this mod');
 			}
+
+			// Find the primary file (marked as is_primary or MAIN category)
+			const primaryFile = files.find(f => f.is_primary) ||
+								 files.find(f => f.category_name === 'MAIN') ||
+								 files[0];
+
+			if (!primaryFile) {
+				throw new Error('Could not determine which file to download');
+			}
+
+			targetFileId = primaryFile.file_id;
+			console.log(`Using file: ${primaryFile.name} (ID: ${primaryFile.file_id})`);
 		}
 
 		// Get download link
@@ -269,9 +284,334 @@ async function downloadModFromNexus(options) {
 	}
 }
 
+/**
+ * Extract mod ID from Nexus Mods URL
+ * @param {string} url - URL like https://www.nexusmods.com/baldursgate3/mods/944
+ * @returns {number|null} Mod ID or null if not found
+ */
+function extractModIdFromNexusUrl(url) {
+	if (!url || typeof url !== 'string') {
+		return null;
+	}
+	const match = url.match(/\/mods\/(\d+)/);
+	return match ? parseInt(match[1], 10) : null;
+}
+
+/**
+ * Update modToInstallList.json with filename for a mod entry
+ * @param {string} modName - ModName to find
+ * @param {string} fileName - Filename to set
+ * @param {string} modToInstallListPath - Path to modToInstallList.json
+ * @returns {boolean} Success status
+ */
+function updateModToInstallListFilename(modName, fileName, modToInstallListPath) {
+	try {
+		if (!fs.existsSync(modToInstallListPath)) {
+			console.warn(`modToInstallList.json not found at ${modToInstallListPath}`);
+			return false;
+		}
+
+		const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+		const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+		if (!Array.isArray(data.ModList)) {
+			console.warn('Invalid modToInstallList.json format');
+			return false;
+		}
+
+		// Find the mod entry by ModName
+		const modIndex = data.ModList.findIndex((mod) => mod.ModName === modName);
+
+		if (modIndex === -1) {
+			console.warn(`Mod with name "${modName}" not found in modToInstallList.json`);
+			return false;
+		}
+
+		// Update the filename field
+		data.ModList[modIndex].filename = fileName;
+
+		// Write back to file
+		fs.writeFileSync(modToInstallListPath, JSON.stringify(data, null, 2), 'utf8');
+		return true;
+	} catch (error) {
+		console.error(`Failed to update modToInstallList.json: ${error.message}`);
+		return false;
+	}
+}
+
+/**
+ * Process the download queue one mod at a time
+ * @private
+ */
+async function processDownloadQueue() {
+	if (isDownloading || downloadQueue.length === 0) {
+		return;
+	}
+
+	isDownloading = true;
+
+	while (downloadQueue.length > 0) {
+		const queueItem = downloadQueue.shift();
+
+		try {
+			downloadEmitter.emit('progress', {
+				status: 'downloading',
+				current: queueItem.modName,
+				remaining: downloadQueue.length,
+				total: queueItem.total,
+			});
+
+			// Extract mod ID from URL
+			const modId = extractModIdFromNexusUrl(queueItem.modPage);
+			if (!modId) {
+				queueItem.result.failed.push({
+					modName: queueItem.modName,
+					reason: 'Could not extract mod ID from ModPage URL',
+				});
+				continue;
+			}
+
+			// Check if file already exists
+			if (queueItem.filename) {
+				const existingFilePath = path.join(downloadsDir, queueItem.filename);
+				if (fs.existsSync(existingFilePath)) {
+					console.log(`[Skip] File already exists for ${queueItem.modName}: ${queueItem.filename}`);
+					queueItem.result.skipped.push({
+						modName: queueItem.modName,
+						fileName: queueItem.filename,
+						reason: 'File already exists in Downloads folder',
+					});
+					continue;
+				}
+			}
+
+			// Download the mod
+			console.log(`[Downloading] ${queueItem.modName} (ID: ${modId}, FileID: ${queueItem.fileId})`);
+			const downloadResult = await downloadModFromNexus({
+				apiKey: queueItem.apiKey,
+				modId,
+				fileId: queueItem.fileId,
+			});
+
+			if (downloadResult.success) {
+				// Update modToInstallList.json with the filename
+				const fileName = downloadResult.fileName;
+				const updated = updateModToInstallListFilename(queueItem.modName, fileName, queueItem.modToInstallListPath);
+
+				queueItem.result.downloaded.push({
+					modName: queueItem.modName,
+					fileName,
+					fileSize: downloadResult.fileSize,
+					updated,
+				});
+
+				downloadEmitter.emit('completed', {
+					modName: queueItem.modName,
+					fileName,
+				});
+			} else {
+				queueItem.result.failed.push({
+					modName: queueItem.modName,
+					reason: 'Download failed',
+				});
+			}
+		} catch (error) {
+			queueItem.result.failed.push({
+				modName: queueItem.modName,
+				reason: error.message,
+			});
+
+			downloadEmitter.emit('error', {
+				modName: queueItem.modName,
+				error: error.message,
+			});
+		}
+	}
+
+	isDownloading = false;
+	downloadEmitter.emit('queueComplete');
+}
+
+/**
+ * Download all Nexus Mods entries from modToInstallList.json using a queue
+ * @param {string} apiKey - Nexus Mods API key
+ * @param {string} modToInstallListPath - Path to modToInstallList.json
+ * @returns {Promise<Object>} Queue information
+ */
+async function downloadNexusModsFromList(apiKey, modToInstallListPath) {
+	if (!apiKey) {
+		throw new Error('API key is required');
+	}
+
+	if (!fs.existsSync(modToInstallListPath)) {
+		throw new Error(`modToInstallList.json not found at ${modToInstallListPath}`);
+	}
+
+	try {
+		const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+		const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+		if (!Array.isArray(data.ModList)) {
+			throw new Error('Invalid modToInstallList.json format: expected ModList array');
+		}
+
+		// Filter for nexusmods.com entries
+		const nexusModsEntries = data.ModList.filter((mod) => mod.source === 'nexusmods.com');
+
+		if (nexusModsEntries.length === 0) {
+			return {
+				success: true,
+				queued: 0,
+				message: 'No Nexus Mods entries found in modToInstallList.json',
+			};
+		}
+
+		// Create result object that will be shared with queue items
+		const sharedResult = {
+			downloaded: [],
+			skipped: [],
+			failed: [],
+		};
+
+		// Add each mod to the queue
+		const total = nexusModsEntries.length;
+		for (const modEntry of nexusModsEntries) {
+			downloadQueue.push({
+				modName: modEntry.ModName,
+				modPage: modEntry.ModPage,
+				fileId: modEntry.NexusFileId,
+				filename: modEntry.filename,
+				apiKey,
+				modToInstallListPath,
+				result: sharedResult,
+				total,
+			});
+		}
+
+		// Start processing the queue (non-blocking)
+		setImmediate(processDownloadQueue);
+
+		return {
+			success: true,
+			queued: nexusModsEntries.length,
+			message: `${nexusModsEntries.length} mod(s) added to download queue`,
+		};
+	} catch (error) {
+		throw new Error(`Failed to queue Nexus Mods for download: ${error.message}`);
+	}
+}
+
+/**
+ * Get the current download queue status
+ * @returns {Object} Queue status information
+ */
+function getDownloadQueueStatus() {
+	return {
+		isDownloading,
+		queueLength: downloadQueue.length,
+		queue: downloadQueue.map((item) => ({
+			modName: item.modName,
+			status: 'pending',
+		})),
+	};
+}
+
+/**
+ * Listen to download events
+ * @param {string} event - Event name ('progress', 'completed', 'error', 'queueComplete')
+ * @param {Function} callback - Callback function
+ */
+function onDownloadEvent(event, callback) {
+	downloadEmitter.on(event, callback);
+}
+
+/**
+ * Remove download event listener
+ * @param {string} event - Event name
+ * @param {Function} callback - Callback function
+ */
+function offDownloadEvent(event, callback) {
+	downloadEmitter.off(event, callback);
+}
+
+/**
+ * Download all Nexus Mods entries from modToInstallList.json using a queue
+ * @param {string} apiKey - Nexus Mods API key
+ * @param {string} modToInstallListPath - Path to modToInstallList.json
+ * @returns {Promise<Object>} Queue information
+ */
+async function downloadNexusModsFromList(apiKey, modToInstallListPath) {
+	if (!apiKey) {
+		throw new Error('API key is required');
+	}
+
+	if (!fs.existsSync(modToInstallListPath)) {
+		throw new Error(`modToInstallList.json not found at ${modToInstallListPath}`);
+	}
+
+	try {
+		const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+		const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+		if (!Array.isArray(data.ModList)) {
+			throw new Error('Invalid modToInstallList.json format: expected ModList array');
+		}
+
+		// Filter for nexusmods.com entries
+		const nexusModsEntries = data.ModList.filter((mod) => mod.source === 'nexusmods.com');
+
+		if (nexusModsEntries.length === 0) {
+			return {
+				success: true,
+				queued: 0,
+				message: 'No Nexus Mods entries found in modToInstallList.json',
+			};
+		}
+
+		// Create result object that will be shared with queue items
+		const sharedResult = {
+			downloaded: [],
+			skipped: [],
+			failed: [],
+		};
+
+		// Add each mod to the queue
+		const total = nexusModsEntries.length;
+		for (const modEntry of nexusModsEntries) {
+			downloadQueue.push({
+				modName: modEntry.ModName,
+				modPage: modEntry.ModPage,
+				fileId: modEntry.NexusFileId,
+				filename: modEntry.filename,
+				apiKey,
+				modToInstallListPath,
+				result: sharedResult,
+				total,
+			});
+		}
+
+		// Start processing the queue (non-blocking)
+		setImmediate(processDownloadQueue);
+
+		return {
+			success: true,
+			queued: nexusModsEntries.length,
+			message: `${nexusModsEntries.length} mod(s) added to download queue`,
+		};
+	} catch (error) {
+		throw new Error(`Failed to queue Nexus Mods for download: ${error.message}`);
+	}
+}
+
 module.exports = {
 	downloadModFromNexus,
+	downloadNexusModsFromList,
+	getDownloadQueueStatus,
+	onDownloadEvent,
+	offDownloadEvent,
 	getNexusDownloadLink,
 	getNexusModInfo,
+	getNexusModFiles,
 	makeNexusApiRequest,
+	extractModIdFromNexusUrl,
 };

@@ -955,9 +955,11 @@
     {
       "ModName": "Native Mod Loader",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/944?",
-      "DLLink": "https://www.nexusmods.com/baldursgate3/mods/944?tab=files",
-      "source": "www.nexusmods.com"
-
+      "source": "nexusmods.com",
+      "NexusFileId":8910,
+      "isNotPak": true,
+      "contentTo": "gameroot",
+      "fileToCheck": "gameroot//bin//binkw64_original.dll"
     }
   ]
 }

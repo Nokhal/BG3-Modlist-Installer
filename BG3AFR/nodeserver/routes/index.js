@@ -1,7 +1,9 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
 const { downloadModFromModioList } = require('../gear/downloadmods');
-const { downloadModFromNexus } = require('../gear/downloadModsNexus');
+const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus, onDownloadEvent, offDownloadEvent } = require('../gear/downloadModsNexus');
 const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const settingsLoaderRoutes = require('../gear/settingLoader');
@@ -100,6 +102,7 @@ router.post('/api/download-mod', async (req, res) => {
 	try {
 		const modName = typeof req.body?.modName === 'string' ? req.body.modName.trim() : '';
 		const modPage = typeof req.body?.modPage === 'string' ? req.body.modPage.trim() : '';
+		const apiKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim() : '';
 
 		if (!modName && !modPage) {
 			return res.status(400).json({
@@ -108,6 +111,74 @@ router.post('/api/download-mod', async (req, res) => {
 			});
 		}
 
+		// Try to find mod in modToInstallList.json to determine source
+		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+		let modSource = null;
+		let modNexusFileId = null;
+
+		if (fs.existsSync(modToInstallListPath)) {
+			try {
+				const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+				const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+				if (Array.isArray(data.ModList)) {
+					const modEntry = data.ModList.find((mod) =>
+						(modName && mod.ModName === modName) ||
+						(modPage && mod.ModPage === modPage)
+					);
+
+					if (modEntry) {
+						modSource = modEntry.source;
+						modNexusFileId = modEntry.NexusFileId;
+					}
+				}
+			} catch (error) {
+				console.warn('Error reading modToInstallList.json:', error.message);
+			}
+		}
+
+		// Route to appropriate download handler based on source
+		if (modSource === 'nexusmods.com') {
+			if (!apiKey) {
+				return res.status(400).json({
+					success: false,
+					message: 'API key required for Nexus Mods download.',
+				});
+			}
+
+			if (!modNexusFileId) {
+				return res.status(400).json({
+					success: false,
+					message: 'Nexus File ID not found in modToInstallList.json',
+				});
+			}
+
+			// Extract mod ID from ModPage URL
+			const modPageUrl = modPage || (data?.ModList?.find(m => m.ModName === modName)?.ModPage);
+			const modIdMatch = modPageUrl?.match(/\/mods\/(\d+)/);
+			const modId = modIdMatch ? parseInt(modIdMatch[1], 10) : null;
+
+			if (!modId) {
+				return res.status(400).json({
+					success: false,
+					message: 'Could not extract Nexus mod ID from ModPage URL.',
+				});
+			}
+
+			const result = await downloadModFromNexus({
+				apiKey,
+				modId,
+				fileId: modNexusFileId,
+			});
+
+			return res.json({
+				success: true,
+				result,
+				message: `Successfully downloaded "${result.modName}" from Nexus Mods`,
+			});
+		}
+
+		// Default to mod.io download for other sources
 		const result = await downloadModFromModioList({
 			modName: modName || undefined,
 			modPage: modPage || undefined,
@@ -223,6 +294,100 @@ router.post('/api/download-mod-nexus', async (req, res) => {
 			message: error.message,
 		});
 	}
+});
+
+router.post('/api/download-nexus-mods-from-list', async (req, res) => {
+	try {
+		const apiKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim() : '';
+		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+
+		if (!apiKey) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide a Nexus Mods API key.',
+			});
+		}
+
+		if (!fs.existsSync(modToInstallListPath)) {
+			return res.status(400).json({
+				success: false,
+				message: 'modToInstallList.json not found.',
+			});
+		}
+
+		const result = await downloadNexusModsFromList(apiKey, modToInstallListPath);
+
+		return res.json({
+			success: true,
+			...result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.get('/api/download-nexus-queue/status', (req, res) => {
+	try {
+		const status = getDownloadQueueStatus();
+
+		return res.json({
+			success: true,
+			status,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.get('/api/download-nexus-queue/events', (req, res) => {
+	// Set up Server-Sent Events headers
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive',
+		'Access-Control-Allow-Origin': '*',
+	});
+
+	// Send initial connection message
+	res.write('data: {"type":"connected"}\n\n');
+
+	// Set up event listeners
+	const onProgress = (data) => {
+		res.write(`data: ${JSON.stringify({ type: 'progress', ...data })}\n\n`);
+	};
+
+	const onCompleted = (data) => {
+		res.write(`data: ${JSON.stringify({ type: 'completed', ...data })}\n\n`);
+	};
+
+	const onError = (data) => {
+		res.write(`data: ${JSON.stringify({ type: 'error', ...data })}\n\n`);
+	};
+
+	const onQueueComplete = () => {
+		res.write(`data: ${JSON.stringify({ type: 'queueComplete' })}\n\n`);
+		// Close connection after queue complete
+		setTimeout(() => res.end(), 1000);
+	};
+
+	onDownloadEvent('progress', onProgress);
+	onDownloadEvent('completed', onCompleted);
+	onDownloadEvent('error', onError);
+	onDownloadEvent('queueComplete', onQueueComplete);
+
+	// Clean up listeners when client disconnects
+	req.on('close', () => {
+		offDownloadEvent('progress', onProgress);
+		offDownloadEvent('completed', onCompleted);
+		offDownloadEvent('error', onError);
+		offDownloadEvent('queueComplete', onQueueComplete);
+	});
 });
 
 router.use(settingsLoaderRoutes);
