@@ -149,7 +149,9 @@ async function downloadFile(uri, fileName) {
 	return new Promise((resolve, reject) => {
 		const sanitized = sanitizeFileName(fileName);
 		const filePath = path.join(downloadsDir, sanitized);
-		console.log(`[File Download] Starting: ${sanitized}`);
+		console.log(`[File Download] Input filename: "${fileName}"`);
+		console.log(`[File Download] Sanitized filename: "${sanitized}"`);
+		console.log(`[File Download] Starting download to: ${filePath}`);
 
 		const options = {
 			headers: {
@@ -160,7 +162,7 @@ async function downloadFile(uri, fileName) {
 		const req = https.get(uri, options, async (res) => {
 			// Handle redirects
 			if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-				console.log(`[File Download] Redirect detected for ${sanitized}, following...`);
+				console.log(`[File Download] Redirect detected for ${sanitized}, following to: ${res.headers.location}`);
 				try {
 					const redirectedPath = await downloadFile(res.headers.location, fileName);
 					return resolve(redirectedPath);
@@ -182,7 +184,8 @@ async function downloadFile(uri, fileName) {
 					// Verify file was created
 					if (fs.existsSync(filePath)) {
 						const fileSize = fs.statSync(filePath).size;
-						console.log(`[File Download] Complete: ${sanitized} (${fileSize} bytes)`);
+						console.log(`[File Download] ✓ Complete: ${sanitized} (${fileSize} bytes)`);
+						console.log(`[File Download] Actual saved path: ${filePath}`);
 						resolve(filePath);
 					} else {
 						console.error(`[File Download] File not found after download: ${filePath}`);
@@ -216,6 +219,22 @@ function sanitizeFileName(name) {
 		.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
 		.replace(/\s+/g, ' ')
 		.trim();
+}
+
+/**
+ * Decode URL-encoded filename
+ * @param {string} encodedName - URL-encoded filename
+ * @returns {string} Decoded filename
+ */
+function decodeURLFilename(encodedName) {
+	try {
+		const decoded = decodeURIComponent(encodedName);
+		console.log(`[Decode] "${encodedName}" -> "${decoded}"`);
+		return decoded;
+	} catch (error) {
+		console.warn(`[Decode] Failed to decode "${encodedName}": ${error.message}, using as-is`);
+		return encodedName;
+	}
 }
 
 /**
@@ -276,14 +295,41 @@ async function downloadModFromNexus(options) {
 			throw new Error('Failed to obtain download link');
 		}
 
+		console.log(`[Nexus API] Full download URI: ${linkInfo.URI}`);
+
 		// Extract filename from URI or use mod name
 		const uriPath = new URL(linkInfo.URI).pathname;
 		const fileNameFromUri = uriPath.split('/').pop() || `${modName}.zip`;
-		console.log(`[Nexus API] Download link obtained, filename: ${fileNameFromUri}`);
+		console.log(`[Nexus API] URI path: ${uriPath}`);
+		console.log(`[Nexus API] Raw filename extracted from URI: "${fileNameFromUri}"`);
+		
+		// Decode URL-encoded filename
+		const decodedFileName = decodeURLFilename(fileNameFromUri);
+		console.log(`[Nexus API] Decoded filename: "${decodedFileName}"`);
+		
+		const sanitizedForDownload = sanitizeFileName(decodedFileName);
+		console.log(`[Nexus API] Sanitized filename for download: "${sanitizedForDownload}"`);
 
-		// Download the file
-		console.log(`[Nexus Download] Starting download of: ${fileNameFromUri}`);
-		const downloadPath = await downloadFile(linkInfo.URI, fileNameFromUri);
+		// Check if file already exists before downloading
+		const potentialFilePath = path.join(downloadsDir, sanitizedForDownload);
+		if (fs.existsSync(potentialFilePath)) {
+			console.log(`[Nexus API] File already exists at: ${potentialFilePath}`);
+			const fileSize = fs.statSync(potentialFilePath).size;
+			return {
+				success: true,
+				modId,
+				modName,
+				fileId: targetFileId,
+				downloadPath: potentialFilePath,
+				fileName: path.basename(potentialFilePath),
+				fileSize,
+				alreadyExists: true,
+			};
+		}
+
+		// Download the file - use decoded filename
+		console.log(`[Nexus Download] Starting download with decoded filename: ${decodedFileName}`);
+		const downloadPath = await downloadFile(linkInfo.URI, decodedFileName);
 		console.log(`[Nexus Download] File saved to: ${downloadPath}`);
 
 		return {
@@ -396,15 +442,40 @@ async function processDownloadQueue() {
 
 			// Check if file already exists
 			if (queueItem.filename) {
-				const existingFilePath = path.join(downloadsDir, queueItem.filename);
+				// Decode the filename first
+				const decodedFilename = decodeURLFilename(queueItem.filename);
+				const sanitizedQueueFilename = sanitizeFileName(decodedFilename);
+				const existingFilePath = path.join(downloadsDir, sanitizedQueueFilename);
+				
+				console.log(`[Download Queue] Checking for existing file:`);
+				console.log(`[Download Queue]   Original filename from list: "${queueItem.filename}"`);
+				console.log(`[Download Queue]   Decoded filename: "${decodedFilename}"`);
+				console.log(`[Download Queue]   Sanitized filename: "${sanitizedQueueFilename}"`);
+				console.log(`[Download Queue]   Full path: "${existingFilePath}"`);
+				
+				// Log all files in Downloads folder for debugging
+				try {
+					const filesInDownloads = fs.readdirSync(downloadsDir);
+					console.log(`[Download Queue] Files in Downloads folder (${filesInDownloads.length} total):`);
+					filesInDownloads.forEach((file) => {
+						const matches = file.toLowerCase() === sanitizedQueueFilename.toLowerCase();
+						console.log(`[Download Queue]   ${matches ? '✓ MATCH' : '  '} "${file}"`);
+					});
+				} catch (error) {
+					console.error(`[Download Queue] Error reading Downloads folder: ${error.message}`);
+				}
+				
 				if (fs.existsSync(existingFilePath)) {
-					console.log(`[Download Queue] File already exists for ${queueItem.modName}: ${queueItem.filename}`);
+					console.log(`[Download Queue] ✓ File already exists for ${queueItem.modName}`);
 					queueItem.result.skipped.push({
 						modName: queueItem.modName,
 						fileName: queueItem.filename,
 						reason: 'File already exists in Downloads folder',
 					});
 					continue;
+				} else {
+					console.log(`[Download Queue] ✗ File NOT found at: ${existingFilePath}`);
+					console.log(`[Download Queue] Will proceed with download...`);
 				}
 			}
 
@@ -420,12 +491,13 @@ async function processDownloadQueue() {
 				// Update modToInstallList.json with the filename
 				const fileName = downloadResult.fileName;
 				console.log(`[Download Success] ${queueItem.modName} downloaded as: ${fileName}`);
+				console.log(`[Download Success] About to save filename to modToInstallList.json`);
 				const updated = updateModToInstallListFilename(queueItem.modName, fileName, queueItem.modToInstallListPath);
 
 				if (updated) {
-					console.log(`[Download Success] ${queueItem.modName} filename saved to modToInstallList.json`);
+					console.log(`[Download Success] ✓ ${queueItem.modName} filename saved to modToInstallList.json`);
 				} else {
-					console.warn(`[Download Warning] Failed to update filename in modToInstallList.json for ${queueItem.modName}`);
+					console.warn(`[Download Warning] ✗ Failed to update filename in modToInstallList.json for ${queueItem.modName}`);
 				}
 
 				queueItem.result.downloaded.push({
@@ -647,4 +719,6 @@ module.exports = {
 	getNexusModFiles,
 	makeNexusApiRequest,
 	extractModIdFromNexusUrl,
+	updateModToInstallListFilename,
+	decodeURLFilename,
 };

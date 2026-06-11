@@ -953,13 +953,32 @@
       "pakfile": "[Visuals] Jaheira.pak"
     },
     {
+      "ModName": "Script Extender",
+      "ModPage": "https://github.com/Norbyte/bg3se/releases",
+      "DLLink": "https://github.com/Norbyte/bg3se/releases/download/v31/BG3SE-Updater-20260417.zip",
+      "source": "rpghq.org",
+      "isNotPak": true,
+      "filename": "BG3SE-Updater-20260417.zip",
+      "contentTo": "gameroot//bin",
+      "fileToCheck": "gameroot//bin//binkw64_original.dll"
+    },
+    {
       "ModName": "Native Mod Loader",
-      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/944?",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/944",
       "source": "nexusmods.com",
       "NexusFileId": 8910,
       "isNotPak": true,
       "contentTo": "gameroot",
-      "fileToCheck": "gameroot//bin//binkw64_original.dll"
+      "fileToCheck": "gameroot//bin//binkw64_original.dll",
+      "filename": "NativeModLoader-944-1-1692533783.zip"
+    },
+    {
+      "ModName": "Mazzle's EZ-Documentation (MazzleDocs)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/18883",
+      "source": "nexusmods.com",
+      "NexusFileId": 120840,
+      "filename": "MazzleDocs 2.4.2-18883-2-4-2-1778343845.zip"
     }
-  ]
+  ],
+  "modsettingslsxBase64": ""
 }

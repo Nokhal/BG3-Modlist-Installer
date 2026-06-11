@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
 const { downloadModFromModioList } = require('../gear/downloadmods');
-const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus, onDownloadEvent, offDownloadEvent } = require('../gear/downloadModsNexus');
+const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus, onDownloadEvent, offDownloadEvent, updateModToInstallListFilename } = require('../gear/downloadModsNexus');
 const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const settingsLoaderRoutes = require('../gear/settingLoader');
@@ -113,9 +113,11 @@ router.post('/api/download-mod', async (req, res) => {
 
 		// Try to find mod in modToInstallList.json to determine source
 		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+		const downloadsDir = path.join(__dirname, '..', '..', 'Downloads');
 		let modSource = null;
 		let modNexusFileId = null;
 		let modPageUrl = modPage;
+		let modEntry = null;
 
 		if (fs.existsSync(modToInstallListPath)) {
 			try {
@@ -123,7 +125,7 @@ router.post('/api/download-mod', async (req, res) => {
 				const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
 
 				if (Array.isArray(data.ModList)) {
-					const modEntry = data.ModList.find((mod) =>
+					modEntry = data.ModList.find((mod) =>
 						(modName && mod.ModName === modName) ||
 						(modPage && mod.ModPage === modPage)
 					);
@@ -155,6 +157,25 @@ router.post('/api/download-mod', async (req, res) => {
 				});
 			}
 
+			// Check if file already exists in Downloads before downloading
+			if (modEntry && modEntry.filename) {
+				const existingFilePath = path.join(downloadsDir, modEntry.filename);
+				if (fs.existsSync(existingFilePath)) {
+					console.log(`[Download] File already exists for "${modName}": ${modEntry.filename}`);
+					return res.json({
+						success: true,
+						result: {
+							success: true,
+							modName,
+							fileName: modEntry.filename,
+							alreadyExists: true,
+							message: 'File already exists in Downloads folder',
+						},
+						message: `File already exists for "${modName}"`,
+					});
+				}
+			}
+
 			// Extract mod ID from ModPage URL
 			const modIdMatch = modPageUrl?.match(/\/mods\/(\d+)/);
 			const modId = modIdMatch ? parseInt(modIdMatch[1], 10) : null;
@@ -172,6 +193,15 @@ router.post('/api/download-mod', async (req, res) => {
 				modId,
 				fileId: modNexusFileId,
 			});
+
+			// Update filename in modToInstallList.json
+			if (result.success && modName) {
+				const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+				const updated = updateModToInstallListFilename(modName, result.fileName, modToInstallListPath);
+				if (updated) {
+					console.log(`[Download] Updated filename for ${modName} in modToInstallList.json`);
+				}
+			}
 
 			return res.json({
 				success: true,
@@ -265,6 +295,8 @@ router.post('/api/download-mod-nexus', async (req, res) => {
 		const apiKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim() : '';
 		const modId = req.body?.modId;
 		const fileId = req.body?.fileId;
+		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+		const downloadsDir = path.join(__dirname, '..', '..', 'Downloads');
 
 		if (!apiKey) {
 			return res.status(400).json({
@@ -280,11 +312,56 @@ router.post('/api/download-mod-nexus', async (req, res) => {
 			});
 		}
 
+		// Check if file already exists in Downloads before downloading
+		if (fs.existsSync(modToInstallListPath)) {
+			try {
+				const raw = fs.readFileSync(modToInstallListPath, 'utf8');
+				const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
+
+				if (Array.isArray(data.ModList)) {
+					const modEntry = data.ModList.find((mod) => {
+						if (!mod.ModPage) return false;
+						const match = mod.ModPage.match(/\/mods\/(\d+)/);
+						const entryModId = match ? parseInt(match[1], 10) : null;
+						return entryModId === parseInt(modId, 10);
+					});
+
+					if (modEntry && modEntry.filename) {
+						const existingFilePath = path.join(downloadsDir, modEntry.filename);
+						if (fs.existsSync(existingFilePath)) {
+							console.log(`[Download] File already exists for "${modEntry.ModName}": ${modEntry.filename}`);
+							return res.json({
+								success: true,
+								result: {
+									success: true,
+									modName: modEntry.ModName,
+									fileName: modEntry.filename,
+									alreadyExists: true,
+									message: 'File already exists in Downloads folder',
+								},
+								message: `File already exists for "${modEntry.ModName}"`,
+							});
+						}
+					}
+				}
+			} catch (error) {
+				console.warn('Error checking modToInstallList.json:', error.message);
+			}
+		}
+
 		const result = await downloadModFromNexus({
 			apiKey,
 			modId: parseInt(modId, 10),
 			fileId: fileId ? parseInt(fileId, 10) : undefined,
 		});
+
+		// Update filename in modToInstallList.json if the mod is in the list
+		if (result.success && result.modName) {
+			const updated = updateModToInstallListFilename(result.modName, result.fileName, modToInstallListPath);
+			if (updated) {
+				console.log(`[Download] Updated filename for ${result.modName} in modToInstallList.json`);
+			}
+		}
 
 		return res.json({
 			success: true,
