@@ -115,6 +115,7 @@ router.post('/api/download-mod', async (req, res) => {
 		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
 		let modSource = null;
 		let modNexusFileId = null;
+		let modPageUrl = modPage;
 
 		if (fs.existsSync(modToInstallListPath)) {
 			try {
@@ -130,6 +131,7 @@ router.post('/api/download-mod', async (req, res) => {
 					if (modEntry) {
 						modSource = modEntry.source;
 						modNexusFileId = modEntry.NexusFileId;
+						modPageUrl = modEntry.ModPage; // Use the ModPage from the entry
 					}
 				}
 			} catch (error) {
@@ -154,7 +156,6 @@ router.post('/api/download-mod', async (req, res) => {
 			}
 
 			// Extract mod ID from ModPage URL
-			const modPageUrl = modPage || (data?.ModList?.find(m => m.ModName === modName)?.ModPage);
 			const modIdMatch = modPageUrl?.match(/\/mods\/(\d+)/);
 			const modId = modIdMatch ? parseInt(modIdMatch[1], 10) : null;
 
@@ -165,6 +166,7 @@ router.post('/api/download-mod', async (req, res) => {
 				});
 			}
 
+			console.log(`[Download] Nexus Mod: ${modName} (ID: ${modId}, FileID: ${modNexusFileId})`);
 			const result = await downloadModFromNexus({
 				apiKey,
 				modId,
@@ -179,6 +181,7 @@ router.post('/api/download-mod', async (req, res) => {
 		}
 
 		// Default to mod.io download for other sources
+		console.log(`[Download] mod.io Mod: ${modName}`);
 		const result = await downloadModFromModioList({
 			modName: modName || undefined,
 			modPage: modPage || undefined,

@@ -1024,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						},
 						body: JSON.stringify({
 							modName: mod.ModName,
+							apiKey: apiKey,
 						}),
 					});
 
