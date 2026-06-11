@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		installBg3MmStatus.textContent = '';
-		installBg3MmStatus.appendChild(document.createTextNode(`BGMM detected at: ${exePath}`));
+		installBg3MmStatus.appendChild(document.createTextNode(`BG3MM detected at: ${exePath}`));
 		installBg3MmStatus.appendChild(document.createElement('br'));
 
 		const downloadLink = document.createElement('a');
