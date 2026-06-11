@@ -1,5 +1,7 @@
 # BG3 Modlist Installer
 
+A user-friendly modlist installer that allows you to download and install Baldur's Gate 3 modlists from multiple mod websites with just a few clicks
+
 ## For users 
 
 Extract the zip file to a new folder with enough disk space, then double-click launchme.bat
@@ -32,6 +34,17 @@ The structure of a modlist is as follows:
       "contentTo": "Path to install your file. Leave blank for BG3 mod folder, 'gameroot' for game root, 'gameroot/bin' for bin folder, etc",
       "fileToCheck": "Optional - the path of a unique file extracted from the mod archive to avoid re-extracting"
     }
-  ]
+  ],
+  "localFilesToCopyArray": "Leave it like in the example to force the download of scriptExtender V32, required by certain mods",
+  "modsettingslsxBase64": "See Instructions below"
 }
 ```
+### How to create the Load Order Base64 string
+
+- Create your entire modlist except this attribute 
+- Install it using this software
+- Before clicking Set Load Order, launch BG3ModManager.exe
+- Setup and save your load Order
+- Find the modsettings.lsx file in your `\AppData\Local\Larian Studios\Baldur's Gate 3\PlayerProfiles\Public` folder
+- Paste it's entire content in https://www.base64encode.org
+- The encoded string is your modsettingslsxBase64 attribute. Don't forget the quotes around it in the JSON
