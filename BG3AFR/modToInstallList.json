@@ -1005,14 +1005,16 @@
       "isNotPak": true,
       "contentTo": "gameroot",
       "fileToCheck": "gameroot//bin//NativeMods//BG3NativeCameraTweaks.dll"
-    },{
+    },
+    {
       "ModName": "Achievement Enabler",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/668",
       "source": "nexusmods.com",
       "NexusFileId": 100387,
       "isNotPak": true,
       "contentTo": "gameroot",
-      "fileToCheck": "gameroot//bin//NativeMods//BG3AchievementEnabler.dll"
+      "fileToCheck": "gameroot//bin//NativeMods//BG3AchievementEnabler.dll",
+      "filename": "BG3 Achievement Enabler-668-1-3-1754952803.zip"
     }
   ],
   "modsettingslsxBase64": ""

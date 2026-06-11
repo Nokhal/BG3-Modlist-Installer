@@ -6,16 +6,15 @@ const { downloadModFromModioList } = require('../gear/downloadmods');
 const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus, onDownloadEvent, offDownloadEvent, updateModToInstallListFilename } = require('../gear/downloadModsNexus');
 const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
+const installModsQueue = require('../gear/installMods');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
 	res.render('index', {
-		title: 'BG3 Ad Fundamenta Redire',
-		pageTitle: 'BG3 - AFR Install',
-		headline: 'Welcome home',
-		description: 'A basic Express server rendering an EJS homepage on port 3001.',
+		title: 'BG3 ModList Installer',
+		pageTitle: 'BG3 - ModList Installer',
 	});
 });
 
@@ -467,6 +466,98 @@ router.get('/api/download-nexus-queue/events', (req, res) => {
 		offDownloadEvent('completed', onCompleted);
 		offDownloadEvent('error', onError);
 		offDownloadEvent('queueComplete', onQueueComplete);
+	});
+});
+
+router.post('/api/copy-mod-pak', (req, res) => {
+	try {
+		const filename = typeof req.body?.filename === 'string' ? req.body.filename.trim() : '';
+
+		if (!filename) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide a filename.',
+			});
+		}
+
+		// Get the mods folder path and BG3 destination path
+		const modsSourcePath = path.join(__dirname, '..', '..', 'Mods');
+		const settings = require('../gear/settingLoader').getSettings();
+		const modsDestinationPath = settings.bg3ModsFolderPath;
+
+		if (!modsDestinationPath) {
+			return res.status(400).json({
+				success: false,
+				message: 'BG3 Mods folder path not configured in settings.',
+			});
+		}
+
+		const result = installModsQueue.addToQueue(filename, modsSourcePath, modsDestinationPath);
+
+		return res.json({
+			success: result.success,
+			...result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.get('/api/copy-mod-pak/status', (req, res) => {
+	try {
+		const status = installModsQueue.getStatus();
+
+		return res.json({
+			success: true,
+			status,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.get('/api/copy-mod-pak/events', (req, res) => {
+	// Set up Server-Sent Events headers
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive',
+		'Access-Control-Allow-Origin': '*',
+	});
+
+	// Send initial connection message
+	res.write('data: {"type":"connected"}\n\n');
+
+	// Set up event listeners
+	const onCompleted = (data) => {
+		res.write(`data: ${JSON.stringify({ type: 'completed', ...data })}\n\n`);
+	};
+
+	const onError = (data) => {
+		res.write(`data: ${JSON.stringify({ type: 'error', ...data })}\n\n`);
+	};
+
+	const onQueueComplete = () => {
+		res.write(`data: ${JSON.stringify({ type: 'queueComplete' })}\n\n`);
+		// Close connection after queue complete
+		setTimeout(() => res.end(), 1000);
+	};
+
+	installModsQueue.on('completed', onCompleted);
+	installModsQueue.on('error', onError);
+	installModsQueue.on('queueComplete', onQueueComplete);
+
+	// Clean up listeners when client disconnects
+	req.on('close', () => {
+		installModsQueue.removeListener('completed', onCompleted);
+		installModsQueue.removeListener('error', onError);
+		installModsQueue.removeListener('queueComplete', onQueueComplete);
 	});
 });
 
