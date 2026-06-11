@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const setLoadOrderStatus = document.getElementById('set-load-order-status');
 	const setLoadOrderItem = document.getElementById('set-load-order-item');
 	const setLoadOrderCheckmark = setLoadOrderItem ? setLoadOrderItem.querySelector('.checkmark') : null;
+	const readyToGameItem = document.getElementById('ready-to-game-item');
+	const readyToGameCheckmark = readyToGameItem ? readyToGameItem.querySelector('.checkmark') : null;
+	const clearCacheButton = document.getElementById('clear-cache-button');
+	const readyToGameStatus = document.getElementById('ready-to-game-status');
 	const modlistDropdown = document.getElementById('modlist-dropdown');
 	const modlistStatus = document.getElementById('select-modlist-status');
 	const modlistDescriptionContainer = document.getElementById('modlist-description-container');
@@ -865,7 +869,33 @@ document.addEventListener('DOMContentLoaded', () => {
 			const mod_io_mods = modList.filter(mod => mod.source === 'mod.io');
 
 			if (!Array.isArray(mod_io_mods) || mod_io_mods.length === 0) {
-				downloadStatus.textContent = 'No mod.io mods to download.';
+				downloadStatus.textContent = 'No mod.io mods to download. Proceeding...';
+
+				// Mark the download task as checked
+				if (downloadModsCheckmark && downloadModsItem) {
+					downloadModsCheckmark.textContent = '✓';
+					downloadModsItem.classList.add('checklist-item--checked');
+				}
+
+				// Update settings to mark modiodownload as complete
+				try {
+					const settingsResponse = await fetch('/api/settings/modiodownload', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ value: true }),
+					});
+
+					if (!settingsResponse.ok) {
+						console.error('Failed to update modiodownload setting');
+					}
+				} catch (error) {
+					console.error('Error updating modiodownload setting:', error);
+				}
+
+				// Refresh checklist
+				refreshChecklistProgress();
 				return;
 			}
 
@@ -1140,7 +1170,33 @@ document.addEventListener('DOMContentLoaded', () => {
 			const rpghqMods = modList.filter(mod => mod.source === 'rpghq.org');
 
 			if (!Array.isArray(rpghqMods) || rpghqMods.length === 0) {
-				downloadRpghqStatus.textContent = 'No rpghq.org mods to download.';
+				downloadRpghqStatus.textContent = 'No rpghq.org mods to download. Proceeding...';
+
+				// Mark the download task as checked
+				if (downloadRpghqCheckmark && downloadRpghqItem) {
+					downloadRpghqCheckmark.textContent = '✓';
+					downloadRpghqItem.classList.add('checklist-item--checked');
+				}
+
+				// Update settings to mark rpghqdownload as complete
+				try {
+					const settingsResponse = await fetch('/api/settings/rpghqdownload', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ value: true }),
+					});
+
+					if (!settingsResponse.ok) {
+						console.error('Failed to update rpghqdownload setting');
+					}
+				} catch (error) {
+					console.error('Error updating rpghqdownload setting:', error);
+				}
+
+				// Refresh checklist
+				refreshChecklistProgress();
 				return;
 			}
 
@@ -1307,7 +1363,33 @@ document.addEventListener('DOMContentLoaded', () => {
 			const nexusmodsMods = modList.filter(mod => mod.source === 'nexusmods.com');
 
 			if (!Array.isArray(nexusmodsMods) || nexusmodsMods.length === 0) {
-				downloadNexusmodsStatus.textContent = 'No nexusmods.com mods to download.';
+				downloadNexusmodsStatus.textContent = 'No nexusmods.com mods to download. Proceeding...';
+
+				// Mark the download task as checked
+				if (downloadNexusmodsCheckmark && downloadNexusmodsItem) {
+					downloadNexusmodsCheckmark.textContent = '✓';
+					downloadNexusmodsItem.classList.add('checklist-item--checked');
+				}
+
+				// Update settings to mark nexusmodsdownload as complete
+				try {
+					const settingsResponse = await fetch('/api/settings/nexusmodsdownload', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ value: true }),
+					});
+
+					if (!settingsResponse.ok) {
+						console.error('Failed to update nexusmodsdownload setting');
+					}
+				} catch (error) {
+					console.error('Error updating nexusmodsdownload setting:', error);
+				}
+
+				// Refresh checklist
+				refreshChecklistProgress();
 				return;
 			}
 
@@ -1592,6 +1674,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				setLoadOrderItem.classList.add('checklist-item--checked');
 			}
 
+			// Mark the ready to game task as checked
+			if (readyToGameCheckmark && readyToGameItem) {
+				readyToGameCheckmark.textContent = '✓';
+				readyToGameItem.classList.add('checklist-item--checked');
+			}
+
 			// Refresh checklist to hide completed step
 			refreshChecklistProgress();
 		} catch (error) {
@@ -1690,6 +1778,45 @@ document.addEventListener('DOMContentLoaded', () => {
 				alert(`Mods folder cleared successfully. ${payload.deleted} files deleted.`);
 			} catch (error) {
 				alert(`Error clearing Mods folder: ${error.message}`);
+			}
+		});
+	}
+
+	if (clearCacheButton) {
+		clearCacheButton.addEventListener('click', async () => {
+			const confirmClear = confirm('Are you sure you want to delete all files in the Downloads and extracted Mods folders? This cannot be undone.');
+			if (!confirmClear) {
+				return;
+			}
+
+			try {
+				const [downloadResponse, modsResponse] = await Promise.all([
+					fetch('/api/clear-downloads', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					}),
+					fetch('/api/clear-mods', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					}),
+				]);
+
+				const downloadPayload = await downloadResponse.json();
+				const modsPayload = await modsResponse.json();
+
+				if ((!downloadResponse.ok || !downloadPayload.success) && (!modsResponse.ok || !modsPayload.success)) {
+					throw new Error('Failed to clear cache.');
+				}
+
+				const downloadDeleted = downloadPayload.deleted || 0;
+				const modsDeleted = modsPayload.deleted || 0;
+				alert(`Cache cleared successfully. Downloads: ${downloadDeleted} files deleted, Mods: ${modsDeleted} files deleted.`);
+			} catch (error) {
+				alert(`Error clearing cache: ${error.message}`);
 			}
 		});
 	}
