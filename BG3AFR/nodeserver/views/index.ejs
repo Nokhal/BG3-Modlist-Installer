@@ -79,6 +79,24 @@
     </div>
     </div>
 
+      <div class="checklist-item" id="download-nexusmods-item">
+    <span class="checkmark" aria-hidden="true">○</span>
+    <div>
+      <h2>Download nexusmods.com mods</h2>
+      <p id="download-nexusmods-status" class="status" aria-live="polite">Ready to download mods.</p>
+      <form id="nexusmods-api-form" class="manual-form">
+        <p>Get it <a href="https://www.nexusmods.com/settings/api-keys" target="_blank" rel="noopener noreferrer">here</a>: Personal API Key</p>
+        <label for="nexusmods-api-key">Nexus Mods API Key</label>
+        <input id="nexusmods-api-key" name="nexusModsApiKey" type="password" placeholder="Enter your Nexus Mods API key" autocomplete="off">
+      </form>
+      <button id="start-download-nexusmods" class="action-button" type="button">Start Download</button>
+      <div id="download-nexusmods-progress" hidden>
+        <button id="toggle-nexusmods-list" class="toggle-button" type="button" hidden>▼ Hide Downloads</button>
+        <ul id="nexusmods-download-list" class="mod-list"></ul>
+      </div>
+    </div>
+    </div>
+
       <div class="checklist-item" id="extract-packages-item">
     <span class="checkmark" aria-hidden="true">○</span>
     <div>

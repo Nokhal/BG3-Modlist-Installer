@@ -30,6 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggleRpghqListButton = document.getElementById('toggle-rpghq-list');
 	const downloadRpghqItem = document.getElementById('download-rpghq-item');
 	const downloadRpghqCheckmark = downloadRpghqItem ? downloadRpghqItem.querySelector('.checkmark') : null;
+	const startDownloadNexusmodsButton = document.getElementById('start-download-nexusmods');
+	const downloadNexusmodsStatus = document.getElementById('download-nexusmods-status');
+	const downloadNexusmodsProgress = document.getElementById('download-nexusmods-progress');
+	const nexusmodsDownloadList = document.getElementById('nexusmods-download-list');
+	const toggleNexusmodsListButton = document.getElementById('toggle-nexusmods-list');
+	const downloadNexusmodsItem = document.getElementById('download-nexusmods-item');
+	const downloadNexusmodsCheckmark = downloadNexusmodsItem ? downloadNexusmodsItem.querySelector('.checkmark') : null;
+	const nexusmodsApiKeyInput = document.getElementById('nexusmods-api-key');
 	const checklistItems = Array.from(document.querySelectorAll('.checklist .checklist-item'));
 
 	if (!button || !status || !manualForm || !manualInput || !modsButton || !modsStatus) {
@@ -148,13 +156,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse, bg3mmStatusResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse] = await Promise.all([
+			const [bg3Response, modsResponse, bg3mmStatusResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse, nexusModApiKeyResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/install-bg3-mod-manager/status', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modiodownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/rpghqdownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modsextracted', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/nexusModApiKey', { method: 'GET', cache: 'no-store' }),
 			]);
 
 			if (bg3Response.ok) {
@@ -196,6 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
 					// Run the same workflow as a manual click to keep behavior consistent.
 					await wait(AUTO_TRIGGER_DELAY_MS);
 					startDownloadRpghqButton.click();
+				}
+			}
+
+			if (nexusModApiKeyResponse.ok) {
+				const nexusPayload = await nexusModApiKeyResponse.json();
+				if (nexusPayload.success && nexusPayload.value) {
+					nexusmodsApiKeyInput.value = nexusPayload.value;
 				}
 			}
 
@@ -914,5 +930,155 @@ document.addEventListener('DOMContentLoaded', () => {
 			toggleRpghqListButton.textContent = '▶ Show Downloads';
 		}
 		saveRpghqListCollapsedState(!isCollapsed);
+	});
+
+	// Helper functions for nexusmods list collapse state
+	function saveNexusmodsListCollapsedState(isCollapsed) {
+		localStorage.setItem('nexusmodsListCollapsed', JSON.stringify(isCollapsed));
+	}
+
+	function loadNexusmodsListCollapsedState() {
+		const saved = localStorage.getItem('nexusmodsListCollapsed');
+		return saved !== null ? JSON.parse(saved) : false;
+	}
+
+	function applyNexusmodsListCollapsedState() {
+		const isCollapsed = loadNexusmodsListCollapsedState();
+		if (isCollapsed) {
+			nexusmodsDownloadList.classList.add('collapsed');
+			toggleNexusmodsListButton.textContent = '▶ Show Downloads';
+		} else {
+			nexusmodsDownloadList.classList.remove('collapsed');
+			toggleNexusmodsListButton.textContent = '▼ Hide Downloads';
+		}
+	}
+
+	startDownloadNexusmodsButton.addEventListener('click', async () => {
+		// Save API key to settings first
+		const apiKey = nexusmodsApiKeyInput.value.trim();
+		if (!apiKey) {
+			downloadNexusmodsStatus.textContent = 'Please enter your Nexus Mods API key.';
+			return;
+		}
+
+		try {
+			const apiKeyResponse = await fetch('/api/settings/nexusModApiKey', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ value: apiKey }),
+			});
+
+			if (!apiKeyResponse.ok) {
+				throw new Error('Failed to save API key.');
+			}
+		} catch (error) {
+			downloadNexusmodsStatus.textContent = `Error saving API key: ${error.message}`;
+			return;
+		}
+
+		// Proceed with download
+		startDownloadNexusmodsButton.disabled = true;
+		startDownloadNexusmodsButton.hidden = true;
+		downloadNexusmodsStatus.textContent = 'Loading mod list...';
+		downloadNexusmodsProgress.hidden = false;
+		nexusmodsDownloadList.innerHTML = '';
+		toggleNexusmodsListButton.hidden = true;
+
+		try {
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+
+			// Filter to only nexusmods.com mods
+			const nexusmodsMods = modList.filter(mod => mod.source === 'nexusmods.com');
+
+			if (!Array.isArray(nexusmodsMods) || nexusmodsMods.length === 0) {
+				downloadNexusmodsStatus.textContent = 'No nexusmods.com mods to download.';
+				return;
+			}
+
+			downloadNexusmodsStatus.textContent = `Starting download of ${nexusmodsMods.length} mods...`;
+
+			let successCount = 0;
+			let failureCount = 0;
+
+			for (const mod of nexusmodsMods) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - Downloading...`;
+				listItem.id = `nexusmods-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				nexusmodsDownloadList.appendChild(listItem);
+
+				try {
+					const downloadResponse = await fetch('/api/download-mod', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							modName: mod.ModName,
+						}),
+					});
+
+					const downloadPayload = await downloadResponse.json();
+
+					if (!downloadResponse.ok || !downloadPayload.success) {
+						throw new Error(downloadPayload.message || 'Download failed.');
+					}
+
+					const isAlreadyDownloaded = downloadPayload.result?.alreadyDownloaded;
+					const statusText = isAlreadyDownloaded ? '⬇ Already downloaded' : '✓ Downloaded';
+					setFeedbackLineWithSourceLink(
+						listItem,
+						`${modName} - ${statusText} (${downloadPayload.result.fileName})`,
+						downloadPayload.result?.modPage || mod.ModPage,
+					);
+					listItem.style.color = 'green';
+					successCount += 1;
+				} catch (error) {
+					setFeedbackLineWithSourceLink(listItem, `${modName} - ✗ Failed: ${error.message}`, mod.ModPage);
+					listItem.style.color = 'red';
+					failureCount += 1;
+				}
+			}
+
+			downloadNexusmodsStatus.textContent = `Download complete. Success: ${successCount}, Failed: ${failureCount}.`;
+
+			// Mark the download task as checked
+			if (downloadNexusmodsCheckmark && downloadNexusmodsItem) {
+				downloadNexusmodsCheckmark.textContent = '✓';
+				downloadNexusmodsItem.classList.add('checklist-item--checked');
+			}
+
+			// Refresh checklist to show next step
+			refreshChecklistProgress();
+
+			// Show the toggle button
+			toggleNexusmodsListButton.hidden = false;
+			applyNexusmodsListCollapsedState();
+		} catch (error) {
+			downloadNexusmodsStatus.textContent = error.message;
+			startDownloadNexusmodsButton.hidden = false;
+			startDownloadNexusmodsButton.disabled = false;
+		}
+	});
+
+	toggleNexusmodsListButton.addEventListener('click', () => {
+		const isCollapsed = nexusmodsDownloadList.classList.contains('collapsed');
+		if (isCollapsed) {
+			nexusmodsDownloadList.classList.remove('collapsed');
+			toggleNexusmodsListButton.textContent = '▼ Hide Downloads';
+		} else {
+			nexusmodsDownloadList.classList.add('collapsed');
+			toggleNexusmodsListButton.textContent = '▶ Show Downloads';
+		}
+		saveNexusmodsListCollapsedState(!isCollapsed);
 	});
 });

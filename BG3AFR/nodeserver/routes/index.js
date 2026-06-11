@@ -1,6 +1,7 @@
 const express = require('express');
 const { findAndSaveBg3InstallPath, isValidBg3InstallPath, updateSettingsFile, toWindowsStylePath, ensureBg3ModsFolderExists, updateSettingsValue, getBg3ModsFolderPath } = require('../gear/findbg3installpath');
 const { downloadModFromModioList } = require('../gear/downloadmods');
+const { downloadModFromNexus } = require('../gear/downloadModsNexus');
 const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const settingsLoaderRoutes = require('../gear/settingLoader');
@@ -176,6 +177,45 @@ router.get('/api/install-bg3-mod-manager/status', (req, res) => {
 		return res.json({
 			success: true,
 			result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/download-mod-nexus', async (req, res) => {
+	try {
+		const apiKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim() : '';
+		const modId = req.body?.modId;
+		const fileId = req.body?.fileId;
+
+		if (!apiKey) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide a Nexus Mods API key.',
+			});
+		}
+
+		if (!modId) {
+			return res.status(400).json({
+				success: false,
+				message: 'Please provide a Nexus mod ID.',
+			});
+		}
+
+		const result = await downloadModFromNexus({
+			apiKey,
+			modId: parseInt(modId, 10),
+			fileId: fileId ? parseInt(fileId, 10) : undefined,
+		});
+
+		return res.json({
+			success: true,
+			result,
+			message: `Successfully downloaded "${result.modName}" from Nexus Mods`,
 		});
 	} catch (error) {
 		return res.status(500).json({
