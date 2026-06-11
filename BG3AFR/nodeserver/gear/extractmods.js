@@ -22,6 +22,25 @@ function isValidZipFile(filename) {
 	return normalized.toLowerCase().endsWith('.zip');
 }
 
+function isValidRarFile(filename) {
+	if (typeof filename !== 'string') {
+		return false;
+	}
+
+	const normalized = path.normalize(filename);
+
+	// Prevent directory traversal
+	if (normalized.includes('..') || path.isAbsolute(normalized)) {
+		return false;
+	}
+
+	return normalized.toLowerCase().endsWith('.rar');
+}
+
+function isValidArchiveFile(filename) {
+	return isValidZipFile(filename) || isValidRarFile(filename);
+}
+
 function findPakFiles(dirPath, baseDir = dirPath) {
 	const pakFiles = [];
 
@@ -147,8 +166,8 @@ function isPakFileAlreadyExtracted(modArchiveFilename) {
 }
 
 async function extractModArchive(modArchiveFilename) {
-	if (!isValidZipFile(modArchiveFilename)) {
-		throw new Error('Invalid archive filename: must be a .zip file without path traversal.');
+	if (!isValidArchiveFile(modArchiveFilename)) {
+		throw new Error('Invalid archive filename: must be a .zip or .rar file without path traversal.');
 	}
 
 	const archivePath = path.join(downloadsDirPath, modArchiveFilename);
@@ -216,11 +235,8 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Check if fileToCheck exists for isNotPak mods
 	if (isNotPakMod && modEntry && modEntry.fileToCheck) {
-		// Normalize the fileToCheck path by replacing double slashes with single slashes
-		const normalizedFileToCheck = modEntry.fileToCheck.replace(/\/+/g, '/');
-		const fileToCheckPath = path.join(modsDirPath, normalizedFileToCheck);
+		const fileToCheckPath = path.join(modsDirPath, modEntry.fileToCheck);
 		if (fs.existsSync(fileToCheckPath)) {
-			console.log(`[Extract] File already exists, skipping extraction: ${modEntry.fileToCheck}`);
 			return Promise.resolve({
 				success: true,
 				archiveFilename: modArchiveFilename,
@@ -231,8 +247,17 @@ async function extractModArchive(modArchiveFilename) {
 		}
 	}
 
-	// Use a simple extraction approach - try to use unzip if available, otherwise use decompress
-	// For now, we'll try to use the built-in zip support via a child process
+	// Determine file type and extract accordingly
+	const isRarFile = isValidRarFile(modArchiveFilename);
+
+	if (isRarFile) {
+		return extractRarArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry);
+	} else {
+		return extractZipArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry);
+	}
+}
+
+function extractZipArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry) {
 	return new Promise((resolve, reject) => {
 		try {
 			const AdmZip = require('adm-zip');
@@ -304,7 +329,96 @@ async function extractModArchive(modArchiveFilename) {
 	});
 }
 
+async function extractRarArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry) {
+	try {
+		const { createExtractorFromFile } = require('node-unrar-js');
+
+		console.log(`[Extract] Starting extraction of RAR: ${modArchiveFilename}`);
+		console.log(`[Extract] Target directory: ${extractionTargetPath}`);
+
+		// Ensure target directory exists
+		if (!fs.existsSync(extractionTargetPath)) {
+			fs.mkdirSync(extractionTargetPath, { recursive: true });
+		}
+
+		// Create extractor from file
+		const extractor = await createExtractorFromFile({
+			filepath: realArchivePath,
+			targetPath: extractionTargetPath,
+		});
+
+		// Extract all files
+		const extracted = extractor.extract();
+		const extractedFiles = [];
+		const pakCandidates = [];
+
+		// Iterate through extracted files
+		for (const arcFile of extracted.files) {
+			const fileName = arcFile.fileHeader.name;
+
+			// Normalize file path
+			const normalizedFileName = path.normalize(fileName);
+
+			// Prevent directory traversal
+			const fullPath = path.join(extractionTargetPath, normalizedFileName);
+			if (isPathInsideDirectory(extractionTargetPath, fullPath)) {
+				// Skip directories
+				if (!arcFile.fileHeader.flags.directory) {
+					const relativePath = path.relative(extractionTargetPath, fullPath);
+					extractedFiles.push(relativePath);
+
+					// Check if it's a pak file
+					if (relativePath.toLowerCase().endsWith('.pak')) {
+						pakCandidates.push(relativePath);
+					}
+
+					console.log(`[Extract]   - ${relativePath}`);
+				}
+			}
+		}
+
+		console.log(`[Extract] Extracted files from ${modArchiveFilename}:`);
+		extractedFiles.forEach((file) => {
+			console.log(`[Extract]   - ${file}`);
+		});
+
+		// Only look for pak files if not a isNotPak mod
+		if (!isNotPakMod) {
+			const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
+
+			if (pakFileName) {
+				updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
+			}
+
+			return {
+				success: true,
+				archiveFilename: modArchiveFilename,
+				extractedTo: extractionTargetPath,
+				entriesExtracted: extractedFiles.length,
+				pakfile: pakFileName,
+			};
+		} else {
+			return {
+				success: true,
+				archiveFilename: modArchiveFilename,
+				extractedTo: extractionTargetPath,
+				entriesExtracted: extractedFiles.length,
+				isNotPak: true,
+				message: 'Extracted to Mods folder as isNotPak mod.',
+			};
+		}
+	} catch (error) {
+		if (error.code === 'MODULE_NOT_FOUND') {
+			throw new Error('Failed to extract RAR archive: missing dependency "node-unrar-js". Run npm install node-unrar-js in nodeserver.');
+		} else {
+			throw new Error(`Failed to extract RAR archive: ${error.message}`);
+		}
+	}
+}
+
 module.exports = {
 	isValidZipFile,
+	isValidRarFile,
+	isValidArchiveFile,
 	extractModArchive,
 };

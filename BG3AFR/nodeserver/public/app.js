@@ -38,6 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const downloadNexusmodsItem = document.getElementById('download-nexusmods-item');
 	const downloadNexusmodsCheckmark = downloadNexusmodsItem ? downloadNexusmodsItem.querySelector('.checkmark') : null;
 	const nexusmodsApiKeyInput = document.getElementById('nexusmods-api-key');
+	const startInstallFilesButton = document.getElementById('start-install-files');
+	const installFilesStatus = document.getElementById('install-files-status');
+	const installProgress = document.getElementById('install-progress');
+	const installList = document.getElementById('install-list');
+	const toggleInstallListButton = document.getElementById('toggle-install-list');
+	const installFilesItem = document.getElementById('install-files-item');
+	const installFilesCheckmark = installFilesItem ? installFilesItem.querySelector('.checkmark') : null;
 	const restartButton = document.getElementById('restart-button');
 	const clearDownloadsButton = document.getElementById('clear-downloads-button');
 	const clearModsButton = document.getElementById('clear-mods-button');
@@ -159,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function hydrateChecklistFromSettings() {
 		try {
-			const [bg3Response, modsResponse, bg3mmStatusResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse, nexusModApiKeyResponse] = await Promise.all([
+			const [bg3Response, modsResponse, bg3mmStatusResponse, modioDownloadResponse, rpghqDownloadResponse, modsExtractedResponse, nexusModApiKeyResponse, nexusmodsDownloadResponse] = await Promise.all([
 				fetch('/api/settings/bg3InstallPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/bg3ModsFolderPath', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/install-bg3-mod-manager/status', { method: 'GET', cache: 'no-store' }),
@@ -167,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				fetch('/api/settings/rpghqdownload', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/modsextracted', { method: 'GET', cache: 'no-store' }),
 				fetch('/api/settings/nexusModApiKey', { method: 'GET', cache: 'no-store' }),
+				fetch('/api/settings/nexusmodsdownload', { method: 'GET', cache: 'no-store' }),
 			]);
 
 			if (bg3Response.ok) {
@@ -215,6 +223,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				const nexusPayload = await nexusModApiKeyResponse.json();
 				if (nexusPayload.success && nexusPayload.value) {
 					nexusmodsApiKeyInput.value = nexusPayload.value;
+				}
+			}
+
+			if (nexusmodsDownloadResponse.ok) {
+				const nexusmodsPayload = await nexusmodsDownloadResponse.json();
+				if (nexusmodsPayload.success && nexusmodsPayload.value === true) {
+					// Run the same workflow as a manual click to keep behavior consistent.
+					await wait(AUTO_TRIGGER_DELAY_MS);
+					startDownloadNexusmodsButton.click();
 				}
 			}
 
@@ -1061,6 +1078,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				downloadNexusmodsItem.classList.add('checklist-item--checked');
 			}
 
+			// Update settings to mark nexusmodsdownload as complete
+			try {
+				const settingsResponse = await fetch('/api/settings/nexusmodsdownload', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ value: true }),
+				});
+
+				if (!settingsResponse.ok) {
+					console.error('Failed to update nexusmodsdownload setting');
+				}
+			} catch (error) {
+				console.error('Error updating nexusmodsdownload setting:', error);
+			}
+
 			// Refresh checklist to show next step
 			refreshChecklistProgress();
 
@@ -1084,6 +1118,163 @@ document.addEventListener('DOMContentLoaded', () => {
 			toggleNexusmodsListButton.textContent = '▶ Show Downloads';
 		}
 		saveNexusmodsListCollapsedState(!isCollapsed);
+	});
+
+	// Helper functions for install list collapse state
+	function saveInstallListCollapsedState(isCollapsed) {
+		localStorage.setItem('installListCollapsed', JSON.stringify(isCollapsed));
+	}
+
+	function loadInstallListCollapsedState() {
+		const saved = localStorage.getItem('installListCollapsed');
+		return saved !== null ? JSON.parse(saved) : false;
+	}
+
+	function applyInstallListCollapsedState() {
+		const isCollapsed = loadInstallListCollapsedState();
+		if (isCollapsed) {
+			installList.classList.add('collapsed');
+			toggleInstallListButton.textContent = '▶ Show Installations';
+		} else {
+			installList.classList.remove('collapsed');
+			toggleInstallListButton.textContent = '▼ Hide Installations';
+		}
+	}
+
+	startInstallFilesButton.addEventListener('click', async () => {
+		startInstallFilesButton.disabled = true;
+		startInstallFilesButton.hidden = true;
+		installFilesStatus.textContent = 'Loading extracted mods list...';
+		installProgress.hidden = false;
+		installList.innerHTML = '';
+		toggleInstallListButton.hidden = true;
+
+		try {
+			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
+			const modListPayload = await modListResponse.json();
+
+			if (!modListResponse.ok || !modListPayload.success) {
+				throw new Error(modListPayload.message || 'Failed to load mod list.');
+			}
+
+			const modList = modListPayload.modioList.ModList;
+
+			// Filter to only mods with pak files
+			const modsToInstall = modList.filter((mod) => mod.pakfile);
+
+			if (modsToInstall.length === 0) {
+				installFilesStatus.textContent = 'No mod files to install.';
+				return;
+			}
+
+			installFilesStatus.textContent = `Starting installation of ${modsToInstall.length} mod files...`;
+
+			let successCount = 0;
+			let failureCount = 0;
+
+			for (const mod of modsToInstall) {
+				const modName = mod.ModName || 'Unknown Mod';
+				const pakfile = mod.pakfile || 'Unknown';
+				const listItem = document.createElement('li');
+				listItem.textContent = `${modName} - Installing...`;
+				listItem.id = `install-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
+				installList.appendChild(listItem);
+
+				try {
+					const installResponse = await fetch('/api/copy-mod-pak', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							filename: pakfile,
+						}),
+					});
+
+					const installPayload = await installResponse.json();
+
+					if (!installResponse.ok || !installPayload.success) {
+						throw new Error(installPayload.message || 'Installation failed.');
+					}
+
+					const isAlreadyQueued = installPayload.alreadyQueued;
+					const statusText = isAlreadyQueued ? '⏳ Already queued' : '✓ Copied and ready to load';
+					listItem.textContent = `${modName} - ${statusText} (${pakfile})`;
+					listItem.style.color = 'green';
+					successCount += 1;
+				} catch (error) {
+					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
+					listItem.style.color = 'red';
+					failureCount += 1;
+				}
+			}
+
+			installFilesStatus.textContent = `Installation queue complete. Queued: ${successCount}, Failed: ${failureCount}.`;
+
+			// Now copy gameroot content as a final substep
+			installFilesStatus.textContent += ' | Copying gameroot files...';
+
+			try {
+				const gamerootResponse = await fetch('/api/copy-gameroot-to-install', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const gamerootPayload = await gamerootResponse.json();
+
+				if (!gamerootResponse.ok || !gamerootPayload.success) {
+					throw new Error(gamerootPayload.message || 'Failed to copy gameroot files.');
+				}
+
+				const gamerootListItem = document.createElement('li');
+				const copiedCount = gamerootPayload.copiedCount || 0;
+				gamerootListItem.textContent = `✓ Gameroot files - Copied ${copiedCount} files to BG3 install folder`;
+				gamerootListItem.id = 'gameroot-item';
+				gamerootListItem.style.color = 'green';
+				installList.appendChild(gamerootListItem);
+
+				installFilesStatus.textContent = `Installation complete. Queued: ${successCount}, Failed: ${failureCount}. Gameroot files copied: ${copiedCount}.`;
+			} catch (error) {
+				const gamerootListItem = document.createElement('li');
+				gamerootListItem.textContent = `✗ Gameroot files - Failed: ${error.message}`;
+				gamerootListItem.id = 'gameroot-item';
+				gamerootListItem.style.color = 'red';
+				installList.appendChild(gamerootListItem);
+
+				installFilesStatus.textContent = `Installation complete. Queued: ${successCount}, Failed: ${failureCount}. Gameroot copy failed: ${error.message}`;
+			}
+
+			// Mark the install task as checked
+			if (installFilesCheckmark && installFilesItem) {
+				installFilesCheckmark.textContent = '✓';
+				installFilesItem.classList.add('checklist-item--checked');
+			}
+
+			// Refresh checklist to show next step
+			refreshChecklistProgress();
+
+			// Show the toggle button
+			toggleInstallListButton.hidden = false;
+			applyInstallListCollapsedState();
+		} catch (error) {
+			installFilesStatus.textContent = error.message;
+			startInstallFilesButton.hidden = false;
+			startInstallFilesButton.disabled = false;
+		}
+	});
+
+	toggleInstallListButton.addEventListener('click', () => {
+		const isCollapsed = installList.classList.contains('collapsed');
+		if (isCollapsed) {
+			installList.classList.remove('collapsed');
+			toggleInstallListButton.textContent = '▼ Hide Installations';
+		} else {
+			installList.classList.add('collapsed');
+			toggleInstallListButton.textContent = '▶ Show Installations';
+		}
+		saveInstallListCollapsedState(!isCollapsed);
 	});
 
 	if (restartButton) {

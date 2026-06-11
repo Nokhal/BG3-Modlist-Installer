@@ -5,7 +5,7 @@ const https = require('https');
 const { pipeline } = require('stream/promises');
 
 const downloadsDirPath = path.join(__dirname, '..', '..', 'Downloads');
-const bgmmToolsDirPath = path.join(__dirname, '..', '..', '..', 'tools', 'bgmm');
+const bgmmToolsDirPath = path.join(__dirname, '..', '..', '..', 'tools', 'bg3mm');
 const githubLatestReleaseApiUrl = 'https://api.github.com/repos/LaughingLeader/BG3ModManager/releases/latest';
 const maxRedirects = 5;
 

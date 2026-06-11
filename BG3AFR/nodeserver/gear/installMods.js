@@ -121,4 +121,132 @@ class CopyModsQueue extends EventEmitter {
 	}
 }
 
+/**
+ * Recursively copy files from source to destination
+ * @param {string} sourceDir - The source directory path
+ * @param {string} destDir - The destination directory path
+ * @param {Array} copiedFiles - Array to track copied files
+ * @returns {Promise<Array>} Array of copied files with source and destination
+ */
+function copyDirectoryRecursive(sourceDir, destDir, copiedFiles = []) {
+	return new Promise((resolve, reject) => {
+		// Ensure destination directory exists
+		if (!fs.existsSync(destDir)) {
+			fs.mkdirSync(destDir, { recursive: true });
+		}
+
+		// Read source directory
+		fs.readdir(sourceDir, (err, files) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+
+			if (files.length === 0) {
+				resolve(copiedFiles);
+				return;
+			}
+
+			let processed = 0;
+
+			files.forEach((file) => {
+				const sourceFile = path.join(sourceDir, file);
+				const destFile = path.join(destDir, file);
+
+				fs.stat(sourceFile, (err, stats) => {
+					if (err) {
+						console.error(`[GamerootCopy] Error stating ${sourceFile}:`, err.message);
+						processed++;
+						if (processed === files.length) {
+							resolve(copiedFiles);
+						}
+						return;
+					}
+
+					if (stats.isDirectory()) {
+						// Recursively copy subdirectories
+						copyDirectoryRecursive(sourceFile, destFile, copiedFiles)
+							.then(() => {
+								processed++;
+								if (processed === files.length) {
+									resolve(copiedFiles);
+								}
+							})
+							.catch((error) => {
+								console.error(`[GamerootCopy] Error copying directory ${sourceFile}:`, error.message);
+								processed++;
+								if (processed === files.length) {
+									resolve(copiedFiles);
+								}
+							});
+					} else {
+						// Copy file
+						fs.copyFile(sourceFile, destFile, (err) => {
+							if (err) {
+								console.error(`[GamerootCopy] Error copying file ${sourceFile}:`, err.message);
+							} else {
+								console.log(`[GamerootCopy] Copied: ${sourceFile} -> ${destFile}`);
+								copiedFiles.push({
+									source: sourceFile,
+									destination: destFile,
+								});
+							}
+
+							processed++;
+							if (processed === files.length) {
+								resolve(copiedFiles);
+							}
+						});
+					}
+				});
+			});
+		});
+	});
+}
+
+/**
+ * Copy gameroot folder to BG3 install path
+ * @param {string} modsGamerootPath - The source Mods/gameroot folder path
+ * @param {string} bg3InstallPath - The destination BG3 install path
+ * @returns {Promise<object>} Status object with copied files list
+ */
+async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
+	// Validate source directory exists
+	if (!fs.existsSync(modsGamerootPath)) {
+		return {
+			success: false,
+			message: `Mods/gameroot directory not found at: ${modsGamerootPath}`,
+		};
+	}
+
+	// Validate destination directory exists
+	if (!fs.existsSync(bg3InstallPath)) {
+		return {
+			success: false,
+			message: `BG3 install path not found at: ${bg3InstallPath}`,
+		};
+	}
+
+	try {
+		console.log(`[GamerootCopy] Starting copy from ${modsGamerootPath} to ${bg3InstallPath}`);
+		const copiedFiles = await copyDirectoryRecursive(modsGamerootPath, bg3InstallPath);
+		
+		console.log(`[GamerootCopy] Copy complete. Total files copied: ${copiedFiles.length}`);
+		
+		return {
+			success: true,
+			message: `Successfully copied ${copiedFiles.length} files from gameroot to BG3 install path`,
+			copiedCount: copiedFiles.length,
+			copiedFiles,
+		};
+	} catch (error) {
+		console.error(`[GamerootCopy] Error during copy:`, error.message);
+		return {
+			success: false,
+			message: `Error copying gameroot: ${error.message}`,
+		};
+	}
+}
+
 module.exports = new CopyModsQueue();
+module.exports.copyGamerootToInstallPath = copyGamerootToInstallPath;

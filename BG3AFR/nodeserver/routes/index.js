@@ -482,8 +482,14 @@ router.post('/api/copy-mod-pak', (req, res) => {
 
 		// Get the mods folder path and BG3 destination path
 		const modsSourcePath = path.join(__dirname, '..', '..', 'Mods');
-		const settings = require('../gear/settingLoader').getSettings();
-		const modsDestinationPath = settings.bg3ModsFolderPath;
+		const settingsFilePath = path.join(__dirname, '..', '..', 'settings.json');
+		
+		let modsDestinationPath = null;
+		if (fs.existsSync(settingsFilePath)) {
+			const settingsRaw = fs.readFileSync(settingsFilePath, 'utf8');
+			const settings = JSON.parse(settingsRaw);
+			modsDestinationPath = settings.bg3ModsFolderPath;
+		}
 
 		if (!modsDestinationPath) {
 			return res.status(400).json({
@@ -559,6 +565,40 @@ router.get('/api/copy-mod-pak/events', (req, res) => {
 		installModsQueue.removeListener('error', onError);
 		installModsQueue.removeListener('queueComplete', onQueueComplete);
 	});
+});
+
+router.post('/api/copy-gameroot-to-install', async (req, res) => {
+	try {
+		// Get the BG3 install path from settings
+		const settingsFilePath = path.join(__dirname, '..', '..', 'settings.json');
+		
+		let bg3InstallPath = null;
+		if (fs.existsSync(settingsFilePath)) {
+			const settingsRaw = fs.readFileSync(settingsFilePath, 'utf8');
+			const settings = JSON.parse(settingsRaw);
+			bg3InstallPath = settings.bg3InstallPath;
+		}
+
+		if (!bg3InstallPath) {
+			return res.status(400).json({
+				success: false,
+				message: 'BG3 install path not configured in settings.',
+			});
+		}
+
+		// Get the gameroot folder path
+		const modsGamerootPath = path.join(__dirname, '..', '..', 'Mods', 'gameroot');
+
+		// Call the copy function
+		const result = await installModsQueue.copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath);
+
+		return res.json(result);
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
 });
 
 router.use(settingsLoaderRoutes);

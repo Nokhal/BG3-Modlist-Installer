@@ -73,14 +73,6 @@
       "pakfile": "BetterDyeing_03b0b84a-2689-77c2-5ef6-ebcf88b88037.pak"
     },
     {
-      "ModName": "ContainersExtended",
-      "ModPage": "https://mod.io/g/baldursgate3/m/containersextended",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4213146/files/6389788/download",
-      "filename": "containersextended_c52c2d4d-2a-bn0o.zip",
-      "source": "mod.io",
-      "pakfile": "ContainersExtended_c52c2d4d-2aa1-e9ea-db5c-3b61d111ec16.pak"
-    },
-    {
       "ModName": "PixellBytes' Adjustable Party Limit",
       "ModPage": "https://mod.io/g/baldursgate3/m/adjustable-party-limit",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4256380/files/6310374/download",
@@ -295,14 +287,6 @@
       "filename": "aza_npcre_churchofshar_full_51-7ile.zip",
       "source": "mod.io",
       "pakfile": "Aza_NPCre_ChurchOfShar_Full_519cdf53-c4e7-db87-338a-971dded325fe.pak"
-    },
-    {
-      "ModName": "All Heads All Horns All Everything for All Races",
-      "ModPage": "https://mod.io/g/baldursgate3/m/all-heads-all-horns-for-all-races",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4724334/files/6278166/download",
-      "filename": "allheadsallraces_1db3e478-fcfa-exfc.zip",
-      "source": "mod.io",
-      "pakfile": "AllHeadsAllRaces_1db3e478-fcfa-8eb4-de77-b612f1605b45.pak"
     },
     {
       "ModName": "Useful Blood of Lathander",
@@ -607,14 +591,6 @@
       "filename": "addonbetterinventoryui_8c7d340-3bzc.zip",
       "source": "mod.io",
       "pakfile": "AddonBetterInventoryUI_8c7d3408-a746-5022-348b-1635e14af044.pak"
-    },
-    {
-      "ModName": "ContainersExtendedExtraplanar",
-      "ModPage": "https://mod.io/g/baldursgate3/m/containersextendedextraplanar",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4839118/files/6369643/download",
-      "filename": "containersextendedextraplanar_-1eld.zip",
-      "source": "mod.io",
-      "pakfile": "ContainersExtendedExtraplanar_3513adb0-4688-1bbd-4c32-467708b44f86.pak"
     },
     {
       "ModName": "FemalePlanarAlly",
@@ -1007,14 +983,28 @@
       "fileToCheck": "gameroot//bin//NativeMods//BG3NativeCameraTweaks.dll"
     },
     {
-      "ModName": "Achievement Enabler",
-      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/668",
+      "ModName": "Containers Extended",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/7980",
       "source": "nexusmods.com",
-      "NexusFileId": 100387,
-      "isNotPak": true,
-      "contentTo": "gameroot",
-      "fileToCheck": "gameroot//bin//NativeMods//BG3AchievementEnabler.dll",
-      "filename": "BG3 Achievement Enabler-668-1-3-1754952803.zip"
+      "NexusFileId": 93593,
+      "filename": "ContainersExtended.zip-7980-3-2-0-11-1747784691.zip",
+      "pakfile": "ContainersExtended.pak"
+    },
+    {
+      "ModName": "Containers Extended - Extraplanar",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/7980",
+      "source": "nexusmods.com",
+      "NexusFileId": 115377,
+      "filename": "ContainersExtended-Extraplanar.zip-7980-3-1-0-7-1771769452.zip",
+      "pakfile": "ContainersExtendedExtraplanar.pak"
+    },
+    {
+      "ModName": "Dream Visitor's Dress",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/12652",
+      "source": "nexusmods.com",
+      "NexusFileId": 76203,
+      "filename": "2. Dream Visitor's Dress (Long Dress)-12652-2-0-0-0-1729569655.rar",
+      "pakfile": "DreamGuardian_DaisyDress_2fa2ccd0-59a3-ffae-dcb6-682d2a353229.pak"
     }
   ],
   "modsettingslsxBase64": ""
