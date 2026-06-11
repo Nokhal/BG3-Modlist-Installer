@@ -222,6 +222,59 @@ router.post('/launch-bg3mm', (req, res) => {
 	}
 });
 
+/**
+ * POST /api/launch-lari-launcher
+ * Launches LariLauncher.exe from BG3 installation path
+ */
+router.post('/launch-lari-launcher', (req, res) => {
+	try {
+		const settingsPath = path.join(__dirname, '../../settings.json');
+
+		if (!fs.existsSync(settingsPath)) {
+			return res.status(404).json({
+				success: false,
+				message: 'Settings file not found.',
+			});
+		}
+
+		const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+		const bg3InstallPath = settings.bg3InstallPath;
+
+		if (!bg3InstallPath) {
+			return res.status(400).json({
+				success: false,
+				message: 'BG3 installation path not configured in settings.',
+			});
+		}
+
+		const launcherExePath = path.join(bg3InstallPath, 'Launcher', 'LariLauncher.exe');
+
+		if (!fs.existsSync(launcherExePath)) {
+			return res.status(404).json({
+				success: false,
+				message: `LariLauncher.exe not found at: ${launcherExePath}`,
+			});
+		}
+
+		// Launch the executable without waiting for it to complete
+		spawn(launcherExePath, [], {
+			detached: true,
+			stdio: 'ignore',
+		}).unref();
+
+		return res.json({
+			success: true,
+			message: 'LariLauncher launched successfully.',
+		});
+	} catch (error) {
+		console.error('Error launching LariLauncher:', error.message);
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
 module.exports = {
 	downloadLatestBg3ModManagerRelease,
 	getBg3ModManagerDetectionStatus,

@@ -162,6 +162,23 @@ p {
   opacity: 0.75;
 }
 
+.launch-button {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto 1rem;
+  padding: 1.8rem 2.2rem;
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, rgba(200, 163, 95, 0.55), rgba(156, 61, 36, 0.4));
+  border-color: rgba(226, 190, 119, 0.85);
+}
+
+.launch-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(226, 190, 119, 1);
+  background: linear-gradient(135deg, rgba(200, 163, 95, 0.7), rgba(156, 61, 36, 0.55));
+}
+
 .status {
   min-height: 1.5em;
   margin-top: 0.5rem;

@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const readyToGameCheckmark = readyToGameItem ? readyToGameItem.querySelector('.checkmark') : null;
 	const clearCacheButton = document.getElementById('clear-cache-button');
 	const readyToGameStatus = document.getElementById('ready-to-game-status');
+	const launchBg3Button = document.getElementById('launch-bg3-button');
 	const modlistDropdown = document.getElementById('modlist-dropdown');
 	const modlistStatus = document.getElementById('select-modlist-status');
 	const modlistDescriptionContainer = document.getElementById('modlist-description-container');
@@ -1817,6 +1818,33 @@ document.addEventListener('DOMContentLoaded', () => {
 				alert(`Cache cleared successfully. Downloads: ${downloadDeleted} files deleted, Mods: ${modsDeleted} files deleted.`);
 			} catch (error) {
 				alert(`Error clearing cache: ${error.message}`);
+			}
+		});
+	}
+
+	if (launchBg3Button) {
+		launchBg3Button.addEventListener('click', async () => {
+			try {
+				launchBg3Button.disabled = true;
+
+				const response = await fetch('/api/launch-lari-launcher', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const payload = await response.json();
+
+				if (!response.ok || !payload.success) {
+					throw new Error(payload.message || 'Failed to launch Baldur\'s Gate 3.');
+				}
+
+				alert('Baldur\'s Gate 3 launcher started successfully!');
+				launchBg3Button.disabled = false;
+			} catch (error) {
+				alert(`Error launching Baldur\'s Gate 3: ${error.message}`);
+				launchBg3Button.disabled = false;
 			}
 		});
 	}
