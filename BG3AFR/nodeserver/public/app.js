@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggleInstallListButton = document.getElementById('toggle-install-list');
 	const installFilesItem = document.getElementById('install-files-item');
 	const installFilesCheckmark = installFilesItem ? installFilesItem.querySelector('.checkmark') : null;
+	const startSetLoadOrderButton = document.getElementById('start-set-load-order');
+	const setLoadOrderStatus = document.getElementById('set-load-order-status');
+	const setLoadOrderItem = document.getElementById('set-load-order-item');
+	const setLoadOrderCheckmark = setLoadOrderItem ? setLoadOrderItem.querySelector('.checkmark') : null;
 	const restartButton = document.getElementById('restart-button');
 	const clearDownloadsButton = document.getElementById('clear-downloads-button');
 	const clearModsButton = document.getElementById('clear-mods-button');
@@ -1307,6 +1311,44 @@ document.addEventListener('DOMContentLoaded', () => {
 			toggleInstallListButton.textContent = '▶ Show Installations';
 		}
 		saveInstallListCollapsedState(!isCollapsed);
+	});
+
+	startSetLoadOrderButton.addEventListener('click', async () => {
+		startSetLoadOrderButton.disabled = true;
+		startSetLoadOrderButton.hidden = true;
+		setLoadOrderStatus.textContent = 'Setting load order...';
+
+		try {
+			const setLoadOrderResponse = await fetch('/api/set-load-order', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			const setLoadOrderPayload = await setLoadOrderResponse.json();
+
+			if (!setLoadOrderResponse.ok || !setLoadOrderPayload.success) {
+				throw new Error(setLoadOrderPayload.message || 'Failed to set load order.');
+			}
+
+			setLoadOrderStatus.textContent = `✓ Load order set successfully (${setLoadOrderPayload.message})`;
+			setLoadOrderStatus.style.color = 'green';
+
+			// Mark the set load order task as checked
+			if (setLoadOrderCheckmark && setLoadOrderItem) {
+				setLoadOrderCheckmark.textContent = '✓';
+				setLoadOrderItem.classList.add('checklist-item--checked');
+			}
+
+			// Refresh checklist to hide completed step
+			refreshChecklistProgress();
+		} catch (error) {
+			setLoadOrderStatus.textContent = `✗ Failed to set load order: ${error.message}`;
+			setLoadOrderStatus.style.color = 'red';
+			startSetLoadOrderButton.hidden = false;
+			startSetLoadOrderButton.disabled = false;
+		}
 	});
 
 	if (restartButton) {

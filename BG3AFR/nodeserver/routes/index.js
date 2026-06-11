@@ -8,6 +8,7 @@ const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const installModsQueue = require('../gear/installMods');
 const { copyLocalFiles } = require('../gear/copyLocalFiles');
+const { setLoadOrder } = require('../gear/setLoadOrder');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
@@ -615,6 +616,39 @@ router.post('/api/copy-local-files', async (req, res) => {
 		}
 
 		const result = await copyLocalFiles(modToInstallListPath, baseDir);
+
+		return res.json({
+			success: result.success,
+			...result,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/set-load-order', async (req, res) => {
+	try {
+		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+		const settingsPath = path.join(__dirname, '..', '..', 'settings.json');
+
+		if (!fs.existsSync(modToInstallListPath)) {
+			return res.status(400).json({
+				success: false,
+				message: 'modToInstallList.json not found.',
+			});
+		}
+
+		if (!fs.existsSync(settingsPath)) {
+			return res.status(400).json({
+				success: false,
+				message: 'settings.json not found.',
+			});
+		}
+
+		const result = await setLoadOrder(modToInstallListPath, settingsPath);
 
 		return res.json({
 			success: result.success,
