@@ -216,8 +216,11 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Check if fileToCheck exists for isNotPak mods
 	if (isNotPakMod && modEntry && modEntry.fileToCheck) {
-		const fileToCheckPath = path.join(modsDirPath, modEntry.fileToCheck);
+		// Normalize the fileToCheck path by replacing double slashes with single slashes
+		const normalizedFileToCheck = modEntry.fileToCheck.replace(/\/+/g, '/');
+		const fileToCheckPath = path.join(modsDirPath, normalizedFileToCheck);
 		if (fs.existsSync(fileToCheckPath)) {
+			console.log(`[Extract] File already exists, skipping extraction: ${modEntry.fileToCheck}`);
 			return Promise.resolve({
 				success: true,
 				archiveFilename: modArchiveFilename,
