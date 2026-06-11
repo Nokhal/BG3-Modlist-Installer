@@ -7,6 +7,7 @@ const { downloadModFromNexus, downloadNexusModsFromList, getDownloadQueueStatus,
 const { extractModArchive } = require('../gear/extractmods');
 const { downloadLatestBg3ModManagerRelease, getBg3ModManagerDetectionStatus } = require('../gear/installbg3mm');
 const installModsQueue = require('../gear/installMods');
+const { copyLocalFiles } = require('../gear/copyLocalFiles');
 const settingsLoaderRoutes = require('../gear/settingLoader');
 
 const router = express.Router();
@@ -593,6 +594,32 @@ router.post('/api/copy-gameroot-to-install', async (req, res) => {
 		const result = await installModsQueue.copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath);
 
 		return res.json(result);
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+});
+
+router.post('/api/copy-local-files', async (req, res) => {
+	try {
+		const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+		const baseDir = path.join(__dirname, '..', '..');
+
+		if (!fs.existsSync(modToInstallListPath)) {
+			return res.status(400).json({
+				success: false,
+				message: 'modToInstallList.json not found.',
+			});
+		}
+
+		const result = await copyLocalFiles(modToInstallListPath, baseDir);
+
+		return res.json({
+			success: result.success,
+			...result,
+		});
 	} catch (error) {
 		return res.status(500).json({
 			success: false,

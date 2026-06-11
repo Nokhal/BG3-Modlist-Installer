@@ -785,6 +785,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			extractStatus.textContent = `Extraction complete. Success: ${successCount}, Failed: ${failureCount}.`;
 
+			// Copy local files if localFilesToCopyArray exists
+			try {
+				extractStatus.textContent = 'Extraction complete. Copying local files...';
+				const copyFilesResponse = await fetch('/api/copy-local-files', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+
+				const copyFilesPayload = await copyFilesResponse.json();
+
+				if (copyFilesPayload.success) {
+					const copiedCount = copyFilesPayload.copiedFiles?.length || 0;
+					const failedCount = copyFilesPayload.failedFiles?.length || 0;
+					const skippedCount = copyFilesPayload.skippedFiles?.length || 0;
+
+					if (copiedCount > 0 || failedCount > 0 || skippedCount > 0) {
+						extractStatus.textContent = `Extraction complete. Local files: Copied ${copiedCount}, Skipped ${skippedCount}, Failed ${failedCount}.`;
+						console.log('[LocalFiles] Copy results:', copyFilesPayload);
+					} else {
+						extractStatus.textContent = `Extraction complete. Success: ${successCount}, Failed: ${failureCount}.`;
+					}
+				} else {
+					console.warn('[LocalFiles] No local files to copy or operation skipped');
+					extractStatus.textContent = `Extraction complete. Success: ${successCount}, Failed: ${failureCount}.`;
+				}
+			} catch (error) {
+				console.warn('[LocalFiles] Error copying local files:', error.message);
+				extractStatus.textContent = `Extraction complete. Success: ${successCount}, Failed: ${failureCount}.`;
+			}
+
 			// Mark the extract task as checked
 			if (extractPackagesCheckmark && extractPackagesItem) {
 				extractPackagesCheckmark.textContent = '✓';

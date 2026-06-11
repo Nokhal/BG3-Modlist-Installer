@@ -1007,5 +1007,14 @@
       "pakfile": "DreamGuardian_DaisyDress_2fa2ccd0-59a3-ffae-dcb6-682d2a353229.pak"
     }
   ],
+  "localFilesToCopyArray":[
+    {
+      "from":".\\LocalMods\\ScriptExtenderV32\\bin\\ScriptExtenderSettings.json",
+      "to": ".\\Mods\\gameroot\\bin\\ScriptExtenderSettings.json"
+    },{
+      "from":".\\LocalMods\\ScriptExtenderV32\\bin\\ScriptExtenderUpdaterConfig.json",
+      "to": ".\\Mods\\gameroot\\bin\\ScriptExtenderUpdaterConfig.json"
+    }
+  ],
   "modsettingslsxBase64": ""
 }
