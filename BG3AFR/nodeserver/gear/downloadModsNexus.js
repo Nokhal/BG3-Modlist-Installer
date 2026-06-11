@@ -149,6 +149,7 @@ async function downloadFile(uri, fileName) {
 	return new Promise((resolve, reject) => {
 		const sanitized = sanitizeFileName(fileName);
 		const filePath = path.join(downloadsDir, sanitized);
+		console.log(`[File Download] Starting: ${sanitized}`);
 
 		const options = {
 			headers: {
@@ -159,6 +160,7 @@ async function downloadFile(uri, fileName) {
 		const req = https.get(uri, options, async (res) => {
 			// Handle redirects
 			if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+				console.log(`[File Download] Redirect detected for ${sanitized}, following...`);
 				try {
 					const redirectedPath = await downloadFile(res.headers.location, fileName);
 					return resolve(redirectedPath);
@@ -168,17 +170,22 @@ async function downloadFile(uri, fileName) {
 			}
 
 			if (res.statusCode !== 200) {
+				console.error(`[File Download] Failed with status ${res.statusCode} for ${sanitized}`);
 				return reject(new Error(`Download failed with status ${res.statusCode}`));
 			}
 
+			console.log(`[File Download] Writing to: ${filePath}`);
 			const writeStream = fs.createWriteStream(filePath);
 
 			pipeline(res, writeStream)
 				.then(() => {
 					// Verify file was created
 					if (fs.existsSync(filePath)) {
+						const fileSize = fs.statSync(filePath).size;
+						console.log(`[File Download] Complete: ${sanitized} (${fileSize} bytes)`);
 						resolve(filePath);
 					} else {
+						console.error(`[File Download] File not found after download: ${filePath}`);
 						reject(new Error('File download completed but file not found'));
 					}
 				})
@@ -187,11 +194,13 @@ async function downloadFile(uri, fileName) {
 					if (fs.existsSync(filePath)) {
 						fs.unlinkSync(filePath);
 					}
+					console.error(`[File Download] Pipeline error for ${sanitized}: ${error.message}`);
 					reject(error);
 				});
 		});
 
 		req.on('error', (error) => {
+			console.error(`[File Download] Request error for ${sanitized}: ${error.message}`);
 			reject(new Error(`Download request failed: ${error.message}`));
 		});
 	});
@@ -230,12 +239,15 @@ async function downloadModFromNexus(options) {
 
 	try {
 		// Get mod information
+		console.log(`[Nexus API] Fetching mod info for ID: ${modId}`);
 		const modInfo = await getNexusModInfo(apiKey, modId);
 		const modName = modInfo.name || `Mod_${modId}`;
+		console.log(`[Nexus API] Mod name: ${modName}`);
 
 		// Get or find file ID
 		let targetFileId = fileId;
 		if (!targetFileId) {
+			console.log(`[Nexus API] No fileId provided, fetching files list...`);
 			// Get list of files and use the primary one
 			const files = await getNexusModFiles(apiKey, modId);
 			
@@ -253,10 +265,11 @@ async function downloadModFromNexus(options) {
 			}
 
 			targetFileId = primaryFile.file_id;
-			console.log(`Using file: ${primaryFile.name} (ID: ${primaryFile.file_id})`);
+			console.log(`[Nexus API] Using file: ${primaryFile.name} (ID: ${primaryFile.file_id})`);
 		}
 
 		// Get download link
+		console.log(`[Nexus API] Getting download link for file ID: ${targetFileId}`);
 		const linkInfo = await getNexusDownloadLink(apiKey, modId, targetFileId);
 
 		if (!linkInfo?.URI) {
@@ -266,9 +279,12 @@ async function downloadModFromNexus(options) {
 		// Extract filename from URI or use mod name
 		const uriPath = new URL(linkInfo.URI).pathname;
 		const fileNameFromUri = uriPath.split('/').pop() || `${modName}.zip`;
+		console.log(`[Nexus API] Download link obtained, filename: ${fileNameFromUri}`);
 
 		// Download the file
+		console.log(`[Nexus Download] Starting download of: ${fileNameFromUri}`);
 		const downloadPath = await downloadFile(linkInfo.URI, fileNameFromUri);
+		console.log(`[Nexus Download] File saved to: ${downloadPath}`);
 
 		return {
 			success: true,
@@ -280,6 +296,7 @@ async function downloadModFromNexus(options) {
 			fileSize: fs.statSync(downloadPath).size,
 		};
 	} catch (error) {
+		console.error(`[Nexus Download Error] Failed to download mod from Nexus: ${error.message}`);
 		throw new Error(`Failed to download mod from Nexus: ${error.message}`);
 	}
 }
@@ -328,10 +345,12 @@ function updateModToInstallListFilename(modName, fileName, modToInstallListPath)
 		}
 
 		// Update the filename field
+		console.log(`[Update] Setting filename for "${modName}" to "${fileName}"`);
 		data.ModList[modIndex].filename = fileName;
 
 		// Write back to file
 		fs.writeFileSync(modToInstallListPath, JSON.stringify(data, null, 2), 'utf8');
+		console.log(`[Update] Successfully updated modToInstallList.json for "${modName}"`);
 		return true;
 	} catch (error) {
 		console.error(`Failed to update modToInstallList.json: ${error.message}`);
@@ -349,11 +368,14 @@ async function processDownloadQueue() {
 	}
 
 	isDownloading = true;
+	console.log(`[Download Queue] Starting to process ${downloadQueue.length} mod(s)`);
 
 	while (downloadQueue.length > 0) {
 		const queueItem = downloadQueue.shift();
 
 		try {
+			console.log(`[Download Queue] Processing: ${queueItem.modName} (${downloadQueue.length + 1} remaining)`);
+			
 			downloadEmitter.emit('progress', {
 				status: 'downloading',
 				current: queueItem.modName,
@@ -364,6 +386,7 @@ async function processDownloadQueue() {
 			// Extract mod ID from URL
 			const modId = extractModIdFromNexusUrl(queueItem.modPage);
 			if (!modId) {
+				console.warn(`[Download Queue] Could not extract mod ID from ${queueItem.modPage}`);
 				queueItem.result.failed.push({
 					modName: queueItem.modName,
 					reason: 'Could not extract mod ID from ModPage URL',
@@ -375,7 +398,7 @@ async function processDownloadQueue() {
 			if (queueItem.filename) {
 				const existingFilePath = path.join(downloadsDir, queueItem.filename);
 				if (fs.existsSync(existingFilePath)) {
-					console.log(`[Skip] File already exists for ${queueItem.modName}: ${queueItem.filename}`);
+					console.log(`[Download Queue] File already exists for ${queueItem.modName}: ${queueItem.filename}`);
 					queueItem.result.skipped.push({
 						modName: queueItem.modName,
 						fileName: queueItem.filename,
@@ -386,7 +409,7 @@ async function processDownloadQueue() {
 			}
 
 			// Download the mod
-			console.log(`[Downloading] ${queueItem.modName} (ID: ${modId}, FileID: ${queueItem.fileId})`);
+			console.log(`[Downloading] ${queueItem.modName} (Mod ID: ${modId}, File ID: ${queueItem.fileId})`);
 			const downloadResult = await downloadModFromNexus({
 				apiKey: queueItem.apiKey,
 				modId,
@@ -396,7 +419,14 @@ async function processDownloadQueue() {
 			if (downloadResult.success) {
 				// Update modToInstallList.json with the filename
 				const fileName = downloadResult.fileName;
+				console.log(`[Download Success] ${queueItem.modName} downloaded as: ${fileName}`);
 				const updated = updateModToInstallListFilename(queueItem.modName, fileName, queueItem.modToInstallListPath);
+
+				if (updated) {
+					console.log(`[Download Success] ${queueItem.modName} filename saved to modToInstallList.json`);
+				} else {
+					console.warn(`[Download Warning] Failed to update filename in modToInstallList.json for ${queueItem.modName}`);
+				}
 
 				queueItem.result.downloaded.push({
 					modName: queueItem.modName,
@@ -410,12 +440,14 @@ async function processDownloadQueue() {
 					fileName,
 				});
 			} else {
+				console.error(`[Download Failed] ${queueItem.modName} - Download failed`);
 				queueItem.result.failed.push({
 					modName: queueItem.modName,
 					reason: 'Download failed',
 				});
 			}
 		} catch (error) {
+			console.error(`[Download Error] ${queueItem.modName} - ${error.message}`);
 			queueItem.result.failed.push({
 				modName: queueItem.modName,
 				reason: error.message,
@@ -429,6 +461,7 @@ async function processDownloadQueue() {
 	}
 
 	isDownloading = false;
+	console.log(`[Download Queue] Queue processing complete`);
 	downloadEmitter.emit('queueComplete');
 }
 

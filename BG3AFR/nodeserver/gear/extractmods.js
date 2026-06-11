@@ -180,20 +180,30 @@ async function extractModArchive(modArchiveFilename) {
 	}
 
 	// Check if mod is marked as isNotPak before extracting
+	let extractionTargetPath = modsDirPath;
+	let isNotPakMod = false;
+	let modEntry = null;
+
 	try {
 		if (fs.existsSync(modToInstallListPath)) {
 			const raw = fs.readFileSync(modToInstallListPath, 'utf8');
 			const data = JSON.parse(raw.replace(/^\uFEFF/, ''));
 
 			if (Array.isArray(data.ModList)) {
-				const modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
+				modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
 				if (modEntry && modEntry.isNotPak === true) {
-					return Promise.resolve({
-						success: false,
-						archiveFilename: modArchiveFilename,
-						message: `Mod "${modEntry.ModName || modArchiveFilename}" is marked as isNotPak and should not be extracted to the Mods folder.`,
-						isNotPak: true,
-					});
+					isNotPakMod = true;
+					// If isNotPak is true and contentTo is specified, extract to Mods/{contentTo}
+					if (modEntry.contentTo) {
+						extractionTargetPath = path.join(modsDirPath, modEntry.contentTo);
+					} else {
+						return Promise.resolve({
+							success: false,
+							archiveFilename: modArchiveFilename,
+							message: `Mod "${modEntry.ModName || modArchiveFilename}" is marked as isNotPak but no contentTo path is specified.`,
+							isNotPak: true,
+						});
+					}
 				}
 			}
 		}
@@ -201,8 +211,22 @@ async function extractModArchive(modArchiveFilename) {
 		console.warn(`Warning checking isNotPak status: ${error.message}`);
 	}
 
-	// Ensure Mods directory exists
-	await fs.promises.mkdir(modsDirPath, { recursive: true });
+	// Ensure extraction target directory exists
+	await fs.promises.mkdir(extractionTargetPath, { recursive: true });
+
+	// Check if fileToCheck exists for isNotPak mods
+	if (isNotPakMod && modEntry && modEntry.fileToCheck) {
+		const fileToCheckPath = path.join(modsDirPath, modEntry.fileToCheck);
+		if (fs.existsSync(fileToCheckPath)) {
+			return Promise.resolve({
+				success: true,
+				archiveFilename: modArchiveFilename,
+				skipped: true,
+				reason: `File "${modEntry.fileToCheck}" already exists in Mods folder, skipping extraction.`,
+				isNotPak: true,
+			});
+		}
+	}
 
 	// Use a simple extraction approach - try to use unzip if available, otherwise use decompress
 	// For now, we'll try to use the built-in zip support via a child process
@@ -213,12 +237,18 @@ async function extractModArchive(modArchiveFilename) {
 			const zipEntries = zip.getEntries();
 			const pakCandidates = getPakCandidatesFromZipEntryNames(zipEntries.map((entry) => entry.entryName));
 
+			console.log(`[Extract] Starting extraction of: ${modArchiveFilename}`);
+			console.log(`[Extract] Target directory: ${extractionTargetPath}`);
+			console.log(`[Extract] Total entries to extract: ${zipEntries.length}`);
+
+			const extractedFiles = [];
+
 			zipEntries.forEach((entry) => {
 				const normalizedEntryPath = path.normalize(entry.entryName);
-				const targetPath = path.join(modsDirPath, normalizedEntryPath);
+				const targetPath = path.join(extractionTargetPath, normalizedEntryPath);
 
 				// Prevent directory traversal in zip
-				if (!isPathInsideDirectory(modsDirPath, targetPath)) {
+				if (!isPathInsideDirectory(extractionTargetPath, targetPath)) {
 					return;
 				}
 
@@ -227,22 +257,40 @@ async function extractModArchive(modArchiveFilename) {
 				} else {
 					fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 					fs.writeFileSync(targetPath, entry.getData());
+					extractedFiles.push(normalizedEntryPath);
 				}
 			});
 
-			const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
-
-			if (pakFileName) {
-				updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
-			}
-
-			resolve({
-				success: true,
-				archiveFilename: modArchiveFilename,
-				extractedTo: modsDirPath,
-				entriesExtracted: zipEntries.length,
-				pakfile: pakFileName,
+			console.log(`[Extract] Extracted files from ${modArchiveFilename}:`);
+			extractedFiles.forEach((file) => {
+				console.log(`[Extract]   - ${file}`);
 			});
+
+			// Only look for pak files if not a isNotPak mod
+			if (!isNotPakMod) {
+				const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
+
+				if (pakFileName) {
+					updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
+				}
+
+				resolve({
+					success: true,
+					archiveFilename: modArchiveFilename,
+					extractedTo: extractionTargetPath,
+					entriesExtracted: zipEntries.length,
+					pakfile: pakFileName,
+				});
+			} else {
+				resolve({
+					success: true,
+					archiveFilename: modArchiveFilename,
+					extractedTo: extractionTargetPath,
+					entriesExtracted: zipEntries.length,
+					isNotPak: true,
+					message: 'Extracted to Downloads folder as isNotPak mod.',
+				});
+			}
 		} catch (error) {
 			if (error.code === 'MODULE_NOT_FOUND') {
 				reject(new Error('Failed to extract archive: missing dependency "adm-zip". Run npm install adm-zip in nodeserver.'));
