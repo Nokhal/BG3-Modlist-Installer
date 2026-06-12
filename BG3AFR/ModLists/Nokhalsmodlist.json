@@ -12,22 +12,6 @@
       "pakfile": "FaerunColors_a669cf0b-926c-4d50-988d-59bc089a0df2.pak"
     },
     {
-      "ModName": "ImpUI (ImprovedUI)",
-      "ModPage": "https://mod.io/g/baldursgate3/m/impui",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4138213/files/6301190/download",
-      "filename": "impui_26922ba9-6018-5252-075d-eqgb.zip",
-      "source": "mod.io",
-      "pakfile": "ImpUI_26922ba9-6018-5252-075d-7ff2ba6ed879.pak"
-    },
-    {
-      "ModName": "UnlockLevelCurve - Level 13-20 | Patch 8",
-      "ModPage": "https://mod.io/g/baldursgate3/m/unlocklevelcurve",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4166963/files/6276828/download",
-      "filename": "unlocklevelcurve_a2ffd0e4-c407-4p40.zip",
-      "source": "mod.io",
-      "pakfile": "UnlockLevelCurve_a2ffd0e4-c407-8642-2611-c934ea0b0a77.pak"
-    },
-    {
       "ModName": "Fireproof Karlach",
       "ModPage": "https://mod.io/g/baldursgate3/m/fireproof-karlach",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4187677/files/5375674/download",
@@ -90,14 +74,6 @@
       "filename": "inspirationsuncapped_742764d7-jjbv.zip",
       "source": "mod.io",
       "pakfile": "InspirationsUncapped_742764d7-721f-a83d-d540-9b8eec8f45a0.pak"
-    },
-    {
-      "ModName": "The Celestial Warlock Subclass - 5e Rules",
-      "ModPage": "https://mod.io/g/baldursgate3/m/the-celestial-warlock-subclass-5e-rules",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4328427/files/6312601/download",
-      "filename": "celestialwarlockdnd5_614705b7-bnac.zip",
-      "source": "mod.io",
-      "pakfile": "CelestialWarlockDnD5_614705b7-28c2-ee1a-5306-72f0ade09a25.pak"
     },
     {
       "ModName": "Do Not Eat Owlbear Egg",
@@ -572,14 +548,6 @@
       "pakfile": "DynamicSidebar_1e649013-e371-953e-3839-07f02fe1cffa.pak"
     },
     {
-      "ModName": "UnlockLevelCurve Patch: XP x 0.75",
-      "ModPage": "https://mod.io/g/baldursgate3/m/unlocklevelcurve-patch-xp-x075",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4187517/files/5395141/download",
-      "filename": "unlocklevelcurve_patch_xp_x075-0mln.zip",
-      "source": "mod.io",
-      "pakfile": "UnlockLevelCurve_Patch_XP_x075_609ccfc2-dbbc-a811-d84a-ee0d39a98f30.pak"
-    },
-    {
       "ModName": "AddonBetterInventoryUI",
       "ModPage": "https://mod.io/g/baldursgate3/m/addonbetterinventoryui",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4180899/files/6276673/download",
@@ -1008,6 +976,24 @@
       "NexusFileId": 76203,
       "filename": "2. Dream Visitor's Dress (Long Dress)-12652-2-0-0-0-1729569655.rar",
       "pakfile": "DreamGuardian_DaisyDress_2fa2ccd0-59a3-ffae-dcb6-682d2a353229.pak"
+    },    
+    {
+      "ModName": "ImpUI_P8_Fork (ImprovedUI)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/16649",
+      "source": "nexusmods.com",
+      "NexusFileId": 93329
+    },    
+    {
+      "ModName": "Database Cleaner",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/5612",
+      "source": "nexusmods.com",
+      "NexusFileId": 39646
+    },
+    {
+      "ModName": "Expansion Level 13-20 (Configurable)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/279",
+      "source": "nexusmods.com",
+      "NexusFileId": 123120
     }
   ],
   "localFilesToCopyArray": [
