@@ -1,141 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const { EventEmitter } = require('events');
-
-class CopyModsQueue extends EventEmitter {
-	constructor() {
-		super();
-		this.queue = [];
-		this.queuedFiles = new Set();
-		this.isProcessing = false;
-	}
-
-	/**
-	 * Add a PAK file to the copy queue
-	 * @param {string} filename - The filename of the PAK file to copy
-	 * @param {string} modsSourcePath - The source Mods folder path
-	 * @param {string} modsDestinationPath - The destination BG3 Mods folder path
-	 * @returns {object} Status object indicating if file was queued
-	 */
-	addToQueue(filename, modsSourcePath, modsDestinationPath) {
-		// Validate filename ends with .pak
-		if (!filename.toLowerCase().endsWith('.pak')) {
-			return {
-				success: false,
-				message: 'File must be a .pak file',
-			};
-		}
-
-		// Check if this exact file is already queued
-		if (this.queuedFiles.has(filename)) {
-			return {
-				success: true,
-				alreadyQueued: true,
-				message: `File "${filename}" is already in the copy queue`,
-				queuePosition: this.queue.length,
-			};
-		}
-
-		// Validate source file exists
-		const sourceFilePath = path.join(modsSourcePath, filename);
-		if (!fs.existsSync(sourceFilePath)) {
-			return {
-				success: false,
-				message: `Source file not found: ${filename}`,
-			};
-		}
-
-		// Add to queue
-		this.queue.push({
-			filename,
-			sourceFilePath,
-			destinationFilePath: path.join(modsDestinationPath, filename),
-		});
-		this.queuedFiles.add(filename);
-
-		// Start processing if not already processing
-		this.processQueue();
-
-		return {
-			success: true,
-			message: `File "${filename}" added to copy queue`,
-			queuePosition: this.queue.length,
-		};
-	}
-
-	/**
-	 * Process the copy queue one file at a time
-	 */
-	processQueue() {
-		if (this.isProcessing || this.queue.length === 0) {
-			return;
-		}
-
-		this.isProcessing = true;
-		this.copyNextFile();
-	}
-
-	/**
-	 * Copy the next file in the queue
-	 */
-	copyNextFile() {
-		if (this.queue.length === 0) {
-			this.isProcessing = false;
-			this.emit('queueComplete');
-			return;
-		}
-
-		const job = this.queue.shift();
-
-		fs.copyFile(job.sourceFilePath, job.destinationFilePath, (err) => {
-			this.queuedFiles.delete(job.filename);
-
-			if (err) {
-				console.error(`[CopyMods] Error copying ${job.filename}:`, err.message);
-				this.emit('error', {
-					filename: job.filename,
-					error: err.message,
-				});
-			} else {
-				console.log(`[CopyMods] Successfully copied: ${job.filename}`);
-				this.emit('completed', {
-					filename: job.filename,
-					destination: job.destinationFilePath,
-				});
-			}
-
-			// Process next file
-			this.copyNextFile();
-		});
-	}
-
-	/**
-	 * Get the current queue status
-	 */
-	getStatus() {
-		return {
-			isProcessing: this.isProcessing,
-			queueLength: this.queue.length,
-			queuedFiles: Array.from(this.queuedFiles),
-		};
-	}
-}
 
 /**
- * Recursively copy files from source to destination
- * @param {string} sourceDir - The source directory path
- * @param {string} destDir - The destination directory path
- * @param {Array} copiedFiles - Array to track copied files
- * @returns {Promise<Array>} Array of copied files with source and destination
+ * Recursively copy files from source to destination.
+ * @param {string} sourceDir - The source directory path.
+ * @param {string} destDir - The destination directory path.
+ * @param {Array} copiedFiles - Array to track copied files.
+ * @returns {Promise<Array>} Array of copied files with source and destination.
  */
 function copyDirectoryRecursive(sourceDir, destDir, copiedFiles = []) {
 	return new Promise((resolve, reject) => {
-		// Ensure destination directory exists
 		if (!fs.existsSync(destDir)) {
 			fs.mkdirSync(destDir, { recursive: true });
 		}
 
-		// Read source directory
 		fs.readdir(sourceDir, (err, files) => {
 			if (err) {
 				reject(err);
@@ -153,10 +31,10 @@ function copyDirectoryRecursive(sourceDir, destDir, copiedFiles = []) {
 				const sourceFile = path.join(sourceDir, file);
 				const destFile = path.join(destDir, file);
 
-				fs.stat(sourceFile, (err, stats) => {
-					if (err) {
-						console.error(`[GamerootCopy] Error stating ${sourceFile}:`, err.message);
-						processed++;
+				fs.stat(sourceFile, (statErr, stats) => {
+					if (statErr) {
+						console.error(`[InstallCopy] Error stating ${sourceFile}:`, statErr.message);
+						processed += 1;
 						if (processed === files.length) {
 							resolve(copiedFiles);
 						}
@@ -164,35 +42,32 @@ function copyDirectoryRecursive(sourceDir, destDir, copiedFiles = []) {
 					}
 
 					if (stats.isDirectory()) {
-						// Recursively copy subdirectories
 						copyDirectoryRecursive(sourceFile, destFile, copiedFiles)
 							.then(() => {
-								processed++;
+								processed += 1;
 								if (processed === files.length) {
 									resolve(copiedFiles);
 								}
 							})
-							.catch((error) => {
-								console.error(`[GamerootCopy] Error copying directory ${sourceFile}:`, error.message);
-								processed++;
+							.catch((copyErr) => {
+								console.error(`[InstallCopy] Error copying directory ${sourceFile}:`, copyErr.message);
+								processed += 1;
 								if (processed === files.length) {
 									resolve(copiedFiles);
 								}
 							});
 					} else {
-						// Copy file
-						fs.copyFile(sourceFile, destFile, (err) => {
-							if (err) {
-								console.error(`[GamerootCopy] Error copying file ${sourceFile}:`, err.message);
+						fs.copyFile(sourceFile, destFile, (copyErr) => {
+							if (copyErr) {
+								console.error(`[InstallCopy] Error copying file ${sourceFile}:`, copyErr.message);
 							} else {
-								console.log(`[GamerootCopy] Copied: ${sourceFile} -> ${destFile}`);
 								copiedFiles.push({
 									source: sourceFile,
 									destination: destFile,
 								});
 							}
 
-							processed++;
+							processed += 1;
 							if (processed === files.length) {
 								resolve(copiedFiles);
 							}
@@ -205,13 +80,12 @@ function copyDirectoryRecursive(sourceDir, destDir, copiedFiles = []) {
 }
 
 /**
- * Copy gameroot folder to BG3 install path
- * @param {string} modsGamerootPath - The source Mods/gameroot folder path
- * @param {string} bg3InstallPath - The destination BG3 install path
- * @returns {Promise<object>} Status object with copied files list
+ * Recursively copy Mods/gameroot contents to BG3 install path.
+ * @param {string} modsGamerootPath - Source path (BG3AFR/Mods/gameroot).
+ * @param {string} bg3InstallPath - Destination path from settings.json (bg3InstallPath).
+ * @returns {Promise<object>} Status object with copied files list.
  */
 async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
-	// Validate source directory exists
 	if (!fs.existsSync(modsGamerootPath)) {
 		return {
 			success: false,
@@ -219,7 +93,13 @@ async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
 		};
 	}
 
-	// Validate destination directory exists
+	if (!bg3InstallPath || typeof bg3InstallPath !== 'string') {
+		return {
+			success: false,
+			message: 'BG3 install path is not configured.',
+		};
+	}
+
 	if (!fs.existsSync(bg3InstallPath)) {
 		return {
 			success: false,
@@ -228,11 +108,8 @@ async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
 	}
 
 	try {
-		console.log(`[GamerootCopy] Starting copy from ${modsGamerootPath} to ${bg3InstallPath}`);
+		console.log(`[GamerootCopy] Starting recursive copy from ${modsGamerootPath} to ${bg3InstallPath}`);
 		const copiedFiles = await copyDirectoryRecursive(modsGamerootPath, bg3InstallPath);
-		
-		console.log(`[GamerootCopy] Copy complete. Total files copied: ${copiedFiles.length}`);
-		
 		return {
 			success: true,
 			message: `Successfully copied ${copiedFiles.length} files from gameroot to BG3 install path`,
@@ -240,7 +117,7 @@ async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
 			copiedFiles,
 		};
 	} catch (error) {
-		console.error(`[GamerootCopy] Error during copy:`, error.message);
+		console.error('[GamerootCopy] Error during copy:', error.message);
 		return {
 			success: false,
 			message: `Error copying gameroot: ${error.message}`,
@@ -249,10 +126,10 @@ async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
 }
 
 /**
- * Recursively copy Mods/AppDataBG3Root contents to BG3 AppData root path.
- * @param {string} appDataBg3RootPath - Source path (BG3AFR/Mods/AppDataBG3Root)
- * @param {string} bg3ModsFolderPath - Destination path from settings.json (bg3ModsFolderPath)
- * @returns {Promise<object>} Status object with copied files list
+ * Recursively copy Mods/AppDataBG3Root contents to BG3 app-data destination.
+ * @param {string} appDataBg3RootPath - Source path (BG3AFR/Mods/AppDataBG3Root).
+ * @param {string} bg3ModsFolderPath - Destination path from settings.json (bg3ModsFolderPath).
+ * @returns {Promise<object>} Status object with copied files list.
  */
 async function copyAppDataBG3RootToModsPath(appDataBg3RootPath, bg3ModsFolderPath) {
 	if (!fs.existsSync(appDataBg3RootPath)) {
@@ -265,19 +142,16 @@ async function copyAppDataBG3RootToModsPath(appDataBg3RootPath, bg3ModsFolderPat
 	if (!bg3ModsFolderPath || typeof bg3ModsFolderPath !== 'string') {
 		return {
 			success: false,
-			message: 'BG3 Mods/AppData destination path is not configured.',
+			message: 'BG3 app-data destination path is not configured.',
 		};
 	}
 
 	try {
 		console.log(`[AppDataCopy] Starting recursive copy from ${appDataBg3RootPath} to ${bg3ModsFolderPath}`);
 		const copiedFiles = await copyDirectoryRecursive(appDataBg3RootPath, bg3ModsFolderPath);
-
-		console.log(`[AppDataCopy] Copy complete. Total files copied: ${copiedFiles.length}`);
-
 		return {
 			success: true,
-			message: `Successfully copied ${copiedFiles.length} files from AppDataBG3Root to BG3 AppData path`,
+			message: `Successfully copied ${copiedFiles.length} files from AppDataBG3Root to BG3 app-data path`,
 			copiedCount: copiedFiles.length,
 			copiedFiles,
 		};
@@ -290,6 +164,7 @@ async function copyAppDataBG3RootToModsPath(appDataBg3RootPath, bg3ModsFolderPat
 	}
 }
 
-module.exports = new CopyModsQueue();
-module.exports.copyGamerootToInstallPath = copyGamerootToInstallPath;
-module.exports.copyAppDataBG3RootToModsPath = copyAppDataBG3RootToModsPath;
+module.exports = {
+	copyGamerootToInstallPath,
+	copyAppDataBG3RootToModsPath,
+};

@@ -4,8 +4,29 @@ const { createReadStream, createWriteStream } = require('fs');
 const { pipeline } = require('stream/promises');
 
 const downloadsDirPath = path.join(__dirname, '..', '..', 'Downloads');
+const modsRootPath = path.join(__dirname, '..', '..', 'Mods');
 const modsDirPath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root', 'Mods');
 const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+
+function resolveModContentPath(relativePath) {
+	if (typeof relativePath !== 'string' || !relativePath.trim()) {
+		return null;
+	}
+
+	const normalizedRelativePath = path.normalize(relativePath.trim());
+	if (normalizedRelativePath.includes('..') || path.isAbsolute(normalizedRelativePath)) {
+		return null;
+	}
+
+	const lowerRelativePath = normalizedRelativePath.toLowerCase();
+	const isGamerootPath = lowerRelativePath === 'gameroot' || lowerRelativePath.startsWith(`gameroot${path.sep}`);
+
+	if (isGamerootPath) {
+		return path.join(modsRootPath, normalizedRelativePath);
+	}
+
+	return path.join(modsDirPath, normalizedRelativePath);
+}
 
 function isValidZipFile(filename) {
 	if (typeof filename !== 'string') {
@@ -212,9 +233,19 @@ async function extractModArchive(modArchiveFilename) {
 				modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
 				if (modEntry && modEntry.isNotPak === true) {
 					isNotPakMod = true;
-					// If isNotPak is true and contentTo is specified, extract to Mods/{contentTo}
+					// If isNotPak is true and contentTo is specified, resolve target folder.
+					// gameroot* paths go to ./Mods/gameroot; all others go under ./Mods/AppDataBG3Root/Mods.
 					if (modEntry.contentTo) {
-						extractionTargetPath = path.join(modsDirPath, modEntry.contentTo);
+						const resolvedContentPath = resolveModContentPath(modEntry.contentTo);
+						if (!resolvedContentPath) {
+							return Promise.resolve({
+								success: false,
+								archiveFilename: modArchiveFilename,
+								message: `Mod "${modEntry.ModName || modArchiveFilename}" has an invalid contentTo path.`,
+								isNotPak: true,
+							});
+						}
+						extractionTargetPath = resolvedContentPath;
 					} else {
 						return Promise.resolve({
 							success: false,
@@ -235,7 +266,15 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Check if fileToCheck exists for isNotPak mods
 	if (isNotPakMod && modEntry && modEntry.fileToCheck) {
-		const fileToCheckPath = path.join(modsDirPath, modEntry.fileToCheck);
+		const fileToCheckPath = resolveModContentPath(modEntry.fileToCheck);
+		if (!fileToCheckPath) {
+			return Promise.resolve({
+				success: false,
+				archiveFilename: modArchiveFilename,
+				message: `Mod "${modEntry.ModName || modArchiveFilename}" has an invalid fileToCheck path.`,
+				isNotPak: true,
+			});
+		}
 		if (fs.existsSync(fileToCheckPath)) {
 			return Promise.resolve({
 				success: true,

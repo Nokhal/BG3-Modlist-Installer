@@ -1529,7 +1529,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			let appDataCopiedCount = 0;
 			try {
-				const installResponse = await fetch('/api/copy-mod-pak', {
+				const installResponse = await fetch('/api/copy-appdata-to-mods', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
