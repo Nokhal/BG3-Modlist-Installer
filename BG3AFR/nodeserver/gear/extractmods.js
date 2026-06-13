@@ -4,7 +4,7 @@ const { createReadStream, createWriteStream } = require('fs');
 const { pipeline } = require('stream/promises');
 
 const downloadsDirPath = path.join(__dirname, '..', '..', 'Downloads');
-const modsDirPath = path.join(__dirname, '..', '..', 'Mods');
+const modsDirPath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root', 'Mods');
 const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
 
 function isValidZipFile(filename) {

@@ -35,7 +35,7 @@ function getBg3ModsFolderPath() {
 		throw new Error('LOCALAPPDATA is not set on this machine.');
 	}
 
-	return toWindowsStylePath(path.join(localAppData, 'Larian Studios', "Baldur's Gate 3", 'Mods'));
+	return toWindowsStylePath(path.join(localAppData, 'Larian Studios', "Baldur's Gate 3"));
 }
 
 function ensureBg3ModsFolderExists() {
