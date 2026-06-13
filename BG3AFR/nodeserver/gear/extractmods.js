@@ -4,8 +4,29 @@ const { createReadStream, createWriteStream } = require('fs');
 const { pipeline } = require('stream/promises');
 
 const downloadsDirPath = path.join(__dirname, '..', '..', 'Downloads');
-const modsDirPath = path.join(__dirname, '..', '..', 'Mods');
+const modsRootPath = path.join(__dirname, '..', '..', 'Mods');
+const modsDirPath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root', 'Mods');
 const modToInstallListPath = path.join(__dirname, '..', '..', 'modToInstallList.json');
+
+function resolveModContentPath(relativePath) {
+	if (typeof relativePath !== 'string' || !relativePath.trim()) {
+		return null;
+	}
+
+	const normalizedRelativePath = path.normalize(relativePath.trim());
+	if (normalizedRelativePath.includes('..') || path.isAbsolute(normalizedRelativePath)) {
+		return null;
+	}
+
+	const lowerRelativePath = normalizedRelativePath.toLowerCase();
+	const isGamerootPath = lowerRelativePath === 'gameroot' || lowerRelativePath.startsWith(`gameroot${path.sep}`);
+
+	if (isGamerootPath) {
+		return path.join(modsRootPath, normalizedRelativePath);
+	}
+
+	return path.join(modsDirPath, normalizedRelativePath);
+}
 
 function isValidZipFile(filename) {
 	if (typeof filename !== 'string') {
@@ -37,8 +58,23 @@ function isValidRarFile(filename) {
 	return normalized.toLowerCase().endsWith('.rar');
 }
 
+function isValid7zFile(filename) {
+	if (typeof filename !== 'string') {
+		return false;
+	}
+
+	const normalized = path.normalize(filename);
+
+	// Prevent directory traversal
+	if (normalized.includes('..') || path.isAbsolute(normalized)) {
+		return false;
+	}
+
+	return normalized.toLowerCase().endsWith('.7z');
+}
+
 function isValidArchiveFile(filename) {
-	return isValidZipFile(filename) || isValidRarFile(filename);
+	return isValidZipFile(filename) || isValidRarFile(filename) || isValid7zFile(filename);
 }
 
 function findPakFiles(dirPath, baseDir = dirPath) {
@@ -167,7 +203,7 @@ function isPakFileAlreadyExtracted(modArchiveFilename) {
 
 async function extractModArchive(modArchiveFilename) {
 	if (!isValidArchiveFile(modArchiveFilename)) {
-		throw new Error('Invalid archive filename: must be a .zip or .rar file without path traversal.');
+		throw new Error('Invalid archive filename: must be a .zip, .rar, or .7z file without path traversal.');
 	}
 
 	const archivePath = path.join(downloadsDirPath, modArchiveFilename);
@@ -212,9 +248,19 @@ async function extractModArchive(modArchiveFilename) {
 				modEntry = data.ModList.find((mod) => mod.filename === modArchiveFilename);
 				if (modEntry && modEntry.isNotPak === true) {
 					isNotPakMod = true;
-					// If isNotPak is true and contentTo is specified, extract to Mods/{contentTo}
+					// If isNotPak is true and contentTo is specified, resolve target folder.
+					// gameroot* paths go to ./Mods/gameroot; all others go under ./Mods/AppDataBG3Root/Mods.
 					if (modEntry.contentTo) {
-						extractionTargetPath = path.join(modsDirPath, modEntry.contentTo);
+						const resolvedContentPath = resolveModContentPath(modEntry.contentTo);
+						if (!resolvedContentPath) {
+							return Promise.resolve({
+								success: false,
+								archiveFilename: modArchiveFilename,
+								message: `Mod "${modEntry.ModName || modArchiveFilename}" has an invalid contentTo path.`,
+								isNotPak: true,
+							});
+						}
+						extractionTargetPath = resolvedContentPath;
 					} else {
 						return Promise.resolve({
 							success: false,
@@ -235,7 +281,15 @@ async function extractModArchive(modArchiveFilename) {
 
 	// Check if fileToCheck exists for isNotPak mods
 	if (isNotPakMod && modEntry && modEntry.fileToCheck) {
-		const fileToCheckPath = path.join(modsDirPath, modEntry.fileToCheck);
+		const fileToCheckPath = resolveModContentPath(modEntry.fileToCheck);
+		if (!fileToCheckPath) {
+			return Promise.resolve({
+				success: false,
+				archiveFilename: modArchiveFilename,
+				message: `Mod "${modEntry.ModName || modArchiveFilename}" has an invalid fileToCheck path.`,
+				isNotPak: true,
+			});
+		}
 		if (fs.existsSync(fileToCheckPath)) {
 			return Promise.resolve({
 				success: true,
@@ -248,12 +302,94 @@ async function extractModArchive(modArchiveFilename) {
 	}
 
 	// Determine file type and extract accordingly
+	const is7zFile = isValid7zFile(modArchiveFilename);
 	const isRarFile = isValidRarFile(modArchiveFilename);
 
-	if (isRarFile) {
+	if (is7zFile) {
+		return extract7zArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry);
+	} else if (isRarFile) {
 		return extractRarArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry);
 	} else {
 		return extractZipArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry);
+	}
+}
+
+async function extract7zArchive(realArchivePath, modArchiveFilename, extractionTargetPath, isNotPakMod, modEntry) {
+	try {
+		const Seven = require('node-7z');
+		const { path7za } = require('7zip-bin');
+
+		console.log(`[Extract] Starting extraction of 7z: ${modArchiveFilename}`);
+		console.log(`[Extract] Target directory: ${extractionTargetPath}`);
+
+		if (!fs.existsSync(extractionTargetPath)) {
+			fs.mkdirSync(extractionTargetPath, { recursive: true });
+		}
+
+		const extractedFiles = [];
+		const pakCandidates = [];
+
+		await new Promise((resolve, reject) => {
+			const extractStream = Seven.extractFull(realArchivePath, extractionTargetPath, {
+				$bin: path7za,
+				$progress: true,
+			});
+
+			extractStream.on('data', (entry) => {
+				if (!entry || typeof entry.file !== 'string') {
+					return;
+				}
+
+				const normalizedFileName = path.normalize(entry.file);
+				if (normalizedFileName.includes('..') || path.isAbsolute(normalizedFileName)) {
+					return;
+				}
+
+				extractedFiles.push(normalizedFileName);
+				if (normalizedFileName.toLowerCase().endsWith('.pak')) {
+					pakCandidates.push(normalizedFileName);
+				}
+			});
+
+			extractStream.on('end', resolve);
+			extractStream.on('error', reject);
+		});
+
+		console.log(`[Extract] Extracted files from ${modArchiveFilename}:`);
+		extractedFiles.forEach((file) => {
+			console.log(`[Extract]   - ${file}`);
+		});
+
+		if (!isNotPakMod) {
+			const pakFileName = resolveExtractedPakFromCandidates(pakCandidates);
+
+			if (pakFileName) {
+				updateModToInstallListWithPakFile(modArchiveFilename, pakFileName);
+			}
+
+			return {
+				success: true,
+				archiveFilename: modArchiveFilename,
+				extractedTo: extractionTargetPath,
+				entriesExtracted: extractedFiles.length,
+				pakfile: pakFileName,
+			};
+		}
+
+		return {
+			success: true,
+			archiveFilename: modArchiveFilename,
+			extractedTo: extractionTargetPath,
+			entriesExtracted: extractedFiles.length,
+			isNotPak: true,
+			message: 'Extracted to Mods folder as isNotPak mod.',
+		};
+	} catch (error) {
+		if (error.code === 'MODULE_NOT_FOUND') {
+			throw new Error('Failed to extract 7z archive: missing dependencies "node-7z" and/or "7zip-bin". Run npm install node-7z 7zip-bin in nodeserver.');
+		}
+
+		throw new Error(`Failed to extract 7z archive: ${error.message}`);
 	}
 }
 
@@ -419,6 +555,7 @@ async function extractRarArchive(realArchivePath, modArchiveFilename, extraction
 module.exports = {
 	isValidZipFile,
 	isValidRarFile,
+	isValid7zFile,
 	isValidArchiveFile,
 	extractModArchive,
 };

@@ -1514,72 +1514,45 @@ document.addEventListener('DOMContentLoaded', () => {
 	startInstallFilesButton.addEventListener('click', async () => {
 		startInstallFilesButton.disabled = true;
 		startInstallFilesButton.hidden = true;
-		installFilesStatus.textContent = 'Loading extracted mods list...';
+		installFilesStatus.textContent = 'Preparing recursive install copy...';
 		installProgress.hidden = false;
 		installList.innerHTML = '';
 		toggleInstallListButton.hidden = true;
 
 		try {
-			const modListResponse = await fetch('/api/modiolist', { method: 'GET', cache: 'no-store' });
-			const modListPayload = await modListResponse.json();
+			installFilesStatus.textContent = 'Copying AppDataBG3Root recursively...';
 
-			if (!modListResponse.ok || !modListPayload.success) {
-				throw new Error(modListPayload.message || 'Failed to load mod list.');
-			}
+			const appDataCopyListItem = document.createElement('li');
+			appDataCopyListItem.textContent = 'AppDataBG3Root - Installing...';
+			appDataCopyListItem.id = 'install-item-appdatabg3root';
+			installList.appendChild(appDataCopyListItem);
 
-			const modList = modListPayload.modioList.ModList;
+			let appDataCopiedCount = 0;
+			try {
+				const installResponse = await fetch('/api/copy-appdata-to-mods', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({}),
+				});
 
-			// Filter to only mods with pak files
-			const modsToInstall = modList.filter((mod) => mod.pakfile);
+				const installPayload = await installResponse.json();
 
-			if (modsToInstall.length === 0) {
-				installFilesStatus.textContent = 'No mod files to install.';
-				return;
-			}
-
-			installFilesStatus.textContent = `Starting installation of ${modsToInstall.length} mod files...`;
-
-			let successCount = 0;
-			let failureCount = 0;
-
-			for (const mod of modsToInstall) {
-				const modName = mod.ModName || 'Unknown Mod';
-				const pakfile = mod.pakfile || 'Unknown';
-				const listItem = document.createElement('li');
-				listItem.textContent = `${modName} - Installing...`;
-				listItem.id = `install-item-${modName.replace(/[^a-z0-9]/gi, '_')}`;
-				installList.appendChild(listItem);
-
-				try {
-					const installResponse = await fetch('/api/copy-mod-pak', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({
-							filename: pakfile,
-						}),
-					});
-
-					const installPayload = await installResponse.json();
-
-					if (!installResponse.ok || !installPayload.success) {
-						throw new Error(installPayload.message || 'Installation failed.');
-					}
-
-					const isAlreadyQueued = installPayload.alreadyQueued;
-					const statusText = isAlreadyQueued ? '⏳ Already queued' : '✓ Copied and ready to load';
-					listItem.textContent = `${modName} - ${statusText} (${pakfile})`;
-					listItem.style.color = 'green';
-					successCount += 1;
-				} catch (error) {
-					listItem.textContent = `${modName} - ✗ Failed: ${error.message}`;
-					listItem.style.color = 'red';
-					failureCount += 1;
+				if (!installResponse.ok || !installPayload.success) {
+					throw new Error(installPayload.message || 'Recursive installation copy failed.');
 				}
+
+				appDataCopiedCount = installPayload.copiedCount || 0;
+				appDataCopyListItem.textContent = `✓ AppDataBG3Root - Copied ${appDataCopiedCount} files to BG3 AppData folder`;
+				appDataCopyListItem.style.color = 'green';
+			} catch (error) {
+				appDataCopyListItem.textContent = `✗ AppDataBG3Root - Failed: ${error.message}`;
+				appDataCopyListItem.style.color = 'red';
+				throw error;
 			}
 
-			installFilesStatus.textContent = `Installation queue complete. Queued: ${successCount}, Failed: ${failureCount}.`;
+			installFilesStatus.textContent = `Installation copy complete. AppDataBG3Root files copied: ${appDataCopiedCount}.`;
 
 			// Now copy gameroot content as a final substep
 			installFilesStatus.textContent += ' | Copying gameroot files...';
@@ -1605,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gamerootListItem.style.color = 'green';
 				installList.appendChild(gamerootListItem);
 
-				installFilesStatus.textContent = `Installation complete. Queued: ${successCount}, Failed: ${failureCount}. Gameroot files copied: ${copiedCount}.`;
+				installFilesStatus.textContent = `Installation complete. AppDataBG3Root files copied: ${appDataCopiedCount}. Gameroot files copied: ${copiedCount}.`;
 			} catch (error) {
 				const gamerootListItem = document.createElement('li');
 				gamerootListItem.textContent = `✗ Gameroot files - Failed: ${error.message}`;
@@ -1613,7 +1586,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gamerootListItem.style.color = 'red';
 				installList.appendChild(gamerootListItem);
 
-				installFilesStatus.textContent = `Installation complete. Queued: ${successCount}, Failed: ${failureCount}. Gameroot copy failed: ${error.message}`;
+				installFilesStatus.textContent = `Installation complete. AppDataBG3Root files copied: ${appDataCopiedCount}. Gameroot copy failed: ${error.message}`;
 			}
 
 			// Mark the install task as checked
