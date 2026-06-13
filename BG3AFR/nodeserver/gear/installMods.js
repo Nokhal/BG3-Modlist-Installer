@@ -248,5 +248,48 @@ async function copyGamerootToInstallPath(modsGamerootPath, bg3InstallPath) {
 	}
 }
 
+/**
+ * Recursively copy Mods/AppDataBG3Root contents to BG3 AppData root path.
+ * @param {string} appDataBg3RootPath - Source path (BG3AFR/Mods/AppDataBG3Root)
+ * @param {string} bg3ModsFolderPath - Destination path from settings.json (bg3ModsFolderPath)
+ * @returns {Promise<object>} Status object with copied files list
+ */
+async function copyAppDataBG3RootToModsPath(appDataBg3RootPath, bg3ModsFolderPath) {
+	if (!fs.existsSync(appDataBg3RootPath)) {
+		return {
+			success: false,
+			message: `Source AppDataBG3Root directory not found at: ${appDataBg3RootPath}`,
+		};
+	}
+
+	if (!bg3ModsFolderPath || typeof bg3ModsFolderPath !== 'string') {
+		return {
+			success: false,
+			message: 'BG3 Mods/AppData destination path is not configured.',
+		};
+	}
+
+	try {
+		console.log(`[AppDataCopy] Starting recursive copy from ${appDataBg3RootPath} to ${bg3ModsFolderPath}`);
+		const copiedFiles = await copyDirectoryRecursive(appDataBg3RootPath, bg3ModsFolderPath);
+
+		console.log(`[AppDataCopy] Copy complete. Total files copied: ${copiedFiles.length}`);
+
+		return {
+			success: true,
+			message: `Successfully copied ${copiedFiles.length} files from AppDataBG3Root to BG3 AppData path`,
+			copiedCount: copiedFiles.length,
+			copiedFiles,
+		};
+	} catch (error) {
+		console.error('[AppDataCopy] Error during copy:', error.message);
+		return {
+			success: false,
+			message: `Error copying AppDataBG3Root: ${error.message}`,
+		};
+	}
+}
+
 module.exports = new CopyModsQueue();
 module.exports.copyGamerootToInstallPath = copyGamerootToInstallPath;
+module.exports.copyAppDataBG3RootToModsPath = copyAppDataBG3RootToModsPath;

@@ -472,19 +472,10 @@ router.get('/api/download-nexus-queue/events', (req, res) => {
 	});
 });
 
-router.post('/api/copy-mod-pak', (req, res) => {
+router.post('/api/copy-mod-pak', async (req, res) => {
 	try {
-		const filename = typeof req.body?.filename === 'string' ? req.body.filename.trim() : '';
-
-		if (!filename) {
-			return res.status(400).json({
-				success: false,
-				message: 'Please provide a filename.',
-			});
-		}
-
-		// Get the mods folder path and BG3 destination path
-		const modsSourcePath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root');
+		// Copy full AppDataBG3Root recursively into bg3ModsFolderPath
+		const appDataBg3RootPath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root');
 		const settingsFilePath = path.join(__dirname, '..', '..', 'settings.json');
 		
 		let modsDestinationPath = null;
@@ -501,7 +492,7 @@ router.post('/api/copy-mod-pak', (req, res) => {
 			});
 		}
 
-		const result = installModsQueue.addToQueue(filename, modsSourcePath, modsDestinationPath);
+		const result = await installModsQueue.copyAppDataBG3RootToModsPath(appDataBg3RootPath, modsDestinationPath);
 
 		return res.json({
 			success: result.success,
