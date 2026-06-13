@@ -394,7 +394,7 @@
       "filename": "witherswondrouswares_263f6f94-fgpj.zip",
       "source": "mod.io",
       "pakfile": "WithersWondrousWares_263f6f94-043e-61b6-e34d-bb378fb0a783.pak"
-    },
+    },    
     {
       "ModName": "Mizora's Human Form Restored - Complete Immersion",
       "ModPage": "https://mod.io/g/baldursgate3/m/mizorahumanformwyrmcrossingonly",
@@ -910,6 +910,18 @@
       "source": "rpghq.org"
     },
     {
+      "ModName": "  Realms Restored - Mizora 1.0 - Core",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=366418-realms-restored-mizora-1-0-baldur-s-gate-3",
+      "DLLink": "https://f.rpghq.org/jmJQfqYDMrR8.zip?n=RealmsRestored_Mizora_ALT-v1.0.zip",
+      "source": "rpghq.org"
+    },
+    {
+      "ModName": "  Realms Restored - Mizora 1.0 - Core",
+      "ModPage": "https://rpghq.org/forums/viewtopic.php?p=366418-realms-restored-mizora-1-0-baldur-s-gate-3",
+      "DLLink": "https://f.rpghq.org/jmJQfqYDMrR8.zip?n=RealmsRestored_Mizora_ALT-v1.0.zip",
+      "source": "rpghq.org"
+    },
+    {
       "ModName": "Script Extender",
       "ModPage": "https://github.com/Norbyte/bg3se/releases",
       "DLLink": "https://github.com/Norbyte/bg3se/releases/download/v31/BG3SE-Updater-20260417.zip",
@@ -1004,7 +1016,25 @@
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/279",
       "source": "nexusmods.com",
       "NexusFileId": 123120
-    }
+    },
+    {
+      "ModName": "Scantily Camp Outfit - Manager",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2617",
+      "source": "nexusmods.com",
+      "NexusFileId": 80670
+    },
+    {
+      "ModName": "Scantily Mizora - Outfit Replacer - E",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/13782",
+      "source": "nexusmods.com",
+      "NexusFileId": 78862
+    },
+    {
+      "ModName": "Vemperen's Other Heads Repaired",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2226",
+      "source": "nexusmods.com",
+      "NexusFileId": 49893
+    },
   ],
   "localFilesToCopyArray": [
     {
