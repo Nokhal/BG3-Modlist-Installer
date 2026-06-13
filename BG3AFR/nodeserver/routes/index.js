@@ -484,7 +484,7 @@ router.post('/api/copy-mod-pak', (req, res) => {
 		}
 
 		// Get the mods folder path and BG3 destination path
-		const modsSourcePath = path.join(__dirname, '..', '..', 'Mods');
+		const modsSourcePath = path.join(__dirname, '..', '..', 'Mods', 'AppDataBG3Root');
 		const settingsFilePath = path.join(__dirname, '..', '..', 'settings.json');
 		
 		let modsDestinationPath = null;
