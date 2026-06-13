@@ -348,14 +348,6 @@
       "pakfile": "Scratch_And_Shovel_78753062-b430-4cbf-9e5a-4c3a87cf224a.pak"
     },
     {
-      "ModName": "Night With Drow (Minthara Romance Alternative)",
-      "ModPage": "https://mod.io/g/baldursgate3/m/nightwithdrow",
-      "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4907118/files/6323796/download",
-      "filename": "noraidneeded_fe880b6e-1fd9-943-2dxz.zip",
-      "source": "mod.io",
-      "pakfile": "NoRaidNeeded_fe880b6e-1fd9-9439-be76-13aafa71ec40.pak"
-    },
-    {
       "ModName": "Fade's Equipment Distribution AIO",
       "ModPage": "https://mod.io/g/baldursgate3/m/fades-equipment-distribution-aio",
       "DLLink": "https://g-6715.modapi.io/v1/games/6715/mods/4918115/files/7728625/download",
@@ -1081,6 +1073,18 @@
       "NexusFileId": 89186,
       "filename": "Sweet_Karlach_BodyType1-14977-1-0-0-28-1744801538.zip",
       "pakfile": "Karlach_Regular_181dfdc5-abc2-f04f-5be9-72141e230d23.pak"
+    },  
+    {
+      "ModName": "A Beautiful Webbing - Minthara's Romance Scene Unlocked",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/18685",
+      "source": "nexusmods.com",
+      "NexusFileId": 115334
+    },  
+    {
+      "ModName": "Halsin Minthara Confrontation CFM Workaround - Persuasion",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/14090",
+      "source": "nexusmods.com",
+      "NexusFileId": 85587
     }
   ],
   "localFilesToCopyArray": [
