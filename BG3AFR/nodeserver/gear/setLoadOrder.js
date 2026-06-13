@@ -40,7 +40,7 @@ async function setLoadOrder(modToInstallListPath, settingsPath) {
 		}
 
 		// Construct path to modsettings.lsx
-		const modSettingsPath = path.join(settings.bg3ModsFolderPath, '..', 'PlayerProfiles', 'Public', 'modsettings.lsx');
+		const modSettingsPath = path.join(settings.bg3ModsFolderPath, 'PlayerProfiles', 'Public', 'modsettings.lsx');
 
 		// Read and parse modToInstallList.json
 		const raw = fs.readFileSync(modToInstallListPath, 'utf8');
