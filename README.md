@@ -35,7 +35,6 @@ The structure of a modlist is as follows:
       "fileToCheck": "Optional - the path of a unique file extracted from the mod archive to avoid re-extracting"
     }
   ],
-  "localFilesToCopyArray": "Leave it like in the example to force the download of scriptExtender V32, required by certain mods",
   "modsettingslsxBase64": "See Instructions below"
 }
 ```
