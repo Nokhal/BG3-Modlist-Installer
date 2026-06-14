@@ -20,8 +20,9 @@ function resolveModContentPath(relativePath) {
 
 	const lowerRelativePath = normalizedRelativePath.toLowerCase();
 	const isGamerootPath = lowerRelativePath === 'gameroot' || lowerRelativePath.startsWith(`gameroot${path.sep}`);
+	const isAppDataRootPath = lowerRelativePath === 'appdatabg3root' || lowerRelativePath.startsWith(`appdatabg3root${path.sep}`);
 
-	if (isGamerootPath) {
+	if (isGamerootPath || isAppDataRootPath) {
 		return path.join(modsRootPath, normalizedRelativePath);
 	}
 
