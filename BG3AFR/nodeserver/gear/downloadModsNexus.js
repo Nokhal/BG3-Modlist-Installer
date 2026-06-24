@@ -246,26 +246,35 @@ async function downloadModFromNexus(options) {
 		const modInfo = await getNexusModInfo(apiKey, modId);
 		const modName = modInfo.name || `Mod_${modId}`;
 
+		// Get list of files to find the proper filename
+		const files = await getNexusModFiles(apiKey, modId);
+		
+		if (!files || files.length === 0) {
+			throw new Error('No files found for this mod');
+		}
+
 		// Get or find file ID
 		let targetFileId = fileId;
+		let targetFile = null;
+
 		if (!targetFileId) {
-			// Get list of files and use the primary one
-			const files = await getNexusModFiles(apiKey, modId);
-			
-			if (!files || files.length === 0) {
-				throw new Error('No files found for this mod');
-			}
-
 			// Find the primary file (marked as is_primary or MAIN category)
-			const primaryFile = files.find(f => f.is_primary) ||
-								 files.find(f => f.category_name === 'MAIN') ||
-								 files[0];
+			targetFile = files.find(f => f.is_primary) ||
+						 files.find(f => f.category_name === 'MAIN') ||
+						 files[0];
 
-			if (!primaryFile) {
+			if (!targetFile) {
 				throw new Error('Could not determine which file to download');
 			}
 
-			targetFileId = primaryFile.file_id;
+			targetFileId = targetFile.file_id;
+		} else {
+			// Find the file matching the provided fileId to get its proper filename
+			targetFile = files.find(f => f.file_id === fileId);
+			
+			if (!targetFile) {
+				throw new Error(`File ID ${fileId} not found in mod's file list`);
+			}
 		}
 
 		// Get download link
@@ -275,13 +284,9 @@ async function downloadModFromNexus(options) {
 			throw new Error('Failed to obtain download link');
 		}
 
-		// Extract filename from URI or use mod name
-		const uriPath = new URL(linkInfo.URI).pathname;
-		const fileNameFromUri = uriPath.split('/').pop() || `${modName}.zip`;
-		
-		// Decode URL-encoded filename
-		const decodedFileName = decodeURLFilename(fileNameFromUri);
-		const sanitizedForDownload = sanitizeFileName(decodedFileName);
+		// Use filename from file metadata (more reliable than extracting from URI)
+		const properFileName = targetFile.file_name || `${modName}.zip`;
+		const sanitizedForDownload = sanitizeFileName(properFileName);
 
 		// Check if file already exists before downloading
 		const potentialFilePath = path.join(downloadsDir, sanitizedForDownload);
@@ -299,8 +304,8 @@ async function downloadModFromNexus(options) {
 			};
 		}
 
-		// Download the file - use decoded filename
-		const downloadPath = await downloadFile(linkInfo.URI, decodedFileName);
+		// Download the file - use proper filename from metadata
+		const downloadPath = await downloadFile(linkInfo.URI, properFileName);
 
 		return {
 			success: true,

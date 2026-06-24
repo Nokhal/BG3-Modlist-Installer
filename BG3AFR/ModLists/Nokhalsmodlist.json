@@ -1,7 +1,7 @@
 {
   "Name": "Nokhal's Modlist",
   "Description": "Aesthetics, genderbent companions, lots more items, lots of QOL. Much easier than Vanilla",
-  "LastUpdated:": "2026-06-23",
+  "LastUpdated:": "2026-06-24",
   "ModList": [
     {
       "ModName": "FaerunColors",
@@ -1079,9 +1079,44 @@
       "ModName": "Druid Wild Shape Overhaul",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/1148",
       "source": "nexusmods.com",
-      "NexusFileId": 120941,
-      "filename": "Druid Wild Shape Overhaul-1148-1-1-0-5-1778461600.zip",
-      "pakfile": "DruidWildShapeOverhaul.pak"
+      "NexusFileId": 124127,
+      "filename": "DruidWildShapeOverhaul_1.1.1.5_xN1ZzndEN.zip"
+    },
+    {
+      "ModName": "Dark Urge Dice",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/1750",
+      "source": "nexusmods.com",
+      "NexusFileId": 12286
+    },
+    {
+      "ModName": "Distinctive Arrows of Slaying",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/20199",
+      "source": "nexusmods.com",
+      "NexusFileId": 109919
+    },    
+    {
+      "ModName": "EasyCheat with in-game UI (MCM)(SE)",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/9827",
+      "source": "nexusmods.com",
+      "NexusFileId": 119761
+    },
+    {
+      "ModName": "Enhanced World Tooltips",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
+      "source": "nexusmods.com",
+      "NexusFileId": 98596
+    },
+    {
+      "ModName": "Enhanced World Tooltips - Preview",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
+      "source": "nexusmods.com",
+      "NexusFileId": 98602
+    },    
+    {
+      "ModName": "Enhanced World Tooltips - Hide Looted",
+      "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
+      "source": "nexusmods.com",
+      "NexusFileId": 98601
     },
     {
       "ModName": "Goon's Library - Passives Functions Spells and More",
