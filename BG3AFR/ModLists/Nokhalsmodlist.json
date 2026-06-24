@@ -1080,43 +1080,56 @@
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/1148",
       "source": "nexusmods.com",
       "NexusFileId": 124127,
-      "filename": "DruidWildShapeOverhaul_1.1.1.5_xN1ZzndEN.zip"
+      "filename": "DruidWildShapeOverhaul_1.1.1.5_xN1ZzndEN.zip",
+      "pakfile": "DruidWildShapeOverhaul.pak"
     },
     {
       "ModName": "Dark Urge Dice",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/1750",
       "source": "nexusmods.com",
-      "NexusFileId": 12286
+      "NexusFileId": 12286,
+      "filename": "Dark Urge Dice-1750-1-0-0-1693548393.zip",
+      "pakfile": "DarkUrge.pak"
     },
     {
       "ModName": "Distinctive Arrows of Slaying",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/20199",
       "source": "nexusmods.com",
-      "NexusFileId": 109919
-    },    
+      "NexusFileId": 109919,
+      "filename": "Distinctive Arrows of Slaying-20199-1-1-0-0-1766167661.zip",
+      "pakfile": "ROX_Arrows_Slaying.pak"
+    },
     {
       "ModName": "EasyCheat with in-game UI (MCM)(SE)",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/9827",
       "source": "nexusmods.com",
-      "NexusFileId": 119761
+      "NexusFileId": 119761,
+      "filename": "EasyCheat 2.3.2-9827-2-3-2-1776989014.zip",
+      "pakfile": "EasyCheat.pak"
     },
     {
       "ModName": "Enhanced World Tooltips",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
       "source": "nexusmods.com",
-      "NexusFileId": 98596
+      "NexusFileId": 98596,
+      "filename": "Enhanced World Tooltips-2037-3-2-1753023855.zip",
+      "pakfile": "EnhancedWorldTooltips_b8efd00b-375b-5f97-e28f-c33d3ef7311a.pak"
     },
     {
       "ModName": "Enhanced World Tooltips - Preview",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
       "source": "nexusmods.com",
-      "NexusFileId": 98602
-    },    
+      "NexusFileId": 98602,
+      "filename": "Hide Looted - Preview-2037-3-2-1753023965.zip",
+      "pakfile": "EnhancedWorldTooltips_b8efd00b-375b-5f97-e28f-c33d3ef7311a.pak"
+    },
     {
       "ModName": "Enhanced World Tooltips - Hide Looted",
       "ModPage": "https://www.nexusmods.com/baldursgate3/mods/2037",
       "source": "nexusmods.com",
-      "NexusFileId": 98601
+      "NexusFileId": 98601,
+      "filename": "Hide Looted-2037-3-2-1753023946.zip",
+      "pakfile": "EnhancedWorldTooltips_b8efd00b-375b-5f97-e28f-c33d3ef7311a.pak"
     },
     {
       "ModName": "Goon's Library - Passives Functions Spells and More",
@@ -1415,7 +1428,7 @@
       "NexusFileId": 119004,
       "filename": "Compatibility Framework-1933-2-9-2-0-1776204205.zip",
       "pakfile": "CompatibilityFramework.pak"
-    },    
+    },
     {
       "ModName": "Justice For Nessa",
       "ModPage": "https://mod.io/g/baldursgate3/m/justice-for-nessa",
