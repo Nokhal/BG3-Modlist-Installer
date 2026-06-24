@@ -1340,14 +1340,14 @@
       "pakfile": "Always_Moonlight_Silver_a0b1e4c2-8419-14fc-78c0-a28ed807cc84.pak"
     },
     {
-      "ModName": "ExpansionConf",
+      "ModName": "ScriptExtenderModsConf",
       "ModPage": "https://mods.rpghq.org/Baldur%27s%20Gate%203/382377",
       "isNotPak": true,
       "contentTo": "AppDataBG3root",
       "fileToCheck": "AppDataBG3root//Script Extender//BG3MCM//Profiles//Default//Expansion//settings.json",
-      "DLLink": "https://rpghq.org/forums/api/mods/dl/4136",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/4138",
       "source": "rpghq.org",
-      "filename": "ExpansionConf.zip"
+      "filename": "ScriptExtenderModsConf.zip"
     },
     {
       "ModName": "Spell List Sorter",
