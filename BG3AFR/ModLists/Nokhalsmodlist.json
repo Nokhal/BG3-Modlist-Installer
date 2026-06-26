@@ -1,7 +1,7 @@
 {
   "Name": "Nokhal's Modlist",
-  "Description": "Aesthetics, genderbent companions, lots more items, lots of QOL. Much easier than Vanilla",
-  "LastUpdated:": "2026-06-25",
+  "Description": "Aesthetics realigned with original DnD lore. Corrected companion sex and appearance to match their personality. Lvl 20 by end of game. Extended party size. Lots more loot. Reworked class, spells and feats. Dark Urges mechanics in combat. Easier to recruit Minthara: knock her out in dialog during grove raid to knock her up later. Automatically save Alfira. All lootable and containers highlighted.",
+  "LastUpdated:": "2026-06-26",
   "ModList": [
     {
       "ModName": "FaerunColors",
@@ -1393,7 +1393,7 @@
       "isNotPak": true,
       "contentTo": "AppDataBG3root",
       "fileToCheck": "AppDataBG3root//Script Extender//BG3MCM//Profiles//Default//Expansion//settings.json",
-      "DLLink": "https://rpghq.org/forums/api/mods/dl/4138",
+      "DLLink": "https://rpghq.org/forums/api/mods/dl/4143",
       "source": "rpghq.org",
       "filename": "ScriptExtenderModsConf.zip"
     },
